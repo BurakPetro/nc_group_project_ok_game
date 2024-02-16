@@ -1,371 +1,450 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <title>OK PLAY</title>
-        <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
-        <style type="text/css">
-            body {
-                margin-top: 50px;
-                margin-left: 200px;
+  <head>
+    <meta charset="UTF-8" />
+    <title>OK PLAY</title>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
+    <style type="text/css">
+      body {
+        margin-top: 50px;
+        margin-left: 200px;
+      }
+    </style>
+  </head>
+  <body>
+    <script type="text/javascript">
+      class Example extends Phaser.Scene {
+        constructor() {
+          super();
+        }
+
+        preload() {
+          this.load.image("bg", "assets/background.png");
+          this.load.spritesheet("block6", "assets/pinktile.png", {
+            frameWidth: 30,
+            frameHeight: 30,
+          });
+          this.load.spritesheet("block3", "assets/redtile2.png", {
+            frameWidth: 30,
+            frameHeight: 30,
+          });
+          this.load.spritesheet("block2", "assets/greentile.png", {
+            frameWidth: 30,
+            frameHeight: 30,
+          });
+          this.load.spritesheet("block4", "assets/bluetile.png", {
+            frameWidth: 30,
+            frameHeight: 30,
+          });
+          this.load.spritesheet("block5", "assets/orangetile.png", {
+            frameWidth: 30,
+            frameHeight: 30,
+          });
+          this.load.spritesheet("block1", "assets/purpletile.png", {
+            frameWidth: 30,
+            frameHeight: 30,
+          });
+        }
+
+        create() {
+          this.add.image(600, 412, "bg");
+
+          //var color = txt.style.color;
+
+          this.add
+            .text(20, 340, "Player 1", {
+              color: "#1e1e1e",
+            })
+            .setFontSize(15);
+
+          //  target - need to be expanded
+          const target1 = this.add
+            .sprite(512, 288, "block6", 1)
+            .setOrigin(0, 0);
+          const target2 = this.add
+            .sprite(512, 320, "block6", 1)
+            .setOrigin(0, 0);
+          const target3 = this.add
+            .sprite(512, 352, "block6", 1)
+            .setOrigin(0, 0);
+          const target4 = this.add
+            .sprite(544, 288, "block6", 1)
+            .setOrigin(0, 0);
+          const target5 = this.add
+            .sprite(544, 320, "block6", 1)
+            .setOrigin(0, 0);
+          const ptarget6 = this.add
+            .sprite(544, 352, "block6", 1)
+            .setOrigin(0, 0);
+          const target7 = this.add
+            .sprite(576, 288, "block6", 1)
+            .setOrigin(0, 0);
+          const target8 = this.add
+            .sprite(576, 320, "block6", 1)
+            .setOrigin(0, 0);
+          const target9 = this.add
+            .sprite(576, 352, "block6", 1)
+            .setOrigin(0, 0);
+
+          //  player1 bloks
+          const player1block1 = this.add
+            .sprite(20, 20, "block1", 1)
+            .setOrigin(0, 0);
+          const player1block2 = this.add
+            .sprite(20, 60, "block1", 1)
+            .setOrigin(0, 0);
+          const player1block3 = this.add
+            .sprite(20, 100, "block1", 1)
+            .setOrigin(0, 0);
+          const player1block4 = this.add
+            .sprite(20, 140, "block1", 1)
+            .setOrigin(0, 0);
+          const player1block5 = this.add
+            .sprite(20, 180, "block1", 1)
+            .setOrigin(0, 0);
+          const player1block6 = this.add
+            .sprite(20, 220, "block1", 1)
+            .setOrigin(0, 0);
+          const player1block7 = this.add
+            .sprite(20, 260, "block1", 1)
+            .setOrigin(0, 0);
+          const player1block8 = this.add
+            .sprite(20, 300, "block1", 1)
+            .setOrigin(0, 0);
+          const player1block9 = this.add
+            .sprite(60, 20, "block1", 1)
+            .setOrigin(0, 0);
+          const player1block10 = this.add
+            .sprite(60, 60, "block1", 1)
+            .setOrigin(0, 0);
+          const player1block11 = this.add
+            .sprite(60, 100, "block1", 1)
+            .setOrigin(0, 0);
+          const player1block12 = this.add
+            .sprite(60, 140, "block1", 1)
+            .setOrigin(0, 0);
+          const player1block13 = this.add
+            .sprite(60, 180, "block1", 1)
+            .setOrigin(0, 0);
+          const player1block14 = this.add
+            .sprite(60, 220, "block1", 1)
+            .setOrigin(0, 0);
+          const player1block15 = this.add
+            .sprite(60, 260, "block1", 1)
+            .setOrigin(0, 0);
+          const player1block16 = this.add
+            .sprite(60, 300, "block1", 1)
+            .setOrigin(0, 0);
+
+          player1block1.setInteractive({ draggable: true });
+          player1block2.setInteractive({ draggable: true });
+          player1block3.setInteractive({ draggable: true });
+          player1block4.setInteractive({ draggable: true });
+          player1block5.setInteractive({ draggable: true });
+          player1block6.setInteractive({ draggable: true });
+          player1block7.setInteractive({ draggable: true });
+          player1block8.setInteractive({ draggable: true });
+          player1block9.setInteractive({ draggable: true });
+          player1block10.setInteractive({ draggable: true });
+          player1block11.setInteractive({ draggable: true });
+          player1block12.setInteractive({ draggable: true });
+          player1block13.setInteractive({ draggable: true });
+          player1block14.setInteractive({ draggable: true });
+          player1block15.setInteractive({ draggable: true });
+          player1block16.setInteractive({ draggable: true });
+
+          this.add
+            .text(1110, 340, "Player 2", {
+              color: "#1e1e1e",
+            })
+            .setFontSize(15);
+
+          //  player2 bloks
+          const player2block1 = this.add
+            .sprite(1110, 20, "block2", 1)
+            .setOrigin(0, 0);
+          const player2block2 = this.add
+            .sprite(1110, 60, "block2", 1)
+            .setOrigin(0, 0);
+          const player2block3 = this.add
+            .sprite(1110, 100, "block2", 1)
+            .setOrigin(0, 0);
+          const player2block4 = this.add
+            .sprite(1110, 140, "block2", 1)
+            .setOrigin(0, 0);
+          const player2block5 = this.add
+            .sprite(1110, 180, "block2", 1)
+            .setOrigin(0, 0);
+          const player2block6 = this.add
+            .sprite(1110, 220, "block2", 1)
+            .setOrigin(0, 0);
+          const player2block7 = this.add
+            .sprite(1110, 260, "block2", 1)
+            .setOrigin(0, 0);
+          const player2block8 = this.add
+            .sprite(1110, 300, "block2", 1)
+            .setOrigin(0, 0);
+          const player2block9 = this.add
+            .sprite(1150, 20, "block2", 1)
+            .setOrigin(0, 0);
+          const player2block10 = this.add
+            .sprite(1150, 60, "block2", 1)
+            .setOrigin(0, 0);
+          const player2block11 = this.add
+            .sprite(1150, 100, "block2", 1)
+            .setOrigin(0, 0);
+          const player2block12 = this.add
+            .sprite(1150, 140, "block2", 1)
+            .setOrigin(0, 0);
+          const player2block13 = this.add
+            .sprite(1150, 180, "block2", 1)
+            .setOrigin(0, 0);
+          const player2block14 = this.add
+            .sprite(1150, 220, "block2", 1)
+            .setOrigin(0, 0);
+          const player2block15 = this.add
+            .sprite(1150, 260, "block2", 1)
+            .setOrigin(0, 0);
+          const player2block16 = this.add
+            .sprite(1150, 300, "block2", 1)
+            .setOrigin(0, 0);
+
+          player2block1.setInteractive({ draggable: true });
+          player2block2.setInteractive({ draggable: true });
+          player2block3.setInteractive({ draggable: true });
+          player2block4.setInteractive({ draggable: true });
+          player2block5.setInteractive({ draggable: true });
+          player2block6.setInteractive({ draggable: true });
+          player2block7.setInteractive({ draggable: true });
+          player2block8.setInteractive({ draggable: true });
+          player2block9.setInteractive({ draggable: true });
+          player2block10.setInteractive({ draggable: true });
+          player2block11.setInteractive({ draggable: true });
+          player2block12.setInteractive({ draggable: true });
+          player2block13.setInteractive({ draggable: true });
+          player2block14.setInteractive({ draggable: true });
+          player2block15.setInteractive({ draggable: true });
+          player2block16.setInteractive({ draggable: true });
+
+          this.add
+            .text(1110, 475, "Player 3", {
+              color: "#1e1e1e",
+            })
+            .setFontSize(15);
+
+          //  player3 bloks
+          const player3block1 = this.add
+            .sprite(1110, 500, "block3", 1)
+            .setOrigin(0, 0);
+          const player3block2 = this.add
+            .sprite(1110, 540, "block3", 1)
+            .setOrigin(0, 0);
+          const player3block3 = this.add
+            .sprite(1110, 580, "block3", 1)
+            .setOrigin(0, 0);
+          const player3block4 = this.add
+            .sprite(1110, 620, "block3", 1)
+            .setOrigin(0, 0);
+          const player3block5 = this.add
+            .sprite(1110, 660, "block3", 1)
+            .setOrigin(0, 0);
+          const player3block6 = this.add
+            .sprite(1110, 700, "block3", 1)
+            .setOrigin(0, 0);
+          const player3block7 = this.add
+            .sprite(1110, 740, "block3", 1)
+            .setOrigin(0, 0);
+          const player3block8 = this.add
+            .sprite(1110, 780, "block3", 1)
+            .setOrigin(0, 0);
+          const player3block9 = this.add
+            .sprite(1150, 500, "block3", 1)
+            .setOrigin(0, 0);
+          const player3block10 = this.add
+            .sprite(1150, 540, "block3", 1)
+            .setOrigin(0, 0);
+          const player3block11 = this.add
+            .sprite(1150, 580, "block3", 1)
+            .setOrigin(0, 0);
+          const player3block12 = this.add
+            .sprite(1150, 620, "block3", 1)
+            .setOrigin(0, 0);
+          const player3block13 = this.add
+            .sprite(1150, 660, "block3", 1)
+            .setOrigin(0, 0);
+          const player3block14 = this.add
+            .sprite(1150, 700, "block3", 1)
+            .setOrigin(0, 0);
+          const player3block15 = this.add
+            .sprite(1150, 740, "block3", 1)
+            .setOrigin(0, 0);
+          const player3block16 = this.add
+            .sprite(1150, 780, "block3", 1)
+            .setOrigin(0, 0);
+
+          player3block1.setInteractive({ draggable: true });
+          player3block2.setInteractive({ draggable: true });
+          player3block3.setInteractive({ draggable: true });
+          player3block4.setInteractive({ draggable: true });
+          player3block5.setInteractive({ draggable: true });
+          player3block6.setInteractive({ draggable: true });
+          player3block7.setInteractive({ draggable: true });
+          player3block8.setInteractive({ draggable: true });
+          player3block9.setInteractive({ draggable: true });
+          player3block10.setInteractive({ draggable: true });
+          player3block11.setInteractive({ draggable: true });
+          player3block12.setInteractive({ draggable: true });
+          player3block13.setInteractive({ draggable: true });
+          player3block14.setInteractive({ draggable: true });
+          player3block15.setInteractive({ draggable: true });
+          player3block16.setInteractive({ draggable: true });
+
+          this.add
+            .text(20, 475, "Player 4", {
+              color: "#1e1e1e",
+            })
+            .setFontSize(15);
+
+          //  player4 bloks
+          const player4block1 = this.add
+            .sprite(20, 500, "block4", 1)
+            .setOrigin(0, 0);
+          const player4block2 = this.add
+            .sprite(20, 540, "block4", 1)
+            .setOrigin(0, 0);
+          const player4block3 = this.add
+            .sprite(20, 580, "block4", 1)
+            .setOrigin(0, 0);
+          const player4block4 = this.add
+            .sprite(20, 620, "block4", 1)
+            .setOrigin(0, 0);
+          const player4block5 = this.add
+            .sprite(20, 660, "block4", 1)
+            .setOrigin(0, 0);
+          const player4block6 = this.add
+            .sprite(20, 700, "block4", 1)
+            .setOrigin(0, 0);
+          const player4block7 = this.add
+            .sprite(20, 740, "block4", 1)
+            .setOrigin(0, 0);
+          const player4block8 = this.add
+            .sprite(20, 780, "block4", 1)
+            .setOrigin(0, 0);
+          const player4block9 = this.add
+            .sprite(60, 500, "block4", 1)
+            .setOrigin(0, 0);
+          const player4block10 = this.add
+            .sprite(60, 540, "block4", 1)
+            .setOrigin(0, 0);
+          const player4block11 = this.add
+            .sprite(60, 580, "block4", 1)
+            .setOrigin(0, 0);
+          const player4block12 = this.add
+            .sprite(60, 620, "block4", 1)
+            .setOrigin(0, 0);
+          const player4block13 = this.add
+            .sprite(60, 660, "block4", 1)
+            .setOrigin(0, 0);
+          const player4block14 = this.add
+            .sprite(60, 700, "block4", 1)
+            .setOrigin(0, 0);
+          const player4block15 = this.add
+            .sprite(60, 740, "block4", 1)
+            .setOrigin(0, 0);
+          const player4block16 = this.add
+            .sprite(60, 780, "block4", 1)
+            .setOrigin(0, 0);
+
+          player4block1.setInteractive({ draggable: true });
+          player4block2.setInteractive({ draggable: true });
+          player4block3.setInteractive({ draggable: true });
+          player4block4.setInteractive({ draggable: true });
+          player4block5.setInteractive({ draggable: true });
+          player4block6.setInteractive({ draggable: true });
+          player4block7.setInteractive({ draggable: true });
+          player4block8.setInteractive({ draggable: true });
+          player4block9.setInteractive({ draggable: true });
+          player4block10.setInteractive({ draggable: true });
+          player4block11.setInteractive({ draggable: true });
+          player4block12.setInteractive({ draggable: true });
+          player4block13.setInteractive({ draggable: true });
+          player4block14.setInteractive({ draggable: true });
+          player4block15.setInteractive({ draggable: true });
+          player4block16.setInteractive({ draggable: true });
+
+          this.input.on("drag", (pointer, gameObject, dragX, dragY) => {
+            dragX = Phaser.Math.Snap.To(dragX, 32);
+            dragY = Phaser.Math.Snap.To(dragY, 32);
+            gameObject.setPosition(dragX, dragY);
+          });
+
+          let over1 = false;
+          let over2 = false;
+          let over3 = false;
+          let over4 = false;
+          let over5 = false;
+          let over6 = false;
+          let over7 = false;
+          let over8 = false;
+          let over9 = false;
+
+          this.input.on("dragend", (pointer, gameObject) => {
+            const x = gameObject.x;
+            const y = gameObject.y;
+            if (x === 512 && y === 288 && !over1) {
+              over1 = true;
+              gameObject.setFrame(0);
+              gameObject.disableInteractive();
+            } else if (x === 512 && y === 320 && !over2) {
+              over2 = true;
+              gameObject.setFrame(0);
+              gameObject.disableInteractive();
+            } else if (x === 512 && y === 352 && !over3) {
+              over3 = true;
+              gameObject.setFrame(0);
+              gameObject.disableInteractive();
+            } else if (x === 544 && y === 288 && !over4) {
+              over3 = true;
+              gameObject.setFrame(0);
+              gameObject.disableInteractive();
+            } else if (x === 544 && y === 320 && !over5) {
+              over3 = true;
+              gameObject.setFrame(0);
+              gameObject.disableInteractive();
+            } else if (x === 544 && y === 352 && !over6) {
+              over3 = true;
+              gameObject.setFrame(0);
+              gameObject.disableInteractive();
+            } else if (x === 576 && y === 288 && !over7) {
+              over3 = true;
+              gameObject.setFrame(0);
+              gameObject.disableInteractive();
+            } else if (x === 576 && y === 320 && !over8) {
+              over3 = true;
+              gameObject.setFrame(0);
+              gameObject.disableInteractive();
+            } else if (x === 576 && y === 352 && !over9) {
+              over3 = true;
+              gameObject.setFrame(0);
+              gameObject.disableInteractive();
             }
-        </style>
-    </head>
-    <body>
-        <script type="text/javascript">
-            class Example extends Phaser.Scene {
-                constructor() {
-                    super();
-                }
+          });
+        }
+      }
 
-                preload() {
-                    this.load.image("bg", "assets/background.png");
-                    this.load.spritesheet("block6", "assets/pinktile.png", {
-                        frameWidth: 30,
-                        frameHeight: 30,
-                    });
-                    this.load.spritesheet("block3", "assets/redtile2.png", {
-                        frameWidth: 30,
-                        frameHeight: 30,
-                    });
-                    this.load.spritesheet("block2", "assets/greentile.png", {
-                        frameWidth: 30,
-                        frameHeight: 30,
-                    });
-                    this.load.spritesheet("block4", "assets/bluetile.png", {
-                        frameWidth: 30,
-                        frameHeight: 30,
-                    });
-                    this.load.spritesheet("block5", "assets/orangetile.png", {
-                        frameWidth: 30,
-                        frameHeight: 30,
-                    });
-                    this.load.spritesheet("block1", "assets/purpletile.png", {
-                        frameWidth: 30,
-                        frameHeight: 30,
-                    });
-                }
+      const config = {
+        type: Phaser.AUTO,
+        width: 1200,
+        height: 824,
+        parent: "phaser-example",
+        scene: Example,
+        physics: {
+          default: "arcade",
+          arcade: {},
+        },
+      };
 
-                create() {
-                    this.add.image(600, 412, "bg");
-
-                    //var color = txt.style.color;
-
-                    this.add
-                        .text(20, 340, "Player 1", {
-                            color: "#1e1e1e",
-                        })
-                        .setFontSize(15);
-
-                    //  player1 bloks
-                    const player1block1 = this.add
-                        .sprite(20, 20, "block1", 1)
-                        .setOrigin(0, 0);
-                    const player1block2 = this.add
-                        .sprite(20, 60, "block1", 1)
-                        .setOrigin(0, 0);
-                    const player1block3 = this.add
-                        .sprite(20, 100, "block1", 1)
-                        .setOrigin(0, 0);
-                    const player1block4 = this.add
-                        .sprite(20, 140, "block1", 1)
-                        .setOrigin(0, 0);
-                    const player1block5 = this.add
-                        .sprite(20, 180, "block1", 1)
-                        .setOrigin(0, 0);
-                    const player1block6 = this.add
-                        .sprite(20, 220, "block1", 1)
-                        .setOrigin(0, 0);
-                    const player1block7 = this.add
-                        .sprite(20, 260, "block1", 1)
-                        .setOrigin(0, 0);
-                    const player1block8 = this.add
-                        .sprite(20, 300, "block1", 1)
-                        .setOrigin(0, 0);
-                    const player1block9 = this.add
-                        .sprite(60, 20, "block1", 1)
-                        .setOrigin(0, 0);
-                    const player1block10 = this.add
-                        .sprite(60, 60, "block1", 1)
-                        .setOrigin(0, 0);
-                    const player1block11 = this.add
-                        .sprite(60, 100, "block1", 1)
-                        .setOrigin(0, 0);
-                    const player1block12 = this.add
-                        .sprite(60, 140, "block1", 1)
-                        .setOrigin(0, 0);
-                    const player1block13 = this.add
-                        .sprite(60, 180, "block1", 1)
-                        .setOrigin(0, 0);
-                    const player1block14 = this.add
-                        .sprite(60, 220, "block1", 1)
-                        .setOrigin(0, 0);
-                    const player1block15 = this.add
-                        .sprite(60, 260, "block1", 1)
-                        .setOrigin(0, 0);
-                    const player1block16 = this.add
-                        .sprite(60, 300, "block1", 1)
-                        .setOrigin(0, 0);
-
-                    player1block1.setInteractive({ draggable: true });
-                    player1block2.setInteractive({ draggable: true });
-                    player1block3.setInteractive({ draggable: true });
-                    player1block4.setInteractive({ draggable: true });
-                    player1block5.setInteractive({ draggable: true });
-                    player1block6.setInteractive({ draggable: true });
-                    player1block7.setInteractive({ draggable: true });
-                    player1block8.setInteractive({ draggable: true });
-                    player1block9.setInteractive({ draggable: true });
-                    player1block10.setInteractive({ draggable: true });
-                    player1block11.setInteractive({ draggable: true });
-                    player1block12.setInteractive({ draggable: true });
-                    player1block13.setInteractive({ draggable: true });
-                    player1block14.setInteractive({ draggable: true });
-                    player1block15.setInteractive({ draggable: true });
-                    player1block16.setInteractive({ draggable: true });
-
-                    this.add
-                        .text(1110, 340, "Player 2", {
-                            color: "#1e1e1e",
-                        })
-                        .setFontSize(15);
-
-                    //  player2 bloks
-                    const player2block1 = this.add
-                        .sprite(1110, 20, "block2", 1)
-                        .setOrigin(0, 0);
-                    const player2block2 = this.add
-                        .sprite(1110, 60, "block2", 1)
-                        .setOrigin(0, 0);
-                    const player2block3 = this.add
-                        .sprite(1110, 100, "block2", 1)
-                        .setOrigin(0, 0);
-                    const player2block4 = this.add
-                        .sprite(1110, 140, "block2", 1)
-                        .setOrigin(0, 0);
-                    const player2block5 = this.add
-                        .sprite(1110, 180, "block2", 1)
-                        .setOrigin(0, 0);
-                    const player2block6 = this.add
-                        .sprite(1110, 220, "block2", 1)
-                        .setOrigin(0, 0);
-                    const player2block7 = this.add
-                        .sprite(1110, 260, "block2", 1)
-                        .setOrigin(0, 0);
-                    const player2block8 = this.add
-                        .sprite(1110, 300, "block2", 1)
-                        .setOrigin(0, 0);
-                    const player2block9 = this.add
-                        .sprite(1150, 20, "block2", 1)
-                        .setOrigin(0, 0);
-                    const player2block10 = this.add
-                        .sprite(1150, 60, "block2", 1)
-                        .setOrigin(0, 0);
-                    const player2block11 = this.add
-                        .sprite(1150, 100, "block2", 1)
-                        .setOrigin(0, 0);
-                    const player2block12 = this.add
-                        .sprite(1150, 140, "block2", 1)
-                        .setOrigin(0, 0);
-                    const player2block13 = this.add
-                        .sprite(1150, 180, "block2", 1)
-                        .setOrigin(0, 0);
-                    const player2block14 = this.add
-                        .sprite(1150, 220, "block2", 1)
-                        .setOrigin(0, 0);
-                    const player2block15 = this.add
-                        .sprite(1150, 260, "block2", 1)
-                        .setOrigin(0, 0);
-                    const player2block16 = this.add
-                        .sprite(1150, 300, "block2", 1)
-                        .setOrigin(0, 0);
-
-                    player2block1.setInteractive({ draggable: true });
-                    player2block2.setInteractive({ draggable: true });
-                    player2block3.setInteractive({ draggable: true });
-                    player2block4.setInteractive({ draggable: true });
-                    player2block5.setInteractive({ draggable: true });
-                    player2block6.setInteractive({ draggable: true });
-                    player2block7.setInteractive({ draggable: true });
-                    player2block8.setInteractive({ draggable: true });
-                    player2block9.setInteractive({ draggable: true });
-                    player2block10.setInteractive({ draggable: true });
-                    player2block11.setInteractive({ draggable: true });
-                    player2block12.setInteractive({ draggable: true });
-                    player2block13.setInteractive({ draggable: true });
-                    player2block14.setInteractive({ draggable: true });
-                    player2block15.setInteractive({ draggable: true });
-                    player2block16.setInteractive({ draggable: true });
-
-                    this.add
-                        .text(1110, 475, "Player 3", {
-                            color: "#1e1e1e",
-                        })
-                        .setFontSize(15);
-
-                    //  player3 bloks
-                    const player3block1 = this.add
-                        .sprite(1110, 500, "block3", 1)
-                        .setOrigin(0, 0);
-                    const player3block2 = this.add
-                        .sprite(1110, 540, "block3", 1)
-                        .setOrigin(0, 0);
-                    const player3block3 = this.add
-                        .sprite(1110, 580, "block3", 1)
-                        .setOrigin(0, 0);
-                    const player3block4 = this.add
-                        .sprite(1110, 620, "block3", 1)
-                        .setOrigin(0, 0);
-                    const player3block5 = this.add
-                        .sprite(1110, 660, "block3", 1)
-                        .setOrigin(0, 0);
-                    const player3block6 = this.add
-                        .sprite(1110, 700, "block3", 1)
-                        .setOrigin(0, 0);
-                    const player3block7 = this.add
-                        .sprite(1110, 740, "block3", 1)
-                        .setOrigin(0, 0);
-                    const player3block8 = this.add
-                        .sprite(1110, 780, "block3", 1)
-                        .setOrigin(0, 0);
-                    const player3block9 = this.add
-                        .sprite(1150, 500, "block3", 1)
-                        .setOrigin(0, 0);
-                    const player3block10 = this.add
-                        .sprite(1150, 540, "block3", 1)
-                        .setOrigin(0, 0);
-                    const player3block11 = this.add
-                        .sprite(1150, 580, "block3", 1)
-                        .setOrigin(0, 0);
-                    const player3block12 = this.add
-                        .sprite(1150, 620, "block3", 1)
-                        .setOrigin(0, 0);
-                    const player3block13 = this.add
-                        .sprite(1150, 660, "block3", 1)
-                        .setOrigin(0, 0);
-                    const player3block14 = this.add
-                        .sprite(1150, 700, "block3", 1)
-                        .setOrigin(0, 0);
-                    const player3block15 = this.add
-                        .sprite(1150, 740, "block3", 1)
-                        .setOrigin(0, 0);
-                    const player3block16 = this.add
-                        .sprite(1150, 780, "block3", 1)
-                        .setOrigin(0, 0);
-
-                    player3block1.setInteractive({ draggable: true });
-                    player3block2.setInteractive({ draggable: true });
-                    player3block3.setInteractive({ draggable: true });
-                    player3block4.setInteractive({ draggable: true });
-                    player3block5.setInteractive({ draggable: true });
-                    player3block6.setInteractive({ draggable: true });
-                    player3block7.setInteractive({ draggable: true });
-                    player3block8.setInteractive({ draggable: true });
-                    player3block9.setInteractive({ draggable: true });
-                    player3block10.setInteractive({ draggable: true });
-                    player3block11.setInteractive({ draggable: true });
-                    player3block12.setInteractive({ draggable: true });
-                    player3block13.setInteractive({ draggable: true });
-                    player3block14.setInteractive({ draggable: true });
-                    player3block15.setInteractive({ draggable: true });
-                    player3block16.setInteractive({ draggable: true });
-
-                    this.add
-                        .text(20, 475, "Player 4", {
-                            color: "#1e1e1e",
-                        })
-                        .setFontSize(15);
-
-                    //  player4 bloks
-                    const player4block1 = this.add
-                        .sprite(20, 500, "block4", 1)
-                        .setOrigin(0, 0);
-                    const player4block2 = this.add
-                        .sprite(20, 540, "block4", 1)
-                        .setOrigin(0, 0);
-                    const player4block3 = this.add
-                        .sprite(20, 580, "block4", 1)
-                        .setOrigin(0, 0);
-                    const player4block4 = this.add
-                        .sprite(20, 620, "block4", 1)
-                        .setOrigin(0, 0);
-                    const player4block5 = this.add
-                        .sprite(20, 660, "block4", 1)
-                        .setOrigin(0, 0);
-                    const player4block6 = this.add
-                        .sprite(20, 700, "block4", 1)
-                        .setOrigin(0, 0);
-                    const player4block7 = this.add
-                        .sprite(20, 740, "block4", 1)
-                        .setOrigin(0, 0);
-                    const player4block8 = this.add
-                        .sprite(20, 780, "block4", 1)
-                        .setOrigin(0, 0);
-                    const player4block9 = this.add
-                        .sprite(60, 500, "block4", 1)
-                        .setOrigin(0, 0);
-                    const player4block10 = this.add
-                        .sprite(60, 540, "block4", 1)
-                        .setOrigin(0, 0);
-                    const player4block11 = this.add
-                        .sprite(60, 580, "block4", 1)
-                        .setOrigin(0, 0);
-                    const player4block12 = this.add
-                        .sprite(60, 620, "block4", 1)
-                        .setOrigin(0, 0);
-                    const player4block13 = this.add
-                        .sprite(60, 660, "block4", 1)
-                        .setOrigin(0, 0);
-                    const player4block14 = this.add
-                        .sprite(60, 700, "block4", 1)
-                        .setOrigin(0, 0);
-                    const player4block15 = this.add
-                        .sprite(60, 740, "block4", 1)
-                        .setOrigin(0, 0);
-                    const player4block16 = this.add
-                        .sprite(60, 780, "block4", 1)
-                        .setOrigin(0, 0);
-
-                    player4block1.setInteractive({ draggable: true });
-                    player4block2.setInteractive({ draggable: true });
-                    player4block3.setInteractive({ draggable: true });
-                    player4block4.setInteractive({ draggable: true });
-                    player4block5.setInteractive({ draggable: true });
-                    player4block6.setInteractive({ draggable: true });
-                    player4block7.setInteractive({ draggable: true });
-                    player4block8.setInteractive({ draggable: true });
-                    player4block9.setInteractive({ draggable: true });
-                    player4block10.setInteractive({ draggable: true });
-                    player4block11.setInteractive({ draggable: true });
-                    player4block12.setInteractive({ draggable: true });
-                    player4block13.setInteractive({ draggable: true });
-                    player4block14.setInteractive({ draggable: true });
-                    player4block15.setInteractive({ draggable: true });
-                    player4block16.setInteractive({ draggable: true });
-
-                    this.input.on(
-                        "drag",
-                        (pointer, gameObject, dragX, dragY) => {
-                            //  This will snap our drag to a 64x64 grid
-
-                            dragX = Phaser.Math.Snap.To(dragX, 32);
-                            dragY = Phaser.Math.Snap.To(dragY, 32);
-
-                            gameObject.setPosition(dragX, dragY);
-                        }
-                    );
-                }
-            }
-
-            const config = {
-                type: Phaser.AUTO,
-                width: 1200,
-                height: 824,
-                parent: "phaser-example",
-                scene: Example,
-            };
-
-            const game = new Phaser.Game(config);
-        </script>
-    </body>
+      const game = new Phaser.Game(config);
+    </script>
+  </body>
 </html>
