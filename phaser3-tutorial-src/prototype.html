@@ -31,7 +31,7 @@
               frameHeight: 30,
             });
           });
-          //TODO currently sprite 'block6' is being using as the stationary board, May be a good idea to have tiles and board different names, also do we need a board, we know the first player, first move is always the same, there we could just play there tile in the centre of board
+          //TODO currently sprite 'block6' is being using as the stationary board, May be a good idea to have tiles and board different names. Also do we need a board, we know the first player, first move is always the same, therefor we could just play there tile in the centre of board and have logic to only allow tiles to be placed around it
 
           this.load.spritesheet("block6", "assets/pinktile.png", {
             frameWidth: 30,
@@ -41,7 +41,7 @@
 
         create() {
           this.add.image(600, 412, "bg");
-          
+
           //  target - need to be expanded
           const target1 = this.add.sprite(512, 288, "block6").setOrigin(0, 0);
           const target2 = this.add.sprite(512, 320, "block6").setOrigin(0, 0);
@@ -80,10 +80,25 @@
             }
           });
 
+          this.input.on("dragstart", (pointer, gameObject) => {
+            console.log(
+              "Drag started. Starting position:",
+              gameObject.x,
+              gameObject.y
+            );
+          });
+
           this.input.on("drag", (pointer, gameObject, dragX, dragY) => {
             dragX = Phaser.Math.Snap.To(dragX, 32);
             dragY = Phaser.Math.Snap.To(dragY, 32);
             gameObject.setPosition(dragX, dragY);
+          });
+          this.input.on("dragend", (pointer, gameObject) => {
+            console.log(
+              "Object stopped dragging. Position:",
+              gameObject.x,
+              gameObject.y
+            );
           });
 
           let over1 = false;
@@ -190,7 +205,7 @@
             ) {
               let last = gameObject.texture.key.slice(
                 gameObject.texture.key.length - 1,
-                gameObject.texture.key.lenght
+                gameObject.texture.key.length
               );
               this.add
                 .text(10, 340, `Player${last} WINS!!!!`, {
