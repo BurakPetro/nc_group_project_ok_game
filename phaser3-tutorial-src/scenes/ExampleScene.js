@@ -195,7 +195,7 @@ export default class ExampleScene extends Phaser.Scene {
             color: "#1e1e1e",
           })
           .setFontSize(150);
-        game.destroy();
+        this.scene.destroy();
       }
     });
   }
