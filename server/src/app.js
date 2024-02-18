@@ -1,7 +1,11 @@
 const express = require("express");
+const http = require("http");
 const path = require("path");
+const socketIO = require("socket.io");
 
 const app = express();
+const server = http.createServer(app);
+const io = socketIO(server);
 
 const { getHello } = require("./controllers/controllers.js");
 
@@ -23,4 +27,12 @@ app.use((err, req, res, next) => {
   next(err);
 });
 
-module.exports = app;
+io.on("connection", (socket) => {
+  console.log("A user connected");
+
+  socket.on("draggedObjectPosition", (data) => {
+    io.emit("drag-end", data);
+  });
+});
+
+module.exports = { app, server };
