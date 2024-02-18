@@ -1,3 +1,5 @@
+const socket = io();
+
 export default class ExampleScene extends Phaser.Scene {
   constructor() {
     super();
@@ -61,16 +63,11 @@ export default class ExampleScene extends Phaser.Scene {
           .sprite(x, y, `block${playerIndex + 1}`, 1)
           .setOrigin(0, 0);
         block.setInteractive({ draggable: true });
+        block.name = `block${playerIndex + 1}tile${i}`;
       }
     });
 
-    this.input.on("dragstart", (pointer, gameObject) => {
-      console.log(
-        "Drag started. Starting position:",
-        gameObject.x,
-        gameObject.y
-      );
-    });
+    this.input.on("dragstart", (pointer, gameObject) => {});
 
     this.input.on("drag", (pointer, gameObject, dragX, dragY) => {
       dragX = Phaser.Math.Snap.To(dragX, 32);
@@ -78,13 +75,13 @@ export default class ExampleScene extends Phaser.Scene {
       gameObject.setPosition(dragX, dragY);
     });
     this.input.on("dragend", (pointer, gameObject) => {
-      console.log(gameObject);
-      console.log(pointer);
-      console.log(
-        "Object stopped dragging. Position:",
-        gameObject.x,
-        gameObject.y
-      );
+      socket.emit("draggedObjectPosition", gameObject);
+    });
+
+    socket.on("drag-end", (data) => {
+      this.moveSpriteByName(data.name, data.x, data.y);
+
+      // Handle the received message as needed
     });
 
     let over1 = false;
@@ -201,5 +198,16 @@ export default class ExampleScene extends Phaser.Scene {
         game.destroy();
       }
     });
+  }
+  moveSpriteByName(spriteName, newX, newY) {
+    const spriteToMove = this.children.list.find((child) => {
+      return child.name === spriteName;
+    });
+
+    if (spriteToMove) {
+      spriteToMove.setPosition(newX, newY);
+    } else {
+      console.log(`Sprite with name ${spriteName} not found`);
+    }
   }
 }
