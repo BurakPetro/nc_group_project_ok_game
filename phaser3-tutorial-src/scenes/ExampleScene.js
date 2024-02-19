@@ -3,6 +3,9 @@ const socket = io();
 export default class ExampleScene extends Phaser.Scene {
   constructor() {
     super();
+    this.player;
+    this.currentTilePositionX;
+    this.currentTilePositionY;
   }
   preload() {
     this.load.image("bg", "assets/background.png");
@@ -50,6 +53,7 @@ export default class ExampleScene extends Phaser.Scene {
       } else {
         const gridPosition = this.add.sprite(x, y, `gridblock`).setOrigin(0, 0);
         gridPosition.name = `grid${i}`;
+        console.log(x , y)
         gridArray.push({ name: gridPosition.name, x: x, y: y, player: null });
       }
     }
@@ -80,7 +84,11 @@ export default class ExampleScene extends Phaser.Scene {
       }
     });
 
-    this.input.on("dragstart", (pointer, gameObject) => {});
+    this.input.on("dragstart", (pointer, gameObject) => {
+      this.player = gameObject.texture.key;
+      this.currentTilePositionX = gameObject.x;
+      this.currentTilePositionY = gameObject.y;
+    });
 
     this.input.on("drag", (pointer, gameObject, dragX, dragY) => {
       dragX = Phaser.Math.Snap.To(dragX, 32);
@@ -97,6 +105,7 @@ export default class ExampleScene extends Phaser.Scene {
           gridPosition.player = gameObject.texture.key; //update the gridArray with the player occupying the position (x,y)
         }
       });
+      this.isValidPosition(gridArray);
       socket.emit("draggedObjectPosition", gameObject);
     });
 
@@ -230,6 +239,24 @@ export default class ExampleScene extends Phaser.Scene {
       spriteToMove.setPosition(newX, newY);
     } else {
       console.log(`Sprite with name ${spriteName} not found`);
+    }
+  }
+
+  isValidPosition(grid) {
+    let validPosition = false;
+
+    for (const space of grid) {
+      if (space.player === null) {
+        console.log('working!')
+        validPosition = true
+        space.player = this.player;
+        this.currentTilePositionX = space.x
+        this.currentTilePositionY = space.y;
+      }
+    }
+
+    if (!validPosition) {
+      console.log("not there!");
     }
   }
 }
