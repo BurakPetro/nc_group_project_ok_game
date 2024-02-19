@@ -53,7 +53,6 @@ export default class ExampleScene extends Phaser.Scene {
       } else {
         const gridPosition = this.add.sprite(x, y, `gridblock`).setOrigin(0, 0);
         gridPosition.name = `grid${i}`;
-        console.log(x , y)
         gridArray.push({ name: gridPosition.name, x: x, y: y, player: null });
       }
     }
@@ -97,15 +96,21 @@ export default class ExampleScene extends Phaser.Scene {
     });
 
     this.input.on("dragend", (pointer, gameObject) => {
-      gridArray.map((gridPosition) => {
-        if (
-          gridPosition.x === gameObject.x &&
-          gridPosition.y === gameObject.y
-        ) {
-          gridPosition.player = gameObject.texture.key; //update the gridArray with the player occupying the position (x,y)
-        }
-      });
-      this.isValidPosition(gridArray);
+      if (!this.isValidPosition(gridArray, gameObject)) {
+        gameObject.setPosition(
+          this.currentTilePositionX,
+          this.currentTilePositionY
+        );
+      } else {
+        gridArray.map((gridPosition) => {
+          if (
+            gridPosition.x === gameObject.x &&
+            gridPosition.y === gameObject.y
+          ) {
+            gridPosition.player = gameObject.texture.key; //update the gridArray with the player occupying the position (x,y)
+          }
+        });
+      }
       socket.emit("draggedObjectPosition", gameObject);
     });
 
@@ -242,21 +247,18 @@ export default class ExampleScene extends Phaser.Scene {
     }
   }
 
-  isValidPosition(grid) {
-    let validPosition = false;
-
-    for (const space of grid) {
-      if (space.player === null) {
-        console.log('working!')
-        validPosition = true
-        space.player = this.player;
-        this.currentTilePositionX = space.x
-        this.currentTilePositionY = space.y;
+  //TODO
+  isValidPosition(grid, tile) {
+    for (const cell of grid) {
+      if (tile.x === cell.x && tile.y === cell.y) {
+        if (cell.player === null) {
+          tile.input.draggable = false;
+          return true;
+        }
+        break;
       }
     }
 
-    if (!validPosition) {
-      console.log("not there!");
-    }
+    return false;
   }
 }
