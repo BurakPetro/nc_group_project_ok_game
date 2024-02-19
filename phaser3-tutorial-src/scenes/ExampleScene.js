@@ -14,13 +14,17 @@ export default class ExampleScene extends Phaser.Scene {
       "purpletile",
     ];
     blockImg.forEach((color, index) => {
-      this.load.spritesheet(`block${index + 1}`, `assets/${color}.png`, {
+      this.load.spritesheet(`player${index + 1}`, `assets/${color}.png`, {
         frameWidth: 30,
         frameHeight: 30,
       });
     });
     //TODO currently sprite 'block6' is being using as the stationary board, May be a good idea to have tiles and board different names. Also do we need a board, we know the first player, first move is always the same, therefor we could just play there tile in the centre of board and have logic to only allow tiles to be placed around it
-    this.load.spritesheet("block6", "assets/pinktile.png", {
+    this.load.spritesheet("gridblock", "assets/graytile.png", {
+      frameWidth: 30,
+      frameHeight: 30,
+    });
+    this.load.spritesheet("centreblock", "assets/centraltile.png", {
       frameWidth: 30,
       frameHeight: 30,
     });
@@ -29,23 +33,32 @@ export default class ExampleScene extends Phaser.Scene {
   create() {
     this.add.image(600, 412, "bg");
 
-    //  target - need to be expanded
-    const target1 = this.add.sprite(512, 288, "block6").setOrigin(0, 0);
-    const target2 = this.add.sprite(512, 320, "block6").setOrigin(0, 0);
-    const target3 = this.add.sprite(512, 352, "block6").setOrigin(0, 0);
-    const target4 = this.add.sprite(544, 288, "block6").setOrigin(0, 0);
-    const target5 = this.add.sprite(544, 320, "block6").setOrigin(0, 0);
-    const target6 = this.add.sprite(544, 352, "block6").setOrigin(0, 0);
-    const target7 = this.add.sprite(576, 288, "block6").setOrigin(0, 0);
-    const target8 = this.add.sprite(576, 320, "block6").setOrigin(0, 0);
-    const target9 = this.add.sprite(576, 352, "block6").setOrigin(0, 0);
+    //  grid
 
-    //var color = txt.style.color;
+    const size = 17; //here we imput the size we want for the grid and it will build a grid perfectly centered
+    const totalTiles = size * size;
+    const gridArray = []; //one object for each position in the grid with its name, x and y positions and the player occupying that position, default to null
+    for (let i = 0; i < totalTiles; i++) {
+      const x = ((37 - size) / 2) * 32 + Math.floor(i / size) * 32; //37 is the width of the screen (1184/32)
+      const y = ((25 - size) / 2) * 32 + (i % size) * 32; //25 is the height of the screen (800/32)
+      if (i === Math.floor(totalTiles / 2)) {
+        const gridPosition = this.add
+          .sprite(x, y, `centreblock`) //the centre position is in a darker gray
+          .setOrigin(0, 0);
+        gridPosition.name = `grid${i}`;
+        gridArray.push({ name: gridPosition.name, x: x, y: y, player: null });
+      } else {
+        const gridPosition = this.add.sprite(x, y, `gridblock`).setOrigin(0, 0);
+        gridPosition.name = `grid${i}`;
+        gridArray.push({ name: gridPosition.name, x: x, y: y, player: null });
+      }
+    }
+
     const playerData = [
-      { x: 20, y: 20, color: "#1e1e1e" },
-      { x: 1110, y: 20, color: "#1e1e1e" },
-      { x: 1110, y: 465, color: "#1e1e1e" },
-      { x: 20, y: 465, color: "#1e1e1e" },
+      { x: 32, y: 32, color: "#1e1e1e" },
+      { x: 1088, y: 32, color: "#1e1e1e" },
+      { x: 1088, y: 480, color: "#1e1e1e" },
+      { x: 32, y: 480, color: "#1e1e1e" },
     ];
 
     playerData.forEach((player, playerIndex) => {
@@ -56,14 +69,14 @@ export default class ExampleScene extends Phaser.Scene {
         .setFontSize(15);
 
       for (let i = 0; i < 16; i++) {
-        const x = player.x + Math.floor(i / 8) * 40;
-        const y = 30 + player.y + (i % 8) * 40;
+        const x = player.x + Math.floor(i / 8) * 32;
+        const y = 32 + player.y + (i % 8) * 32;
 
         const block = this.add
-          .sprite(x, y, `block${playerIndex + 1}`, 1)
+          .sprite(x, y, `player${playerIndex + 1}`)
           .setOrigin(0, 0);
         block.setInteractive({ draggable: true });
-        block.name = `block${playerIndex + 1}tile${i}`;
+        block.name = `player${playerIndex + 1}tile${i}`;
       }
     });
 
@@ -74,7 +87,16 @@ export default class ExampleScene extends Phaser.Scene {
       dragY = Phaser.Math.Snap.To(dragY, 32);
       gameObject.setPosition(dragX, dragY);
     });
+
     this.input.on("dragend", (pointer, gameObject) => {
+      gridArray.map((gridPosition) => {
+        if (
+          gridPosition.x === gameObject.x &&
+          gridPosition.y === gameObject.y
+        ) {
+          gridPosition.player = gameObject.texture.key; //update the gridArray with the player occupying the position (x,y)
+        }
+      });
       socket.emit("draggedObjectPosition", gameObject);
     });
 
@@ -83,7 +105,7 @@ export default class ExampleScene extends Phaser.Scene {
 
       // Handle the received message as needed
     });
-
+    /*
     let over1 = false;
     let over2 = false;
     let over3 = false;
@@ -197,7 +219,7 @@ export default class ExampleScene extends Phaser.Scene {
           .setFontSize(150);
         this.scene.destroy();
       }
-    });
+    });*/
   }
   moveSpriteByName(spriteName, newX, newY) {
     const spriteToMove = this.children.list.find((child) => {

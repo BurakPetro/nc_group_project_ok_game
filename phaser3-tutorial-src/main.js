@@ -2,8 +2,8 @@ import ExampleScene from "./scenes/ExampleScene.js";
 
 const config = {
   type: Phaser.AUTO,
-  width: 1200,
-  height: 824,
+  width: 1184,
+  height: 800,
   parent: "phaser-example",
   scene: ExampleScene,
   physics: {
