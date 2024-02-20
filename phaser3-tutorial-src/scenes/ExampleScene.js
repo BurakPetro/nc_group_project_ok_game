@@ -1,4 +1,18 @@
 const socket = io();
+const params = new URLSearchParams(document.location.search);
+const room_id = params.get("room_id");
+socket.emit("joinRoom", room_id);
+
+function fetchGameSetup(successCallback) {
+  const params = new URLSearchParams(document.location.search);
+  const room_id = params.get("room_id");
+  socket.emit("getGameState", room_id);
+
+  socket.on("sendGameState", (response) => {
+    socket.off("sendGameState");
+    successCallback(response);
+  });
+}
 
 export default class ExampleScene extends Phaser.Scene {
   constructor() {
@@ -54,30 +68,31 @@ export default class ExampleScene extends Phaser.Scene {
       }
     }
 
-    const playerData = [
-      { x: 32, y: 32, color: "#1e1e1e" },
-      { x: 1088, y: 32, color: "#1e1e1e" },
-      { x: 1088, y: 480, color: "#1e1e1e" },
-      { x: 32, y: 480, color: "#1e1e1e" },
-    ];
+    fetchGameSetup((gameState) => {
+      const playerData = [
+        { x: 32, y: 32, color: "#1e1e1e" },
+        { x: 1088, y: 32, color: "#1e1e1e" },
+        { x: 1088, y: 480, color: "#1e1e1e" },
+        { x: 32, y: 480, color: "#1e1e1e" },
+      ].slice(0, gameState.players);
+      playerData.forEach((player, playerIndex) => {
+        this.add
+          .text(player.x, player.y, `Player ${playerIndex + 1}`, {
+            color: player.color,
+          })
+          .setFontSize(15);
 
-    playerData.forEach((player, playerIndex) => {
-      this.add
-        .text(player.x, player.y, `Player ${playerIndex + 1}`, {
-          color: player.color,
-        })
-        .setFontSize(15);
+        for (let i = 0; i < 16; i++) {
+          const x = player.x + Math.floor(i / 8) * 32;
+          const y = 32 + player.y + (i % 8) * 32;
 
-      for (let i = 0; i < 16; i++) {
-        const x = player.x + Math.floor(i / 8) * 32;
-        const y = 32 + player.y + (i % 8) * 32;
-
-        const block = this.add
-          .sprite(x, y, `player${playerIndex + 1}`)
-          .setOrigin(0, 0);
-        block.setInteractive({ draggable: true });
-        block.name = `player${playerIndex + 1}tile${i}`;
-      }
+          const block = this.add
+            .sprite(x, y, `player${playerIndex + 1}`)
+            .setOrigin(0, 0);
+          block.setInteractive({ draggable: true });
+          block.name = `player${playerIndex + 1}tile${i}`;
+        }
+      });
     });
 
     let setPlayer = 1;
@@ -127,9 +142,125 @@ export default class ExampleScene extends Phaser.Scene {
 
     socket.on("drag-end", (data) => {
       this.moveSpriteByName(data.name, data.x, data.y);
-    });
-  }
 
+      // Handle the received message as needed
+    });
+/*
+    let over1 = false;
+    let over2 = false;
+    let over3 = false;
+    let over4 = false;
+    let over5 = false;
+    let over6 = false;
+    let over7 = false;
+    let over8 = false;
+    let over9 = false;
+
+    this.input.on("dragend", (pointer, gameObject) => {
+      const x = gameObject.x;
+      const y = gameObject.y;
+      if (x === 512 && y === 288 && !over1) {
+        over1 = true;
+        gameObject.setFrame(0);
+        gameObject.disableInteractive();
+        console.log(gameObject.texture);
+        target1.body = gameObject.texture.key;
+      } else if (x === 512 && y === 320 && !over2) {
+        over2 = true;
+        gameObject.setFrame(0);
+        gameObject.disableInteractive();
+        target2.body = gameObject.texture.key;
+      } else if (x === 512 && y === 352 && !over3) {
+        over3 = true;
+        gameObject.setFrame(0);
+        gameObject.disableInteractive();
+        target3.body = gameObject.texture.key;
+      } else if (x === 544 && y === 288 && !over4) {
+        over3 = true;
+        gameObject.setFrame(0);
+        gameObject.disableInteractive();
+        target4.body = gameObject.texture.key;
+      } else if (x === 544 && y === 320 && !over5) {
+        over3 = true;
+        gameObject.setFrame(0);
+        gameObject.disableInteractive();
+        target5.body = gameObject.texture.key;
+      } else if (x === 544 && y === 352 && !over6) {
+        over3 = true;
+        gameObject.setFrame(0);
+        gameObject.disableInteractive();
+        target6.body = gameObject.texture.key;
+      } else if (x === 576 && y === 288 && !over7) {
+        over3 = true;
+        gameObject.setFrame(0);
+        gameObject.disableInteractive();
+        target7.body = gameObject.texture.key;
+      } else if (x === 576 && y === 320 && !over8) {
+        over3 = true;
+        gameObject.setFrame(0);
+        gameObject.disableInteractive();
+        target8.body = gameObject.texture.key;
+      } else if (x === 576 && y === 352 && !over9) {
+        over3 = true;
+        gameObject.setFrame(0);
+        gameObject.disableInteractive();
+        target9.body = gameObject.texture.key;
+      }
+      if (
+        (target1.body &&
+          target2.body &&
+          target3.body &&
+          target1.body === target2.body &&
+          target2.body === target3.body) ||
+        (target4.body &&
+          target5.body &&
+          target6.body &&
+          target4.body === target5.body &&
+          target5.body === target6.body) ||
+        (target7.body &&
+          target8.body &&
+          target9.body &&
+          target7.body === target8.body &&
+          target8.body === target9.body) ||
+        (target1.body &&
+          target4.body &&
+          target7.body &&
+          target1.body === target4.body &&
+          target4.body === target7.body) ||
+        (target2.body &&
+          target5.body &&
+          target8.body &&
+          target2.body === target5.body &&
+          target5.body === target8.body) ||
+        (target3.body &&
+          target6.body &&
+          target9.body &&
+          target3.body === target6.body &&
+          target6.body === target9.body) ||
+        (target1.body &&
+          target5.body &&
+          target9.body &&
+          target1.body === target5.body &&
+          target5.body === target9.body) ||
+        (target3.body &&
+          target5.body &&
+          target7.body &&
+          target3.body === target5.body &&
+          target5.body === target7.body)
+      ) {
+        let last = gameObject.texture.key.slice(
+          gameObject.texture.key.length - 1,
+          gameObject.texture.key.length
+        );
+        this.add
+          .text(10, 340, `Player${last} WINS!!!!`, {
+            color: "#1e1e1e",
+          })
+          .setFontSize(150);
+        this.scene.destroy();
+      }
+    });*/
+  }
   moveSpriteByName(spriteName, newX, newY) {
     const spriteToMove = this.children.list.find((child) => {
       return child.name === spriteName;
