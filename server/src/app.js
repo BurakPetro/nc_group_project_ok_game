@@ -8,13 +8,19 @@ const io = socketIO(server);
 
 const { getHello } = require("./controllers/controllers.js");
 
-let roomTestDate = {};
+let roomData = {};
 if (process.env.NODE_ENV === "development") {
   console.log("Running in development mode");
-  roomTestDate = require("./test/roomTestDate.js").roomTestDate;
+  roomData = require("./test/roomTestDate.js").roomTestDate;
 }
-// NOTE allGameStates to hold the data for all games currently being played
-const allGameStates = roomTestDate;
+
+/**
+ * allGameStates to hold the data for all games currently being played
+ * @date 20/02/2024 - 20:52:21
+ *
+ * @type {{}}
+ */
+const allGameStates = roomData;
 
 app.use(express.json());
 
@@ -40,15 +46,14 @@ io.on("connection", (socket) => {
   socket.on("joinRoom", (room_id) => {
     socket.join(room_id);
     console.log(`User joined room: ${room_id}`);
-    // console.log(socket);
   });
 
   socket.on("draggedObjectPosition", (data) => {
-    // console.log(data);
     room_id = Array.from(socket.rooms)[1];
-    console.log(room_id);
-    console.log(socket.rooms);
-    io.emit("drag-end", data);
+
+    allGameStates[room_id].tilesPlayed.push(data);
+
+    io.to(room_id).emit("drag-end", data);
   });
   socket.on("getGameState", (room_id) => {
     socket.emit("sendGameState", allGameStates[room_id]);

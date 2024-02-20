@@ -93,6 +93,7 @@ export default class ExampleScene extends Phaser.Scene {
           block.name = `player${playerIndex + 1}tile${i}`;
         }
       });
+      this.addTilesToBoard(gameState.tilesPlayed);
     });
 
     let setPlayer = 1;
@@ -145,7 +146,7 @@ export default class ExampleScene extends Phaser.Scene {
 
       // Handle the received message as needed
     });
-/*
+    /*
     let over1 = false;
     let over2 = false;
     let over3 = false;
@@ -261,6 +262,14 @@ export default class ExampleScene extends Phaser.Scene {
       }
     });*/
   }
+  /**
+   * moveSpriteByName - Move sprite to given location, Note does not check if location is correct
+   * @date 20/02/2024 - 20:50:05
+   *
+   * @param {Object} spriteName
+   * @param {Number} newX
+   * @param {Number} newY
+   */
   moveSpriteByName(spriteName, newX, newY) {
     const spriteToMove = this.children.list.find((child) => {
       return child.name === spriteName;
@@ -271,5 +280,17 @@ export default class ExampleScene extends Phaser.Scene {
     } else {
       console.log(`Sprite with name ${spriteName} not found`);
     }
+  }
+
+  /**
+   * addTilesToBoard move the tiles in the array
+   * @date 20/02/2024 - 20:46:55
+   *
+   * @param {Array} tilesToAdd
+   */
+  addTilesToBoard(tilesToAdd) {
+    tilesToAdd.forEach((value) => {
+      this.moveSpriteByName(value.name, value.x, value.y);
+    });
   }
 }
