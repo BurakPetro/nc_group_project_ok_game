@@ -1,18 +1,20 @@
 import { useState } from 'react';
-
-import './styles/App.css';
+import ExampleInterface from './components/ExampleInterface';
+import Game from './components/Game';
+import { Routes, Route } from 'react-router-dom';
+import './App.css';
 
 function App() {
-  const [count, setCount] = useState(0);
-
+  const [gameSettings, setgameSettings] = useState(17);
   return (
     <>
-      <h1>Ok Game</h1>
-      <div>
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-      </div>
+      <Routes>
+        <Route
+          path="/"
+          element={<ExampleInterface setgameSettings={setgameSettings} />}
+        />
+        <Route path="/game1" element={<Game gameSettings={gameSettings} />} />
+      </Routes>
     </>
   );
 }
