@@ -143,8 +143,6 @@ export default class ExampleScene extends Phaser.Scene {
 
     socket.on("drag-end", (data) => {
       this.moveSpriteByName(data.name, data.x, data.y);
-
-      // Handle the received message as needed
     });
   }
   /**
