@@ -58,7 +58,13 @@ export default class ExampleScene extends Phaser.Scene {
       } else {
         const gridPosition = this.add.sprite(x, y, `gridblock`).setOrigin(0, 0);
         gridPosition.name = `grid${i}`;
-        gridArray.push({ name: gridPosition.name, x: x, y: y, player: null, played: false });
+        gridArray.push({
+          name: gridPosition.name,
+          x: x,
+          y: y,
+          player: null,
+          played: false,
+        });
       }
     }
 
@@ -101,7 +107,6 @@ export default class ExampleScene extends Phaser.Scene {
 
     this.input.on("dragend", (pointer, gameObject) => {
       this.playFirstTile(gameObject);
-      this.positionTile(gameObject, gridArray);
       if (!this.isValidPosition(gridArray, gameObject)) {
         gameObject.setPosition(
           this.currentTilePositionX,
@@ -276,52 +281,5 @@ export default class ExampleScene extends Phaser.Scene {
     } else {
       return false;
     }
-  }
-
-  //should return true if:
-  //a tile has been placed next to another tile vertically,
-  //horizontally
-  //or diagonally
-  //else false
-
-  //will need current dragged tile object
-  //has the tile been placed next to another vertically  - 1
-  //or horizontally - 2
-  //has the tile been placed next to another diagonally - 3
-
-  positionTile(tile, grid) {
-    for (const cell of grid) {
-      // Check if the dragged tile is being placed in an empty cell
-      if (tile.x === cell.x && tile.y === cell.y && cell.player === null) {
-        // Define the eight possible positions around the current cell
-        const adjacentCells = [
-          { x: cell.x - 1, y: cell.y },     // left
-          { x: cell.x + 1, y: cell.y },     // right
-          { x: cell.x, y: cell.y - 1 },     // up
-          { x: cell.x, y: cell.y + 1 },     // down
-          { x: cell.x - 1, y: cell.y - 1 }, // top-left diagonal
-          { x: cell.x + 1, y: cell.y - 1 }, // top-right diagonal
-          { x: cell.x - 1, y: cell.y + 1 }, // bottom-left diagonal
-          { x: cell.x + 1, y: cell.y + 1 }, // bottom-right diagonal
-        ];
-  
-        // Iterate over each adjacent cell
-        for (const adjacentCell of adjacentCells) {
-          // Check if there's a cell in the grid that matches the position of the adjacent cell
-          const adjacentGridCell = grid.find(
-            (gridCell) => gridCell.x === adjacentCell.x && gridCell.y === adjacentCell.y
-          );
-  
-          // If such a cell exists and it has a player (i.e., a tile has been played there), 
-          // then the dragged tile can be placed in the current cell
-          if (adjacentGridCell && adjacentGridCell.player !== null) {
-            tile.setPosition(tile.x, tile.y);
-            return true;
-          }
-        }
-      }
-    }
-
-    return false
   }
 }
