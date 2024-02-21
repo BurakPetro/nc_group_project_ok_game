@@ -1,7 +1,6 @@
 import io from 'socket.io-client';
 import Select from './Select.jsx';
 import { useState, useEffect } from 'react';
-import LinkToJoinGame from './LinkToJoinGame.jsx';
 
 const GameSettings = () => {
   const socket = io.connect('http://localhost:3001');
@@ -9,11 +8,12 @@ const GameSettings = () => {
   const [numberOfPlayers, setNumberOfPlayers] = useState(2);
   const [numberOfBlocksInGame, setnumberOfBlocksInGame] = useState(10);
   const [playerOneColor, setPlayerOneColor] = useState('red');
-
+  const [gameSettingsSubmitted, setGameSettingsSubmitted] = useState(false);
+  const [serverResponse, setServerResponce] = useState(null); // to proces server responce in future
   useEffect(() => {
     socket.on('receive_message', (data) => {
       console.log(data.message);
-      setMessageReceived(data.message);
+      setServerResponce(data.message);
     });
   }, [socket]); //TO DO specify which soket to send data
 
@@ -21,13 +21,18 @@ const GameSettings = () => {
     socket.emit('send_message', { data });
   };
   function handleUserGameSettingsSubmit(event) {
-    event.preventDefault();
-    const gameSettings = {};
-    gameSettings.boardSize = boardSize;
-    gameSettings.numberOfPlayers = numberOfPlayers;
-    gameSettings.numberOfBlocksInGame = numberOfBlocksInGame;
-    gameSettings.playerOneColor = playerOneColor;
-    sendData(gameSettings);
+    if (gameSettingsSubmitted) {
+      setGameSettingsSubmitted(false);
+    } else {
+      event.preventDefault();
+      const gameSettings = {};
+      gameSettings.boardSize = boardSize;
+      gameSettings.numberOfPlayers = numberOfPlayers;
+      gameSettings.numberOfBlocksInGame = numberOfBlocksInGame;
+      gameSettings.playerOneColor = playerOneColor;
+      sendData(gameSettings);
+      setGameSettingsSubmitted(true);
+    }
   }
 
   return (
@@ -41,6 +46,7 @@ const GameSettings = () => {
             { label: 'four players', value: 4 },
           ]}
           value={numberOfPlayers}
+          disabled={gameSettingsSubmitted}
           onChange={(event) => {
             setNumberOfPlayers(event.target.value);
           }}
@@ -55,6 +61,7 @@ const GameSettings = () => {
             { label: '25X25', value: 25 },
           ]}
           value={boardSize}
+          disabled={gameSettingsSubmitted}
           onChange={(event) => {
             setboardSize(event.target.value);
           }}
@@ -67,6 +74,7 @@ const GameSettings = () => {
             { label: '20', value: 20 },
           ]}
           value={numberOfBlocksInGame}
+          disabled={gameSettingsSubmitted}
           onChange={(event) => {
             setnumberOfBlocksInGame(event.target.value);
           }}
@@ -80,14 +88,16 @@ const GameSettings = () => {
             { label: 'green', value: 'green' },
           ]}
           value={playerOneColor}
+          disabled={gameSettingsSubmitted}
           onChange={(event) => {
             setPlayerOneColor(event.target.value);
           }}
         />
 
-        <button type="submit">Submit</button>
+        <button type="submit">
+          {!gameSettingsSubmitted ? 'Submit' : 'Change Settings'}
+        </button>
       </form>
-      <LinkToJoinGame />
     </>
   );
 };

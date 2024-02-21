@@ -14,6 +14,7 @@ function App() {
           path="/"
           element={<ExampleInterface setgameSettings={setgameSettings} />}
         />
+
         <Route path="/Welcome" element={<WelcomePage />} />
         <Route path="/game1" element={<Game gameSettings={gameSettings} />} />
       </Routes>
