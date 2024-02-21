@@ -3,6 +3,7 @@ import ExampleInterface from './components/ExampleInterface';
 import Game from './components/Game';
 import WelcomePage from './components/WelcomePage';
 import { Routes, Route } from 'react-router-dom';
+import Instructions from './components/Instructions/Instructions';
 import './App.css';
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
         />
         <Route path="/Welcome" element={<WelcomePage />} />
         <Route path="/game1" element={<Game gameSettings={gameSettings} />} />
+        <Route path="/instructions" element={<Instructions />}></Route>
       </Routes>
     </>
   );

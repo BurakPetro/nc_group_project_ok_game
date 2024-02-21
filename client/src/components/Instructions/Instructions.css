@@ -1,0 +1,19 @@
+@media only screen and (max-width: 600px) {
+  #back-button {
+    display: flex;
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    margin-top: 5%;
+  }
+}
+
+@media only screen and (min-width: 768px) {
+  #back-button {
+    display: flex;
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    margin-top: 1%;
+  }
+}
