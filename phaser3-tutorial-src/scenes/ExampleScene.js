@@ -1,4 +1,18 @@
 const socket = io();
+const params = new URLSearchParams(document.location.search);
+const room_id = params.get("room_id");
+socket.emit("joinRoom", room_id);
+
+function fetchGameSetup(successCallback) {
+  const params = new URLSearchParams(document.location.search);
+  const room_id = params.get("room_id");
+  socket.emit("getGameState", room_id);
+
+  socket.on("sendGameState", (response) => {
+    socket.off("sendGameState");
+    successCallback(response);
+  });
+}
 
 export default class ExampleScene extends Phaser.Scene {
   constructor() {
@@ -68,30 +82,32 @@ export default class ExampleScene extends Phaser.Scene {
       }
     }
 
-    const playerData = [
-      { x: 32, y: 32, color: "#1e1e1e" },
-      { x: 1088, y: 32, color: "#1e1e1e" },
-      { x: 1088, y: 480, color: "#1e1e1e" },
-      { x: 32, y: 480, color: "#1e1e1e" },
-    ];
+    fetchGameSetup((gameState) => {
+      const playerData = [
+        { x: 32, y: 32, color: "#1e1e1e" },
+        { x: 1088, y: 32, color: "#1e1e1e" },
+        { x: 1088, y: 480, color: "#1e1e1e" },
+        { x: 32, y: 480, color: "#1e1e1e" },
+      ].slice(0, gameState.players);
+      playerData.forEach((player, playerIndex) => {
+        this.add
+          .text(player.x, player.y, `Player ${playerIndex + 1}`, {
+            color: player.color,
+          })
+          .setFontSize(15);
 
-    playerData.forEach((player, playerIndex) => {
-      this.add
-        .text(player.x, player.y, `Player ${playerIndex + 1}`, {
-          color: player.color,
-        })
-        .setFontSize(15);
+        for (let i = 0; i < 16; i++) {
+          const x = player.x + Math.floor(i / 8) * 32;
+          const y = 32 + player.y + (i % 8) * 32;
 
-      for (let i = 0; i < 16; i++) {
-        const x = player.x + Math.floor(i / 8) * 32;
-        const y = 32 + player.y + (i % 8) * 32;
-
-        const block = this.add
-          .sprite(x, y, `player${playerIndex + 1}`)
-          .setOrigin(0, 0);
-        block.setInteractive({ draggable: true });
-        block.name = `player${playerIndex + 1}tile${i}`;
-      }
+          const block = this.add
+            .sprite(x, y, `player${playerIndex + 1}`)
+            .setOrigin(0, 0);
+          block.setInteractive({ draggable: true });
+          block.name = `player${playerIndex + 1}tile${i}`;
+        }
+      });
+      this.addTilesToBoard(gameState.tilesPlayed);
     });
 
     let setPlayer = 1;
@@ -145,7 +161,14 @@ export default class ExampleScene extends Phaser.Scene {
       this.moveSpriteByName(data.name, data.x, data.y);
     });
   }
-
+  /**
+   * moveSpriteByName - Move sprite to given location, Note does not check if location is correct
+   * @date 20/02/2024 - 20:50:05
+   *
+   * @param {Object} spriteName
+   * @param {Number} newX
+   * @param {Number} newY
+   */
   moveSpriteByName(spriteName, newX, newY) {
     const spriteToMove = this.children.list.find((child) => {
       return child.name === spriteName;
@@ -158,27 +181,15 @@ export default class ExampleScene extends Phaser.Scene {
     }
   }
 
-  isValidPosition(grid, tile) {
-    for (const cell of grid) {
-      if (tile.x === cell.x && tile.y === cell.y) {
-        if (cell.player === null) {
-          tile.input.draggable = false;
-          return true;
-        }
-        break;
-      }
-    }
-
-    return false;
-  }
-
-  playFirstTile(tile) {
-    if (!tile.played) {
-      tile.setPosition(576, 384); //play tile in the middle
-      tile.played = true;
-      return true;
-    } else {
-      return false;
-    }
+  /**
+   * addTilesToBoard move the tiles in the array
+   * @date 20/02/2024 - 20:46:55
+   *
+   * @param {Array} tilesToAdd
+   */
+  addTilesToBoard(tilesToAdd) {
+    tilesToAdd.forEach((value) => {
+      this.moveSpriteByName(value.name, value.x, value.y);
+    });
   }
 }
