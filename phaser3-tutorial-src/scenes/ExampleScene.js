@@ -17,6 +17,8 @@ function fetchGameSetup(successCallback) {
 export default class ExampleScene extends Phaser.Scene {
   constructor() {
     super();
+    this.currentTilePositionX;
+    this.currentTilePositionY;
 
     this.setPlayer = 1;
 
@@ -65,11 +67,23 @@ export default class ExampleScene extends Phaser.Scene {
           .sprite(x, y, `centreblock`) //the centre position is in a darker gray
           .setOrigin(0, 0);
         gridPosition.name = `grid${i}`;
-        gridArray.push({ name: gridPosition.name, x: x, y: y, player: null });
+        gridArray.push({
+          name: gridPosition.name,
+          x: x,
+          y: y,
+          player: null,
+          played: false,
+        });
       } else {
         const gridPosition = this.add.sprite(x, y, `gridblock`).setOrigin(0, 0);
         gridPosition.name = `grid${i}`;
-        gridArray.push({ name: gridPosition.name, x: x, y: y, player: null });
+        gridArray.push({
+          name: gridPosition.name,
+          x: x,
+          y: y,
+          player: null,
+          played: false,
+        });
       }
     }
 
@@ -103,7 +117,9 @@ export default class ExampleScene extends Phaser.Scene {
     });
 
     this.input.on("dragstart", (pointer, gameObject) => {
-      gameObject.setTint(0x868e96); //change the colour of the tile when dragging
+      gameObject.setTint(0x868e96);
+      this.currentTilePositionX = gameObject.x;
+      this.currentTilePositionY = gameObject.y;
     });
 
     this.input.on("drag", (pointer, gameObject, dragX, dragY) => {
@@ -113,38 +129,48 @@ export default class ExampleScene extends Phaser.Scene {
     });
 
     this.input.on("dragend", (pointer, gameObject, dropped) => {
-      gameObject.setTint(); //change the colour back
+      //check if player is using its own tiles and can go in that location
 
-      if (!dropped) {
+      if (
+        this.canATileGoInThisLocation(gridArray, gameObject, size) &&
+        gameObject.texture.key === `player${this.setPlayer}`
+      ) {
+        gameObject.setTint(); //change the colour back
+
+        gridArray.map((gridPosition) => {
+          //check if the position is accepted
+          if (
+            gridPosition.x === gameObject.x &&
+            gridPosition.y === gameObject.y
+          ) {
+            gridPosition.player = gameObject.texture.key; //update the gridArray with the player occupying the position (x,y)
+            gameObject.disableInteractive();
+            gridPosition.played = true;
+          }
+        });
+
+        socket.emit("draggedObjectPosition", gameObject);
+      } else {
         //if the object is dropped outside the grid it goes back to its original position in the deck
         gameObject.x = gameObject.input.dragStartX;
         gameObject.y = gameObject.input.dragStartY;
-      } else {
-        if (gameObject.texture.key === `player${this.setPlayer}`) {
-          //check if player is using its own tiles
-          gridArray.map((gridPosition) => {
-            //check if the position is accepted (Ahmed code)
-            if (
-              gridPosition.x === gameObject.x &&
-              gridPosition.y === gameObject.y
-            ) {
-              gridPosition.player = gameObject.texture.key; //update the gridArray with the player occupying the position (x,y)
-              gameObject.disableInteractive();
-
-              socket.emit("draggedObjectPosition", gameObject);
-            }
-          });
-        } else {
-          gameObject.x = gameObject.input.dragStartX;
-          gameObject.y = gameObject.input.dragStartY;
-        }
       }
     });
 
     socket.on("drag-end", (data) => {
       this.updateWhoTurnItIsFromPlayedTile(data.name);
 
-      this.moveSpriteByName(data.name, data.x, data.y);
+      // TODO looking into making gridArray a this. variable as passing it around a lot
+
+      this.moveSpriteByName(data.name, data.x, data.y, gridArray);
+
+      const gridPosition =
+        gridArray[
+          this.getGridArrayIndexFromLocation(gridArray, data.x, data.y)
+        ];
+
+      gridPosition.player = data.textureKey;
+      gridPosition.played = true;
     });
   }
   /**
@@ -159,9 +185,10 @@ export default class ExampleScene extends Phaser.Scene {
     const spriteToMove = this.children.list.find((child) => {
       return child.name === spriteName;
     });
-
+    // TODO set gridPosition player to player and player to true
     if (spriteToMove) {
       spriteToMove.setPosition(newX, newY);
+      spriteToMove.disableInteractive();
     } else {
       console.log(`Sprite with name ${spriteName} not found`);
     }
@@ -180,6 +207,64 @@ export default class ExampleScene extends Phaser.Scene {
         this.updateWhoTurnItIsFromPlayedTile(value.name);
       }
     });
+  }
+
+  canATileGoInThisLocation(gridArray, gameObject, gridSize) {
+    const currentgridArrayIndex = this.getGridArrayIndexFromLocation(
+      gridArray,
+      gameObject.x,
+      gameObject.y
+    );
+
+    if (currentgridArrayIndex === false) {
+      return false;
+    }
+
+    if (gridArray[currentgridArrayIndex].player !== null) {
+      return false;
+    } else if (
+      currentgridArrayIndex % 17 !== 0 &&
+      gridArray[currentgridArrayIndex - 1].player !== null
+    ) {
+      //TOP
+      return true;
+    } else if (
+      (currentgridArrayIndex + 1) % 17 !== 0 &&
+      gridArray[currentgridArrayIndex + 1].player !== null
+    ) {
+      //BOTTOM
+      return true;
+    } else if (
+      gridSize <= currentgridArrayIndex &&
+      gridArray[currentgridArrayIndex - gridSize].player !== null
+    ) {
+      //LEFT
+      return true;
+    } else if (
+      currentgridArrayIndex + gridSize < gridArray.length &&
+      gridArray[currentgridArrayIndex + gridSize].player !== null
+    ) {
+      //RIGHT
+      return true;
+    } else if (
+      currentgridArrayIndex === 144 &&
+      gridArray[currentgridArrayIndex].player === null
+    ) {
+      return true;
+    }
+
+    return false;
+  }
+
+  getGridArrayIndexFromLocation(gridArray, locationX, locationY) {
+    let indexValue = false;
+    gridArray.map((gridPosition, index) => {
+      if (gridPosition.x === locationX && gridPosition.y === locationY) {
+        indexValue = index;
+      }
+    });
+
+    return indexValue;
   }
   /**
    * updateWhoTurnItIsFromPlayedTile - update players who's turn it is by providing it with the name of the last tile played
