@@ -2,13 +2,13 @@ import io from 'socket.io-client';
 import Select from './Select.jsx';
 import { useState, useEffect } from 'react';
 
-const GameSettings = () => {
+const GameSettings = ({ gameSettingsSubmitted, setGameSettingsSubmitted }) => {
   const socket = io.connect('http://localhost:3001');
   const [boardSize, setboardSize] = useState(17);
   const [numberOfPlayers, setNumberOfPlayers] = useState(2);
   const [numberOfBlocksInGame, setnumberOfBlocksInGame] = useState(10);
   const [playerOneColor, setPlayerOneColor] = useState('red');
-  const [gameSettingsSubmitted, setGameSettingsSubmitted] = useState(false);
+
   const [serverResponse, setServerResponce] = useState(null); // to proces server responce in future
   useEffect(() => {
     socket.on('receive_message', (data) => {

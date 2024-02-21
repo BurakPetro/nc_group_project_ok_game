@@ -1,5 +1,5 @@
 import { useState } from 'react';
-const LinkToJoinGame = () => {
+const LinkToJoinGame = ({ gameSettingsSubmitted }) => {
   const [inputJoinLinkHolder, setInputJoinLinkHolder] = useState(
     'Your joining game link here'
   );
@@ -17,7 +17,7 @@ const LinkToJoinGame = () => {
     setwaitingForGame(true);
   }
   function stopWaitingForGame() {
-    setInputJoinLinkHolder('Your joining game link here');
+    setInputJoinLinkHolder('');
     setwaitingForGame(false);
   }
   return (
@@ -25,9 +25,11 @@ const LinkToJoinGame = () => {
       <div className="link-block">
         <input
           value={inputJoinLinkHolder}
+          placeholder="Your joining game link here"
           onChange={(event) => {
             setInputJoinLinkHolder(event.target.value);
           }}
+          disabled={waitingForGame}
         />
         {waitingForGame ? (
           <button onClick={stopWaitingForGame}>Cansel</button>
@@ -37,7 +39,14 @@ const LinkToJoinGame = () => {
 
         <div className="link-to-join-game">{joinLink}</div>
 
-        <button onClick={generateLinkForNewGame}>Create game</button>
+        <button
+          onClick={generateLinkForNewGame}
+          disabled={
+            waitingForGame ? true : gameSettingsSubmitted ? true : false
+          }
+        >
+          Create game
+        </button>
       </div>
     </>
   );
