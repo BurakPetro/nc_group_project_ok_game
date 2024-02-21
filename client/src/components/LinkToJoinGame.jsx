@@ -42,7 +42,7 @@ const LinkToJoinGame = ({ gameSettingsSubmitted }) => {
         <button
           onClick={generateLinkForNewGame}
           disabled={
-            waitingForGame ? true : gameSettingsSubmitted ? true : false
+            waitingForGame ? true : gameSettingsSubmitted ? false : true
           }
         >
           Create game
