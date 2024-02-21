@@ -124,37 +124,43 @@ export default class ExampleScene extends Phaser.Scene {
     });
 
     this.input.on("dragend", (pointer, gameObject, dropped) => {
-      this.playFirstTile(gameObject);
-      gameObject.setTint(); //change the colour back
-      if (!dropped) {
+      //TODO CLEAN UP LOGIC HERE AS IT WAS IMPLEMENTED FOR REVERTING TILE LOCATION
+      if (this.canATileGoInThisLocation(gridArray, gameObject, size)) {
+        gameObject.setTint(); //change the colour back
+        if (!dropped) {
+          //if the object is dropped outside the grid it goes back to its original position in the deck
+          gameObject.x = gameObject.input.dragStartX;
+          gameObject.y = gameObject.input.dragStartY;
+        } else {
+          if (gameObject.texture.key === `player${setPlayer}`) {
+            //check if player is using its own tiles
+            gridArray.map((gridPosition) => {
+              //check if the position is accepted
+              if (
+                gridPosition.x === gameObject.x &&
+                gridPosition.y === gameObject.y
+              ) {
+                gridPosition.player = gameObject.texture.key; //update the gridArray with the player occupying the position (x,y)
+                gameObject.disableInteractive();
+                gridPosition.played = true;
+                if (setPlayer === 4) {
+                  setPlayer = 1;
+                } else {
+                  setPlayer++;
+                }
+              }
+            });
+          } else {
+            gameObject.x = gameObject.input.dragStartX;
+            gameObject.y = gameObject.input.dragStartY;
+          }
+        }
+        socket.emit("draggedObjectPosition", gameObject);
+      } else {
         //if the object is dropped outside the grid it goes back to its original position in the deck
         gameObject.x = gameObject.input.dragStartX;
         gameObject.y = gameObject.input.dragStartY;
-      } else {
-        if (gameObject.texture.key === `player${setPlayer}`   && this.isValidPosition(gridArray, gameObject)) {
-          //check if player is using its own tiles
-          gridArray.map((gridPosition) => {
-            //check if the position is accepted (Ahmed code)
-            if (
-              gridPosition.x === gameObject.x &&
-              gridPosition.y === gameObject.y
-            ) {
-              gridPosition.player = gameObject.texture.key; //update the gridArray with the player occupying the position (x,y)
-              gameObject.disableInteractive();
-              gridPosition.played = true;
-              if (setPlayer === 4) {
-                setPlayer = 1;
-              } else {
-                setPlayer++;
-              }
-            }
-          });
-        } else {
-          gameObject.x = gameObject.input.dragStartX;
-          gameObject.y = gameObject.input.dragStartY;
-        }
       }
-      socket.emit("draggedObjectPosition", gameObject);
     });
 
     socket.on("drag-end", (data) => {
@@ -191,5 +197,63 @@ export default class ExampleScene extends Phaser.Scene {
     tilesToAdd.forEach((value) => {
       this.moveSpriteByName(value.name, value.x, value.y);
     });
+  }
+
+  canATileGoInThisLocation(gridArray, gameObject, gridSize) {
+    const currentgridArrayIndex = this.getGridArrayIndexFromLocation(
+      gridArray,
+      gameObject.x,
+      gameObject.y
+    );
+
+    if (currentgridArrayIndex === false) {
+      return false;
+    }
+
+    if (gridArray[currentgridArrayIndex].player !== null) {
+      return false;
+    } else if (
+      currentgridArrayIndex % 17 !== 0 &&
+      gridArray[currentgridArrayIndex - 1].player !== null
+    ) {
+      //TOP
+      return true;
+    } else if (
+      (currentgridArrayIndex + 1) % 17 !== 0 &&
+      gridArray[currentgridArrayIndex + 1].player !== null
+    ) {
+      //BOTTOM
+      return true;
+    } else if (
+      gridSize <= currentgridArrayIndex &&
+      gridArray[currentgridArrayIndex - gridSize].player !== null
+    ) {
+      //LEFT
+      return true;
+    } else if (
+      currentgridArrayIndex + gridSize < gridArray.length &&
+      gridArray[currentgridArrayIndex + gridSize].player !== null
+    ) {
+      //RIGHT
+      return true;
+    } else if (
+      currentgridArrayIndex === 144 &&
+      gridArray[currentgridArrayIndex].player === null
+    ) {
+      return true;
+    }
+
+    return false;
+  }
+
+  getGridArrayIndexFromLocation(gridArray, locationX, locationY) {
+    let indexValue = false;
+    gridArray.map((gridPosition, index) => {
+      if (gridPosition.x === locationX && gridPosition.y === locationY) {
+        indexValue = index;
+      }
+    });
+
+    return indexValue;
   }
 }
