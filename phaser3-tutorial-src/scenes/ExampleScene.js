@@ -17,6 +17,11 @@ function fetchGameSetup(successCallback) {
 export default class ExampleScene extends Phaser.Scene {
   constructor() {
     super();
+
+    this.setPlayer = 1;
+
+    // NOTE - numberOfPlayer may get updated from gameState, default value 4
+    this.numberOfPlayer = 4;
   }
   preload() {
     this.load.image("bg", "assets/background.png");
@@ -69,6 +74,7 @@ export default class ExampleScene extends Phaser.Scene {
     }
 
     fetchGameSetup((gameState) => {
+      this.numberOfPlayer = gameState.players;
       const playerData = [
         { x: 32, y: 32, color: "#1e1e1e" },
         { x: 1088, y: 32, color: "#1e1e1e" },
@@ -96,8 +102,6 @@ export default class ExampleScene extends Phaser.Scene {
       this.addTilesToBoard(gameState.tilesPlayed);
     });
 
-    let setPlayer = 1;
-
     this.input.on("dragstart", (pointer, gameObject) => {
       gameObject.setTint(0x868e96); //change the colour of the tile when dragging
     });
@@ -116,7 +120,7 @@ export default class ExampleScene extends Phaser.Scene {
         gameObject.x = gameObject.input.dragStartX;
         gameObject.y = gameObject.input.dragStartY;
       } else {
-        if (gameObject.texture.key === `player${setPlayer}`) {
+        if (gameObject.texture.key === `player${this.setPlayer}`) {
           //check if player is using its own tiles
           gridArray.map((gridPosition) => {
             //check if the position is accepted (Ahmed code)
@@ -126,11 +130,8 @@ export default class ExampleScene extends Phaser.Scene {
             ) {
               gridPosition.player = gameObject.texture.key; //update the gridArray with the player occupying the position (x,y)
               gameObject.disableInteractive();
-              if (setPlayer === 4) {
-                setPlayer = 1;
-              } else {
-                setPlayer++;
-              }
+
+              socket.emit("draggedObjectPosition", gameObject);
             }
           });
         } else {
@@ -138,10 +139,11 @@ export default class ExampleScene extends Phaser.Scene {
           gameObject.y = gameObject.input.dragStartY;
         }
       }
-      socket.emit("draggedObjectPosition", gameObject);
     });
 
     socket.on("drag-end", (data) => {
+      this.updateWhoTurnItIsFromPlayedTile(data.name);
+
       this.moveSpriteByName(data.name, data.x, data.y);
     });
   }
@@ -166,14 +168,30 @@ export default class ExampleScene extends Phaser.Scene {
   }
 
   /**
-   * addTilesToBoard move the tiles in the array
+   * addTilesToBoard move the tiles in the array and sets correct player turn
    * @date 20/02/2024 - 20:46:55
    *
    * @param {Array} tilesToAdd
    */
   addTilesToBoard(tilesToAdd) {
-    tilesToAdd.forEach((value) => {
+    tilesToAdd.forEach((value, index) => {
       this.moveSpriteByName(value.name, value.x, value.y);
+      if (tilesToAdd.length === index + 1) {
+        this.updateWhoTurnItIsFromPlayedTile(value.name);
+      }
     });
+  }
+  /**
+   * updateWhoTurnItIsFromPlayedTile - update players who's turn it is by providing it with the name of the last tile played
+   * @date 21/02/2024 - 10:22:41
+   *
+   * @param {String} lastTilePlayedName
+   */
+  updateWhoTurnItIsFromPlayedTile(lastTilePlayedName) {
+    if (Number(lastTilePlayedName[6]) === this.numberOfPlayer) {
+      this.setPlayer = 1;
+    } else {
+      this.setPlayer = Number(lastTilePlayedName[6]) + 1;
+    }
   }
 }
