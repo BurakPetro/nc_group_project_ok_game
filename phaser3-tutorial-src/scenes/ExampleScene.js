@@ -17,16 +17,13 @@ function fetchGameSetup(successCallback) {
 export default class ExampleScene extends Phaser.Scene {
   constructor() {
     super();
-<<<<<<< HEAD
     this.currentTilePositionX;
     this.currentTilePositionY;
-=======
 
     this.setPlayer = 1;
 
     // NOTE - numberOfPlayer may get updated from gameState, default value 4
     this.numberOfPlayer = 4;
->>>>>>> 36794b8bd8b88a5ecb6a5379fa6abe1dba55e345
   }
   preload() {
     this.load.image("bg", "assets/background.png");
@@ -119,10 +116,6 @@ export default class ExampleScene extends Phaser.Scene {
       this.addTilesToBoard(gameState.tilesPlayed);
     });
 
-<<<<<<< HEAD
-    let setPlayer = 1;
-=======
->>>>>>> 36794b8bd8b88a5ecb6a5379fa6abe1dba55e345
     this.input.on("dragstart", (pointer, gameObject) => {
       gameObject.setTint(0x868e96);
       this.currentTilePositionX = gameObject.x;
@@ -144,7 +137,7 @@ export default class ExampleScene extends Phaser.Scene {
           gameObject.x = gameObject.input.dragStartX;
           gameObject.y = gameObject.input.dragStartY;
         } else {
-          if (gameObject.texture.key === `player${setPlayer}`) {
+          if (gameObject.texture.key === `player${this.setPlayer}`) {
             //check if player is using its own tiles
             gridArray.map((gridPosition) => {
               //check if the position is accepted
@@ -155,10 +148,10 @@ export default class ExampleScene extends Phaser.Scene {
                 gridPosition.player = gameObject.texture.key; //update the gridArray with the player occupying the position (x,y)
                 gameObject.disableInteractive();
                 gridPosition.played = true;
-                if (setPlayer === 4) {
-                  setPlayer = 1;
+                if (this.setPlayer === 4) {
+                  this.setPlayer = 1;
                 } else {
-                  setPlayer++;
+                  this.setPlayer++;
                 }
               }
             });
@@ -172,10 +165,6 @@ export default class ExampleScene extends Phaser.Scene {
         //if the object is dropped outside the grid it goes back to its original position in the deck
         gameObject.x = gameObject.input.dragStartX;
         gameObject.y = gameObject.input.dragStartY;
-<<<<<<< HEAD
-=======
-      
->>>>>>> 36794b8bd8b88a5ecb6a5379fa6abe1dba55e345
       }
     });
 
@@ -219,7 +208,6 @@ export default class ExampleScene extends Phaser.Scene {
       }
     });
   }
-<<<<<<< HEAD
 
   canATileGoInThisLocation(gridArray, gameObject, gridSize) {
     const currentgridArrayIndex = this.getGridArrayIndexFromLocation(
@@ -277,7 +265,7 @@ export default class ExampleScene extends Phaser.Scene {
     });
 
     return indexValue;
-=======
+  }
   /**
    * updateWhoTurnItIsFromPlayedTile - update players who's turn it is by providing it with the name of the last tile played
    * @date 21/02/2024 - 10:22:41
@@ -290,6 +278,5 @@ export default class ExampleScene extends Phaser.Scene {
     } else {
       this.setPlayer = Number(lastTilePlayedName[6]) + 1;
     }
->>>>>>> 36794b8bd8b88a5ecb6a5379fa6abe1dba55e345
   }
 }
