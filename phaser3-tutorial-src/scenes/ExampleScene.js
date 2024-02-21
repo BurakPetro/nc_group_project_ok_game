@@ -129,37 +129,26 @@ export default class ExampleScene extends Phaser.Scene {
     });
 
     this.input.on("dragend", (pointer, gameObject, dropped) => {
-      //TODO CLEAN UP LOGIC HERE AS IT WAS IMPLEMENTED FOR REVERTING TILE LOCATION
-      if (this.canATileGoInThisLocation(gridArray, gameObject, size)) {
+      //check if player is using its own tiles and can go in that location
+
+      if (
+        this.canATileGoInThisLocation(gridArray, gameObject, size) &&
+        gameObject.texture.key === `player${this.setPlayer}`
+      ) {
         gameObject.setTint(); //change the colour back
-        if (!dropped) {
-          //if the object is dropped outside the grid it goes back to its original position in the deck
-          gameObject.x = gameObject.input.dragStartX;
-          gameObject.y = gameObject.input.dragStartY;
-        } else {
-          if (gameObject.texture.key === `player${this.setPlayer}`) {
-            //check if player is using its own tiles
-            gridArray.map((gridPosition) => {
-              //check if the position is accepted
-              if (
-                gridPosition.x === gameObject.x &&
-                gridPosition.y === gameObject.y
-              ) {
-                gridPosition.player = gameObject.texture.key; //update the gridArray with the player occupying the position (x,y)
-                gameObject.disableInteractive();
-                gridPosition.played = true;
-                if (this.setPlayer === 4) {
-                  this.setPlayer = 1;
-                } else {
-                  this.setPlayer++;
-                }
-              }
-            });
-          } else {
-            gameObject.x = gameObject.input.dragStartX;
-            gameObject.y = gameObject.input.dragStartY;
+
+        gridArray.map((gridPosition) => {
+          //check if the position is accepted
+          if (
+            gridPosition.x === gameObject.x &&
+            gridPosition.y === gameObject.y
+          ) {
+            gridPosition.player = gameObject.texture.key; //update the gridArray with the player occupying the position (x,y)
+            gameObject.disableInteractive();
+            gridPosition.played = true;
           }
-        }
+        });
+
         socket.emit("draggedObjectPosition", gameObject);
       } else {
         //if the object is dropped outside the grid it goes back to its original position in the deck
@@ -171,7 +160,17 @@ export default class ExampleScene extends Phaser.Scene {
     socket.on("drag-end", (data) => {
       this.updateWhoTurnItIsFromPlayedTile(data.name);
 
-      this.moveSpriteByName(data.name, data.x, data.y);
+      // TODO looking into making gridArray a this. variable as passing it around a lot
+
+      this.moveSpriteByName(data.name, data.x, data.y, gridArray);
+
+      const gridPosition =
+        gridArray[
+          this.getGridArrayIndexFromLocation(gridArray, data.x, data.y)
+        ];
+
+      gridPosition.player = data.textureKey;
+      gridPosition.played = true;
     });
   }
   /**
@@ -186,9 +185,10 @@ export default class ExampleScene extends Phaser.Scene {
     const spriteToMove = this.children.list.find((child) => {
       return child.name === spriteName;
     });
-
+    // TODO set gridPosition player to player and player to true
     if (spriteToMove) {
       spriteToMove.setPosition(newX, newY);
+      spriteToMove.disableInteractive();
     } else {
       console.log(`Sprite with name ${spriteName} not found`);
     }
