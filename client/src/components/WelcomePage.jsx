@@ -24,11 +24,27 @@ const WelcomePage = () => {
       }
     });
   }, [socket]); //TO DO specify which soket to send data
-  console.log(chatHistory);
+
   return (
     <>
       <header>Ok Game</header>
       <div>Login</div>
+      <button
+        onClick={() => {
+          window.location.href = '/instructions';
+        }}
+        style={{
+          display: 'flex',
+          position: 'absolute',
+          top: '0%',
+          right: '0%',
+          marginTop: '1%',
+          marginRight: '1%',
+          border: '1px solid white',
+        }}
+      >
+        ?
+      </button>
       <GameSettings
         socket={socket}
         gameSettingsSubmitted={gameSettingsSubmitted}
