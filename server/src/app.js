@@ -67,6 +67,13 @@ io.on("connection", (socket) => {
     socket.emit("sendGameState", allGameStates[room_id]);
   });
 
+  socket.on("resetBoardServer", (room_id) => {
+    room_id = Array.from(socket.rooms)[1];
+
+    allGameStates[room_id].tilesPlayed = [];
+    io.to(room_id).emit("resetBoardClient");
+  });
+
   socket.on("disconnect", () => {
     console.log("User disconnected");
   });

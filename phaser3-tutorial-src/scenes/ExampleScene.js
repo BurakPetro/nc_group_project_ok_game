@@ -27,7 +27,7 @@ export default class ExampleScene extends Phaser.Scene {
   }
   preload() {
     this.load.image("bg", "assets/background.png");
-    const blockImg = ["redtile2", "greentile", "bluetile", "purpletile"];
+    const blockImg = ["redtile2", "greentile", "bluetile", "orangetile"];
     blockImg.forEach((color, index) => {
       this.load.spritesheet(`player${index + 1}`, `assets/${color}.png`, {
         frameWidth: 30,
@@ -43,78 +43,36 @@ export default class ExampleScene extends Phaser.Scene {
       frameHeight: 30,
     });
     this.load.spritesheet("reset", "assets/reset.png", {
-      frameWidth: 80,
-      frameHeight: 30,
+      frameWidth: 100,
+      frameHeight: 40,
     });
   }
 
   create() {
     this.add.image(600, 412, "bg");
 
-    //  grid
+    const button = this.add.sprite(1184 / 2, 750, `reset`).setInteractive();
+    button.on("pointerdown", () => {
+      socket.emit("resetBoardServer");
+    });
 
-    const size = 17; //here we imput the size we want for the grid and it will build a grid perfectly centered
-    const totalTiles = size * size;
-    const gridArray = []; //one object for each position in the grid with its name, x and y positions and the player occupying that position, default to null
-    for (let i = 0; i < totalTiles; i++) {
-      const x = ((37 - size) / 2) * 32 + Math.floor(i / size) * 32; //37 is the width of the screen (1184/32)
-      const y = ((25 - size) / 2) * 32 + (i % size) * 32; //25 is the height of the screen (800/32)
-      this.add
-        .zone(1184 / 2, 800 / 2, size * 32, size * 32)
-        .setRectangleDropZone(size * 32, size * 32);
-      if (i === Math.floor(totalTiles / 2)) {
-        const gridPosition = this.add
-          .sprite(x, y, `centreblock`) //the centre position is in a darker gray
-          .setOrigin(0, 0);
-        gridPosition.name = `grid${i}`;
-        gridArray.push({
-          name: gridPosition.name,
-          x: x,
-          y: y,
-          player: null,
-          played: false,
-        });
-      } else {
-        const gridPosition = this.add.sprite(x, y, `gridblock`).setOrigin(0, 0);
-        gridPosition.name = `grid${i}`;
-        gridArray.push({
-          name: gridPosition.name,
-          x: x,
-          y: y,
-          player: null,
-          played: false,
-        });
-      }
+    socket.on("resetBoardClient", () => {
+      gridArray = [];
+      this.setPlayer = 1;
+      this.setGrid(size, gridArray);
+      this.setTiles({ players: this.numberOfPlayer, tilesPlayed: [] });
+    });
+
+    const size = 17;
+    let gridArray = [];
+
+    this.setGrid(size, gridArray);
+
+    function successCallbackFunction(gameState) {
+      this.setTiles(gameState);
     }
 
-    fetchGameSetup((gameState) => {
-      this.numberOfPlayer = gameState.players;
-      const playerData = [
-        { x: 32, y: 32, color: "#1e1e1e" },
-        { x: 1088, y: 32, color: "#1e1e1e" },
-        { x: 1088, y: 480, color: "#1e1e1e" },
-        { x: 32, y: 480, color: "#1e1e1e" },
-      ].slice(0, gameState.players);
-      playerData.forEach((player, playerIndex) => {
-        this.add
-          .text(player.x, player.y, `Player ${playerIndex + 1}`, {
-            color: player.color,
-          })
-          .setFontSize(15);
-
-        for (let i = 0; i < 16; i++) {
-          const x = player.x + Math.floor(i / 8) * 32;
-          const y = 32 + player.y + (i % 8) * 32;
-
-          const block = this.add
-            .sprite(x, y, `player${playerIndex + 1}`)
-            .setOrigin(0, 0);
-          block.setInteractive({ draggable: true });
-          block.name = `player${playerIndex + 1}tile${i}`;
-        }
-      });
-      this.addTilesToBoard(gameState.tilesPlayed);
-    });
+    fetchGameSetup(successCallbackFunction.bind(this));
 
     this.input.on("dragstart", (pointer, gameObject) => {
       gameObject.setTint(0x868e96);
@@ -130,39 +88,121 @@ export default class ExampleScene extends Phaser.Scene {
 
     this.input.on("dragend", (pointer, gameObject, dropped) => {
       gameObject.setTint(); //change the colour back
+const socket = io();
+const params = new URLSearchParams(document.location.search);
+const room_id = params.get("room_id");
+socket.emit("joinRoom", room_id);
 
-      if (!dropped) {
+function fetchGameSetup(successCallback) {
+  const params = new URLSearchParams(document.location.search);
+  const room_id = params.get("room_id");
+  socket.emit("getGameState", room_id);
+
+  socket.on("sendGameState", (response) => {
+    socket.off("sendGameState");
+    successCallback(response);
+  });
+}
+
+export default class ExampleScene extends Phaser.Scene {
+  constructor() {
+    super();
+    this.currentTilePositionX;
+    this.currentTilePositionY;
+
+    this.setPlayer = 1;
+
+    // NOTE - numberOfPlayer may get updated from gameState, default value 4
+    this.numberOfPlayer = 4;
+  }
+  preload() {
+    this.load.image("bg", "assets/background.png");
+    const blockImg = ["redtile2", "greentile", "bluetile", "orangetile"];
+    blockImg.forEach((color, index) => {
+      this.load.spritesheet(`player${index + 1}`, `assets/${color}.png`, {
+        frameWidth: 30,
+        frameHeight: 30,
+      });
+    });
+    this.load.spritesheet("gridblock", "assets/graytile.png", {
+      frameWidth: 30,
+      frameHeight: 30,
+    });
+    this.load.spritesheet("centreblock", "assets/centraltile.png", {
+      frameWidth: 30,
+      frameHeight: 30,
+    });
+    this.load.spritesheet("reset", "assets/reset.png", {
+      frameWidth: 100,
+      frameHeight: 40,
+    });
+  }
+
+  create() {
+    this.add.image(600, 412, "bg");
+
+    const button = this.add.sprite(1184 / 2, 750, `reset`).setInteractive();
+    button.on("pointerdown", () => {
+      socket.emit("resetBoardServer");
+    });
+
+    socket.on("resetBoardClient", () => {
+      gridArray = [];
+      this.setPlayer = 1;
+      this.setGrid(size, gridArray);
+      this.setTiles({ players: this.numberOfPlayer, tilesPlayed: [] });
+    });
+
+    const size = 17;
+    let gridArray = [];
+
+    this.setGrid(size, gridArray);
+
+    function successCallbackFunction(gameState) {
+      this.setTiles(gameState);
+    }
+
+    fetchGameSetup(successCallbackFunction.bind(this));
+
+    this.input.on("dragstart", (pointer, gameObject) => {
+      gameObject.setTint(0x868e96);
+      this.currentTilePositionX = gameObject.x;
+      this.currentTilePositionY = gameObject.y;
+    });
+
+    this.input.on("drag", (pointer, gameObject, dragX, dragY) => {
+      dragX = Phaser.Math.Snap.To(dragX, 32);
+      dragY = Phaser.Math.Snap.To(dragY, 32);
+      gameObject.setPosition(dragX, dragY);
+    });
+
+    this.input.on("dragend", (pointer, gameObject, dropped) => {
+      //check if player is using its own tiles and can go in that location
+
+      if (
+        this.canATileGoInThisLocation(gridArray, gameObject, size) &&
+        gameObject.texture.key === `player${this.setPlayer}`
+      ) {
+        gameObject.setTint(); //change the colour back
+
+        gridArray.map((gridPosition) => {
+          //check if the position is accepted
+          if (
+            gridPosition.x === gameObject.x &&
+            gridPosition.y === gameObject.y
+          ) {
+            gridPosition.player = gameObject.texture.key; //update the gridArray with the player occupying the position (x,y)
+            gameObject.disableInteractive();
+            gridPosition.played = true;
+          }
+        });
+
+        socket.emit("draggedObjectPosition", gameObject);
+      } else {
+        gameObject.setTint();
         //if the object is dropped outside the grid it goes back to its original position in the deck
         gameObject.x = gameObject.input.dragStartX;
         gameObject.y = gameObject.input.dragStartY;
-        //check if player is using its own tiles
-      } else {
-        if (
-          gameObject.texture.key === `player${this.setPlayer}` &&
-          this.canATileGoInThisLocation(gridArray, gameObject, size)
-        ) {
-          gridArray.map((gridPosition) => {
-            if (
-              gridPosition.x === gameObject.x &&
-              gridPosition.y === gameObject.y
-            ) {
-              // check for 5 in a row
-              this.checkFiveInARow(gridPosition, gameObject, gridArray);
-
-              //update the gridArray with the player occupying the position (x,y)
-              gridPosition.player = gameObject.texture.key;
-              gameObject.disableInteractive();
-              if (this.setPlayer === 4) {
-                this.setPlayer = 1;
-              } else {
-                this.setPlayer++;
-              }
-            }
-          });
-        } else {
-          gameObject.x = gameObject.input.dragStartX;
-          gameObject.y = gameObject.input.dragStartY;
-        }
       }
     });
 
@@ -177,7 +217,6 @@ export default class ExampleScene extends Phaser.Scene {
         gridArray[
           this.getGridArrayIndexFromLocation(gridArray, data.x, data.y)
         ];
-
       gridPosition.player = data.textureKey;
       gridPosition.played = true;
     });
@@ -289,6 +328,7 @@ export default class ExampleScene extends Phaser.Scene {
     }
   }
 
+
   checkFiveInARow(gridPosition, gameObject, gridArray) {
     let currGridArrIndex = Number(gridPosition.name.slice(4));
     let verticalCount = 0;
@@ -396,5 +436,68 @@ export default class ExampleScene extends Phaser.Scene {
     ) {
       console.log(`${gameObject.texture.key} wins!`);
     }
+
+  setGrid(size, gridArray) {
+    const totalTiles = size * size;
+    for (let i = 0; i < totalTiles; i++) {
+      const x = ((37 - size) / 2) * 32 + Math.floor(i / size) * 32; //37 is the width of the screen (1184/32)
+      const y = ((25 - size) / 2) * 32 + (i % size) * 32; //25 is the height of the screen (800/32)
+      this.add
+        .zone(1184 / 2, 800 / 2, size * 32, size * 32)
+        .setRectangleDropZone(size * 32, size * 32);
+      if (i === Math.floor(totalTiles / 2)) {
+        const gridPosition = this.add
+          .sprite(x, y, `centreblock`) //the centre position is in a darker gray
+          .setOrigin(0, 0);
+        gridPosition.name = `grid${i}`;
+        gridArray.push({
+          name: gridPosition.name,
+          x: x,
+          y: y,
+          player: null,
+          played: false,
+        });
+      } else {
+        const gridPosition = this.add.sprite(x, y, `gridblock`).setOrigin(0, 0);
+        gridPosition.name = `grid${i}`;
+        gridArray.push({
+          name: gridPosition.name,
+          x: x,
+          y: y,
+          player: null,
+          played: false,
+        });
+      }
+    }
+  }
+
+  setTiles(gameState) {
+    this.numberOfPlayer = gameState.players;
+    const playerData = [
+      { x: 32, y: 32, color: "#1e1e1e" },
+      { x: 1088, y: 32, color: "#1e1e1e" },
+      { x: 1088, y: 480, color: "#1e1e1e" },
+      { x: 32, y: 480, color: "#1e1e1e" },
+    ].slice(0, gameState.players);
+    playerData.forEach((player, playerIndex) => {
+      this.add
+        .text(player.x, player.y, `Player ${playerIndex + 1}`, {
+          color: player.color,
+        })
+        .setFontSize(15);
+
+      for (let i = 0; i < 16; i++) {
+        const x = player.x + Math.floor(i / 8) * 32;
+        const y = 32 + player.y + (i % 8) * 32;
+
+        const block = this.add
+          .sprite(x, y, `player${playerIndex + 1}`)
+          .setOrigin(0, 0);
+        block.setInteractive({ draggable: true });
+        block.name = `player${playerIndex + 1}tile${i}`;
+      }
+    });
+    this.addTilesToBoard(gameState.tilesPlayed);
+
   }
 }
