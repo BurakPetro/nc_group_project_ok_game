@@ -129,14 +129,7 @@ export default class ExampleScene extends Phaser.Scene {
     });
 
     this.input.on("dragend", (pointer, gameObject, dropped) => {
-      //check if player is using its own tiles and can go in that location
-
-      if (
-        this.canATileGoInThisLocation(gridArray, gameObject, size) &&
-        gameObject.texture.key === `player${this.setPlayer}`
-      ) {
-        gameObject.setTint(); //change the colour back
-      }
+      gameObject.setTint(); //change the colour back
 
       if (!dropped) {
         //if the object is dropped outside the grid it goes back to its original position in the deck
@@ -144,9 +137,11 @@ export default class ExampleScene extends Phaser.Scene {
         gameObject.y = gameObject.input.dragStartY;
         //check if player is using its own tiles
       } else {
-        if (gameObject.texture.key === `player${this.setPlayer}`) {
+        if (
+          gameObject.texture.key === `player${this.setPlayer}` &&
+          this.canATileGoInThisLocation(gridArray, gameObject, size)
+        ) {
           gridArray.map((gridPosition) => {
-            //check if the position is accepted (Ahmed code)
             if (
               gridPosition.x === gameObject.x &&
               gridPosition.y === gameObject.y
@@ -277,6 +272,7 @@ export default class ExampleScene extends Phaser.Scene {
             }
           });
         } else {
+          console.log("here");
           gameObject.x = gameObject.input.dragStartX;
           gameObject.y = gameObject.input.dragStartY;
         }
