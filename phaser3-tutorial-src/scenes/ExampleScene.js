@@ -25,6 +25,7 @@ export default class ExampleScene extends Phaser.Scene {
     // NOTE - numberOfPlayer may get updated from gameState, default value 4
     this.numberOfPlayer = 4;
   }
+
   preload() {
     this.load.image("bg", "assets/background.png");
     const blockImg = ["redtile2", "greentile", "bluetile", "orangetile"];
@@ -51,12 +52,15 @@ export default class ExampleScene extends Phaser.Scene {
   create() {
     this.add.image(600, 412, "bg");
 
+    this.restartTimer();
+
     const button = this.add.sprite(1184 / 2, 750, `reset`).setInteractive();
     button.on("pointerdown", () => {
       socket.emit("resetBoardServer");
     });
 
     socket.on("resetBoardClient", () => {
+      this.restartTimer();
       gridArray = [];
       this.setPlayer = 1;
       this.setGrid(size, gridArray);
@@ -94,7 +98,7 @@ export default class ExampleScene extends Phaser.Scene {
         gameObject.texture.key === `player${this.setPlayer}`
       ) {
         gameObject.setTint(); //change the colour back
-
+        this.restartTimer();
         gridArray.map((gridPosition) => {
           //check if the position is accepted
           if (
@@ -131,6 +135,7 @@ export default class ExampleScene extends Phaser.Scene {
       gridPosition.played = true;
     });
   }
+
   /**
    * moveSpriteByName - Move sprite to given location, Note does not check if location is correct
    * @date 20/02/2024 - 20:50:05
@@ -300,4 +305,53 @@ export default class ExampleScene extends Phaser.Scene {
     });
     this.addTilesToBoard(gameState.tilesPlayed);
   }
+
+  restartTimer = () => {
+    this.totalTime = 15;
+    if (this.timerText) {
+      this.timerText.updateText("Timer: " + this.formatTime(this.totalTime));
+    } else {
+      this.timerText = this.add.text(
+        1184 / 2,
+        50,
+        "Timer: " + this.formatTime(this.totalTime),
+        {
+          font: "48px Arial",
+          fill: "#1e1e1e",
+        }
+      );
+      this.timerText.setOrigin(0.5);
+    }
+    if (this.timerEvent) {
+      this.timerEvent.remove();
+    }
+    this.timerEvent = this.time.addEvent({
+      delay: 1000,
+      callback: this.onTimerTick,
+      callbackScope: this,
+      loop: true,
+    });
+  };
+
+  formatTime = (seconds) => {
+    let minutes = Math.floor(seconds / 60);
+    let remainingSeconds = seconds % 60;
+
+    if (remainingSeconds < 10) {
+      remainingSeconds = "0" + remainingSeconds;
+    }
+
+    return minutes + ":" + remainingSeconds;
+  };
+
+  onTimerTick = () => {
+    this.totalTime--;
+    this.timerText.setText("Timer: " + this.formatTime(this.totalTime));
+
+    if (this.totalTime <= 0) {
+      this.timerEvent.remove();
+      this.restartTimer();
+      // inside create()
+    }
+  };
 }
