@@ -68,7 +68,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("resetBoardServer", (room_id) => {
-    console.log("resetBoardServer server");
     room_id = Array.from(socket.rooms)[1];
 
     allGameStates[room_id].tilesPlayed = [];
