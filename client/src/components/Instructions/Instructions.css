@@ -3,15 +3,20 @@ section {
   width: 100%;
   height: 100%;
   background-color: #0d0d35;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
   z-index: 2;
 }
 
 h2 {
   text-decoration: underline;
+}
+
+li {
+  text-align: left;
+  line-height: 2;
+}
+
+#back-button {
+  border: 1px solid white;
 }
 
 @media only screen and (max-width: 600px) {

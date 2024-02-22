@@ -16,8 +16,9 @@ const WelcomePage = () => {
           right: "0%",
           marginTop: "1%",
           marginRight: "1%",
+          border: "1px solid white",
         }}
-        onMouseOver='test'
+        onMouseOver="test"
       >
         ?
       </button>
