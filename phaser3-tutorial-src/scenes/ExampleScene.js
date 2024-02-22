@@ -144,7 +144,7 @@ export default class ExampleScene extends Phaser.Scene {
         gameObject.y = gameObject.input.dragStartY;
         //check if player is using its own tiles
       } else {
-        if (gameObject.texture.key === `player${setPlayer}`) {
+        if (gameObject.texture.key === `player${this.setPlayer}`) {
           gridArray.map((gridPosition) => {
             //check if the position is accepted (Ahmed code)
             if (
@@ -269,10 +269,10 @@ export default class ExampleScene extends Phaser.Scene {
               //update the gridArray with the player occupying the position (x,y)
               gridPosition.player = gameObject.texture.key;
               gameObject.disableInteractive();
-              if (setPlayer === 4) {
-                setPlayer = 1;
+              if (this.setPlayer === 4) {
+                this.setPlayer = 1;
               } else {
-                setPlayer++;
+                this.setPlayer++;
               }
             }
           });
