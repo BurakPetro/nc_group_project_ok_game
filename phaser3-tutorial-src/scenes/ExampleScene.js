@@ -14,6 +14,17 @@ function fetchGameSetup(successCallback) {
   });
 }
 
+function formatTime(seconds) {
+  // Minutes
+  var minutes = Math.floor(seconds / 60);
+  // Seconds
+  var partInSeconds = seconds % 60;
+  // Adds left zeros to seconds
+  partInSeconds = partInSeconds.toString().padStart(2, "0");
+  // Returns formated time
+  return `${minutes}:${partInSeconds}`;
+}
+
 export default class ExampleScene extends Phaser.Scene {
   constructor() {
     super();
@@ -27,7 +38,7 @@ export default class ExampleScene extends Phaser.Scene {
   }
   preload() {
     this.load.image("bg", "assets/background.png");
-    const blockImg = ["redtile2", "greentile", "bluetile", "purpletile"];
+    const blockImg = ["redtile2", "greentile", "bluetile", "orangetile"];
     blockImg.forEach((color, index) => {
       this.load.spritesheet(`player${index + 1}`, `assets/${color}.png`, {
         frameWidth: 30,
@@ -43,78 +54,42 @@ export default class ExampleScene extends Phaser.Scene {
       frameHeight: 30,
     });
     this.load.spritesheet("reset", "assets/reset.png", {
-      frameWidth: 80,
-      frameHeight: 30,
+      frameWidth: 100,
+      frameHeight: 40,
     });
   }
 
   create() {
     this.add.image(600, 412, "bg");
+    /*
+    this.initialTime = 60;
+    this.add.text(300, 32, "Countdown: " + formatTime(this.initialTime));
+    // Each 1000 ms call onEvent
+    this.time.addEvent({
+      delay: 1000,
+      //callback: onEvent,
+      callbackScope: this,
+      loop: true,
+    });*/
 
-    //  grid
+    const button = this.add.sprite(1184 / 2, 750, `reset`).setInteractive();
+    button.on("pointerdown", () => {
+      gridArray = [];
+      this.setPlayer = 1;
+      this.setGrid(size, gridArray);
+      this.setTiles({ players: this.numberOfPlayer, tilesPlayed: [] });
+    });
 
-    const size = 17; //here we imput the size we want for the grid and it will build a grid perfectly centered
-    const totalTiles = size * size;
-    const gridArray = []; //one object for each position in the grid with its name, x and y positions and the player occupying that position, default to null
-    for (let i = 0; i < totalTiles; i++) {
-      const x = ((37 - size) / 2) * 32 + Math.floor(i / size) * 32; //37 is the width of the screen (1184/32)
-      const y = ((25 - size) / 2) * 32 + (i % size) * 32; //25 is the height of the screen (800/32)
-      this.add
-        .zone(1184 / 2, 800 / 2, size * 32, size * 32)
-        .setRectangleDropZone(size * 32, size * 32);
-      if (i === Math.floor(totalTiles / 2)) {
-        const gridPosition = this.add
-          .sprite(x, y, `centreblock`) //the centre position is in a darker gray
-          .setOrigin(0, 0);
-        gridPosition.name = `grid${i}`;
-        gridArray.push({
-          name: gridPosition.name,
-          x: x,
-          y: y,
-          player: null,
-          played: false,
-        });
-      } else {
-        const gridPosition = this.add.sprite(x, y, `gridblock`).setOrigin(0, 0);
-        gridPosition.name = `grid${i}`;
-        gridArray.push({
-          name: gridPosition.name,
-          x: x,
-          y: y,
-          player: null,
-          played: false,
-        });
-      }
+    const size = 17;
+    let gridArray = [];
+
+    this.setGrid(size, gridArray);
+
+    function successCallbackFunction(gameState) {
+      this.setTiles(gameState);
     }
 
-    fetchGameSetup((gameState) => {
-      this.numberOfPlayer = gameState.players;
-      const playerData = [
-        { x: 32, y: 32, color: "#1e1e1e" },
-        { x: 1088, y: 32, color: "#1e1e1e" },
-        { x: 1088, y: 480, color: "#1e1e1e" },
-        { x: 32, y: 480, color: "#1e1e1e" },
-      ].slice(0, gameState.players);
-      playerData.forEach((player, playerIndex) => {
-        this.add
-          .text(player.x, player.y, `Player ${playerIndex + 1}`, {
-            color: player.color,
-          })
-          .setFontSize(15);
-
-        for (let i = 0; i < 16; i++) {
-          const x = player.x + Math.floor(i / 8) * 32;
-          const y = 32 + player.y + (i % 8) * 32;
-
-          const block = this.add
-            .sprite(x, y, `player${playerIndex + 1}`)
-            .setOrigin(0, 0);
-          block.setInteractive({ draggable: true });
-          block.name = `player${playerIndex + 1}tile${i}`;
-        }
-      });
-      this.addTilesToBoard(gameState.tilesPlayed);
-    });
+    fetchGameSetup(successCallbackFunction.bind(this));
 
     this.input.on("dragstart", (pointer, gameObject) => {
       gameObject.setTint(0x868e96);
@@ -151,6 +126,7 @@ export default class ExampleScene extends Phaser.Scene {
 
         socket.emit("draggedObjectPosition", gameObject);
       } else {
+        gameObject.setTint();
         //if the object is dropped outside the grid it goes back to its original position in the deck
         gameObject.x = gameObject.input.dragStartX;
         gameObject.y = gameObject.input.dragStartY;
@@ -278,5 +254,68 @@ export default class ExampleScene extends Phaser.Scene {
     } else {
       this.setPlayer = Number(lastTilePlayedName[6]) + 1;
     }
+  }
+
+  setGrid(size, gridArray) {
+    const totalTiles = size * size;
+    for (let i = 0; i < totalTiles; i++) {
+      const x = ((37 - size) / 2) * 32 + Math.floor(i / size) * 32; //37 is the width of the screen (1184/32)
+      const y = ((25 - size) / 2) * 32 + (i % size) * 32; //25 is the height of the screen (800/32)
+      this.add
+        .zone(1184 / 2, 800 / 2, size * 32, size * 32)
+        .setRectangleDropZone(size * 32, size * 32);
+      if (i === Math.floor(totalTiles / 2)) {
+        const gridPosition = this.add
+          .sprite(x, y, `centreblock`) //the centre position is in a darker gray
+          .setOrigin(0, 0);
+        gridPosition.name = `grid${i}`;
+        gridArray.push({
+          name: gridPosition.name,
+          x: x,
+          y: y,
+          player: null,
+          played: false,
+        });
+      } else {
+        const gridPosition = this.add.sprite(x, y, `gridblock`).setOrigin(0, 0);
+        gridPosition.name = `grid${i}`;
+        gridArray.push({
+          name: gridPosition.name,
+          x: x,
+          y: y,
+          player: null,
+          played: false,
+        });
+      }
+    }
+  }
+
+  setTiles(gameState) {
+    this.numberOfPlayer = gameState.players;
+    const playerData = [
+      { x: 32, y: 32, color: "#1e1e1e" },
+      { x: 1088, y: 32, color: "#1e1e1e" },
+      { x: 1088, y: 480, color: "#1e1e1e" },
+      { x: 32, y: 480, color: "#1e1e1e" },
+    ].slice(0, gameState.players);
+    playerData.forEach((player, playerIndex) => {
+      this.add
+        .text(player.x, player.y, `Player ${playerIndex + 1}`, {
+          color: player.color,
+        })
+        .setFontSize(15);
+
+      for (let i = 0; i < 16; i++) {
+        const x = player.x + Math.floor(i / 8) * 32;
+        const y = 32 + player.y + (i % 8) * 32;
+
+        const block = this.add
+          .sprite(x, y, `player${playerIndex + 1}`)
+          .setOrigin(0, 0);
+        block.setInteractive({ draggable: true });
+        block.name = `player${playerIndex + 1}tile${i}`;
+      }
+    });
+    this.addTilesToBoard(gameState.tilesPlayed);
   }
 }
