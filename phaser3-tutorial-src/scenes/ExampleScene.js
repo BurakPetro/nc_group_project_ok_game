@@ -87,96 +87,6 @@ export default class ExampleScene extends Phaser.Scene {
     });
 
     this.input.on("dragend", (pointer, gameObject, dropped) => {
-      gameObject.setTint(); //change the colour back
-const socket = io();
-const params = new URLSearchParams(document.location.search);
-const room_id = params.get("room_id");
-socket.emit("joinRoom", room_id);
-
-function fetchGameSetup(successCallback) {
-  const params = new URLSearchParams(document.location.search);
-  const room_id = params.get("room_id");
-  socket.emit("getGameState", room_id);
-
-  socket.on("sendGameState", (response) => {
-    socket.off("sendGameState");
-    successCallback(response);
-  });
-}
-
-export default class ExampleScene extends Phaser.Scene {
-  constructor() {
-    super();
-    this.currentTilePositionX;
-    this.currentTilePositionY;
-
-    this.setPlayer = 1;
-
-    // NOTE - numberOfPlayer may get updated from gameState, default value 4
-    this.numberOfPlayer = 4;
-  }
-  preload() {
-    this.load.image("bg", "assets/background.png");
-    const blockImg = ["redtile2", "greentile", "bluetile", "orangetile"];
-    blockImg.forEach((color, index) => {
-      this.load.spritesheet(`player${index + 1}`, `assets/${color}.png`, {
-        frameWidth: 30,
-        frameHeight: 30,
-      });
-    });
-    this.load.spritesheet("gridblock", "assets/graytile.png", {
-      frameWidth: 30,
-      frameHeight: 30,
-    });
-    this.load.spritesheet("centreblock", "assets/centraltile.png", {
-      frameWidth: 30,
-      frameHeight: 30,
-    });
-    this.load.spritesheet("reset", "assets/reset.png", {
-      frameWidth: 100,
-      frameHeight: 40,
-    });
-  }
-
-  create() {
-    this.add.image(600, 412, "bg");
-
-    const button = this.add.sprite(1184 / 2, 750, `reset`).setInteractive();
-    button.on("pointerdown", () => {
-      socket.emit("resetBoardServer");
-    });
-
-    socket.on("resetBoardClient", () => {
-      gridArray = [];
-      this.setPlayer = 1;
-      this.setGrid(size, gridArray);
-      this.setTiles({ players: this.numberOfPlayer, tilesPlayed: [] });
-    });
-
-    const size = 17;
-    let gridArray = [];
-
-    this.setGrid(size, gridArray);
-
-    function successCallbackFunction(gameState) {
-      this.setTiles(gameState);
-    }
-
-    fetchGameSetup(successCallbackFunction.bind(this));
-
-    this.input.on("dragstart", (pointer, gameObject) => {
-      gameObject.setTint(0x868e96);
-      this.currentTilePositionX = gameObject.x;
-      this.currentTilePositionY = gameObject.y;
-    });
-
-    this.input.on("drag", (pointer, gameObject, dragX, dragY) => {
-      dragX = Phaser.Math.Snap.To(dragX, 32);
-      dragY = Phaser.Math.Snap.To(dragY, 32);
-      gameObject.setPosition(dragX, dragY);
-    });
-
-    this.input.on("dragend", (pointer, gameObject, dropped) => {
       //check if player is using its own tiles and can go in that location
 
       if (
@@ -191,6 +101,7 @@ export default class ExampleScene extends Phaser.Scene {
             gridPosition.x === gameObject.x &&
             gridPosition.y === gameObject.y
           ) {
+            this.checkFiveInARow(gridPosition, gameObject, gridArray);
             gridPosition.player = gameObject.texture.key; //update the gridArray with the player occupying the position (x,y)
             gameObject.disableInteractive();
             gridPosition.played = true;
@@ -241,7 +152,6 @@ export default class ExampleScene extends Phaser.Scene {
       console.log(`Sprite with name ${spriteName} not found`);
     }
   }
-
   /**
    * addTilesToBoard move the tiles in the array and sets correct player turn
    * @date 20/02/2024 - 20:46:55
@@ -327,7 +237,6 @@ export default class ExampleScene extends Phaser.Scene {
       this.setPlayer = Number(lastTilePlayedName[6]) + 1;
     }
   }
-
 
   checkFiveInARow(gridPosition, gameObject, gridArray) {
     let currGridArrIndex = Number(gridPosition.name.slice(4));
@@ -434,8 +343,11 @@ export default class ExampleScene extends Phaser.Scene {
       positiveDiagonalCount === 4 ||
       negativeDiagonalCount === 4
     ) {
-      console.log(`${gameObject.texture.key} wins!`);
+      return true
+    } else {
+      return false
     }
+  }
 
   setGrid(size, gridArray) {
     const totalTiles = size * size;
@@ -498,6 +410,5 @@ export default class ExampleScene extends Phaser.Scene {
       }
     });
     this.addTilesToBoard(gameState.tilesPlayed);
-
   }
 }
