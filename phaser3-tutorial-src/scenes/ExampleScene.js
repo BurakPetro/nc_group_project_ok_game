@@ -99,16 +99,132 @@ export default class ExampleScene extends Phaser.Scene {
         //if the object is dropped outside the grid it goes back to its original position in the deck
         gameObject.x = gameObject.input.dragStartX;
         gameObject.y = gameObject.input.dragStartY;
+        //check if player is using its own tiles
       } else {
         if (gameObject.texture.key === `player${setPlayer}`) {
-          //check if player is using its own tiles
           gridArray.map((gridPosition) => {
             //check if the position is accepted (Ahmed code)
             if (
               gridPosition.x === gameObject.x &&
               gridPosition.y === gameObject.y
             ) {
-              gridPosition.player = gameObject.texture.key; //update the gridArray with the player occupying the position (x,y)
+              // check for 5 in a row
+              let currGridArrIndex = Number(gridPosition.name.slice(4));
+              let verticalCount = 0;
+              let horizontalCount = 0;
+              let positiveDiagonalCount = 0;
+              let negativeDiagonalCount = 0;
+              let currCheck = currGridArrIndex;
+              for (let i = 0; i < 32; i++) {
+                // if checked 4 to a given side, go back to middle
+                if (
+                  i === 4 ||
+                  i === 8 ||
+                  i === 12 ||
+                  i === 16 ||
+                  i === 20 ||
+                  i === 24 ||
+                  i === 28
+                ) {
+                  currCheck = currGridArrIndex;
+                }
+                // check above
+                if (i < 4) {
+                  if (
+                    currCheck - 1 >= 0 &&
+                    gridArray[(currCheck -= 1)].player ===
+                      gameObject.texture.key
+                  ) {
+                    verticalCount++;
+                  }
+                }
+                // check below
+                if (i >= 4 && i < 8) {
+                  if (
+                    currCheck + 1 <= 288 &&
+                    gridArray[(currCheck += 1)].player ===
+                      gameObject.texture.key
+                  ) {
+                    verticalCount++;
+                  }
+                }
+                // check to the right
+                if (i >= 8 && i < 12) {
+                  if (
+                    currCheck + 17 <= 288 &&
+                    gridArray[(currCheck += 17)].player ===
+                      gameObject.texture.key
+                  ) {
+                    horizontalCount++;
+                  }
+                }
+                // check to the left
+                if (i >= 12 && i < 16) {
+                  if (
+                    currCheck - 17 >= 0 &&
+                    gridArray[(currCheck -= 17)].player ===
+                      gameObject.texture.key
+                  ) {
+                    horizontalCount++;
+                  }
+                }
+                // check top right
+                if (i >= 16 && i < 20) {
+                  if (
+                    currCheck + 17 - 1 >= 0 &&
+                    currCheck + 17 - 1 <= 288 &&
+                    gridArray[(currCheck += 17 - 1)].player ===
+                      gameObject.texture.key
+                  ) {
+                    positiveDiagonalCount++;
+                  }
+                }
+                // check bottom left
+                if (i >= 20 && i < 24) {
+                  if (
+                    currCheck - 17 + 1 >= 0 &&
+                    currCheck - 17 + 1 <= 288 &&
+                    gridArray[(currCheck = currCheck - 16)].player ===
+                      gameObject.texture.key
+                  ) {
+                    positiveDiagonalCount++;
+                  }
+                }
+                // check top left
+                if (i >= 24 && i < 28) {
+                  if (
+                    currCheck - 18 >= 0 &&
+                    currCheck - 18 <= 288 &&
+                    gridArray[(currCheck -= 18)].player ===
+                      gameObject.texture.key
+                  ) {
+                    negativeDiagonalCount++;
+                  }
+                }
+                // check bottom right
+                if (i >= 28) {
+                  if (
+                    currCheck + 18 <= 288 &&
+                    gridArray[(currCheck += 18)].player ===
+                      gameObject.texture.key
+                  ) {
+                    negativeDiagonalCount++;
+                  }
+                }
+              }
+
+              // console.log the winner
+              if (
+                verticalCount >= 4 ||
+                horizontalCount >= 4 ||
+                positiveDiagonalCount === 4 ||
+                negativeDiagonalCount === 4
+              ) {
+                console.log(`${gameObject.texture.key} wins!`);
+              }
+
+              //update the gridArray with the player occupying the position (x,y)
+              gridPosition.player = gameObject.texture.key;
               gameObject.disableInteractive();
               if (setPlayer === 4) {
                 setPlayer = 1;
