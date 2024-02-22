@@ -14,17 +14,6 @@ function fetchGameSetup(successCallback) {
   });
 }
 
-function formatTime(seconds) {
-  // Minutes
-  var minutes = Math.floor(seconds / 60);
-  // Seconds
-  var partInSeconds = seconds % 60;
-  // Adds left zeros to seconds
-  partInSeconds = partInSeconds.toString().padStart(2, "0");
-  // Returns formated time
-  return `${minutes}:${partInSeconds}`;
-}
-
 export default class ExampleScene extends Phaser.Scene {
   constructor() {
     super();
@@ -61,19 +50,13 @@ export default class ExampleScene extends Phaser.Scene {
 
   create() {
     this.add.image(600, 412, "bg");
-    /*
-    this.initialTime = 60;
-    this.add.text(300, 32, "Countdown: " + formatTime(this.initialTime));
-    // Each 1000 ms call onEvent
-    this.time.addEvent({
-      delay: 1000,
-      //callback: onEvent,
-      callbackScope: this,
-      loop: true,
-    });*/
 
     const button = this.add.sprite(1184 / 2, 750, `reset`).setInteractive();
     button.on("pointerdown", () => {
+      socket.emit("resetBoardServer");
+    });
+
+    socket.on("resetBoardClient", () => {
       gridArray = [];
       this.setPlayer = 1;
       this.setGrid(size, gridArray);
@@ -144,7 +127,6 @@ export default class ExampleScene extends Phaser.Scene {
         gridArray[
           this.getGridArrayIndexFromLocation(gridArray, data.x, data.y)
         ];
-
       gridPosition.player = data.textureKey;
       gridPosition.played = true;
     });
