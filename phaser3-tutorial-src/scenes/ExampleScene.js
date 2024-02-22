@@ -1,3 +1,5 @@
+import { resetBoard } from "./helper/setUpBoard.js";
+
 const socket = io();
 const params = new URLSearchParams(document.location.search);
 const room_id = params.get("room_id");
@@ -57,10 +59,8 @@ export default class ExampleScene extends Phaser.Scene {
     });
 
     socket.on("resetBoardClient", () => {
-      gridArray = [];
+      resetBoard(this.children.list);
       this.setPlayer = 1;
-      this.setGrid(size, gridArray);
-      this.setTiles({ players: this.numberOfPlayer, tilesPlayed: [] });
     });
 
     const size = 17;
@@ -362,23 +362,21 @@ export default class ExampleScene extends Phaser.Scene {
           .sprite(x, y, `centreblock`) //the centre position is in a darker gray
           .setOrigin(0, 0);
         gridPosition.name = `grid${i}`;
-        gridArray.push({
-          name: gridPosition.name,
-          x: x,
-          y: y,
-          player: null,
-          played: false,
-        });
+        gridPosition.startingLocation = [x, y];
+        gridPosition.description = "board";
+        gridPosition.player = null;
+        gridPosition.played = false;
+
+        gridArray.push(gridPosition);
       } else {
         const gridPosition = this.add.sprite(x, y, `gridblock`).setOrigin(0, 0);
         gridPosition.name = `grid${i}`;
-        gridArray.push({
-          name: gridPosition.name,
-          x: x,
-          y: y,
-          player: null,
-          played: false,
-        });
+        gridPosition.startingLocation = [x, y];
+        gridPosition.description = "board";
+        gridPosition.player = null;
+        gridPosition.played = false;
+
+        gridArray.push(gridPosition);
       }
     }
   }
@@ -407,6 +405,9 @@ export default class ExampleScene extends Phaser.Scene {
           .setOrigin(0, 0);
         block.setInteractive({ draggable: true });
         block.name = `player${playerIndex + 1}tile${i}`;
+        block.startingLocation = [x, y];
+        block.description = "playersTile";
+        block.depth = 1;
       }
     });
     this.addTilesToBoard(gameState.tilesPlayed);
