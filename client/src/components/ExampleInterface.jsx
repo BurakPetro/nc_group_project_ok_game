@@ -10,13 +10,7 @@ const ExampleInterface = ({ setgameSettings }) => {
   const [massageReceived, setMessageReceived] = useState('');
   function handleUserGameSettings(event) {
     event.preventDefault();
-    /* if (boardSize < 10) {
-      setgameSettings(10);
-    } else if (boardSize > 25) {
-      setgameSettings(25);
-    } else {
-      setgameSettings(boardSize);
-    }*/
+
     setgameSettings(boardSize);
     navigate('/game1');
   }

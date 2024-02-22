@@ -25,7 +25,7 @@ const LinkToJoinGame = ({ gameSettingsSubmitted }) => {
       <div className="link-block">
         <input
           value={inputJoinLinkHolder}
-          placeholder="Your joining game link here"
+          placeholder="Your joining game link goes here"
           onChange={(event) => {
             setInputJoinLinkHolder(event.target.value);
           }}
@@ -40,6 +40,7 @@ const LinkToJoinGame = ({ gameSettingsSubmitted }) => {
         <div className="link-to-join-game">{joinLink}</div>
 
         <button
+          className="create-game-button"
           onClick={generateLinkForNewGame}
           disabled={
             waitingForGame ? true : gameSettingsSubmitted ? false : true
@@ -47,6 +48,7 @@ const LinkToJoinGame = ({ gameSettingsSubmitted }) => {
         >
           Create game
         </button>
+        <button>TemButton</button>
       </div>
     </>
   );

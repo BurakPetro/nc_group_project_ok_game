@@ -2,26 +2,30 @@ import io from 'socket.io-client';
 import Select from './Select.jsx';
 import { useState, useEffect } from 'react';
 
-const GameSettings = ({ gameSettingsSubmitted, setGameSettingsSubmitted }) => {
-  const socket = io.connect('http://localhost:3001');
+const GameSettings = ({
+  gameSettingsSubmitted,
+  setGameSettingsSubmitted,
+  socket,
+}) => {
   const [boardSize, setboardSize] = useState(17);
   const [numberOfPlayers, setNumberOfPlayers] = useState(2);
   const [numberOfBlocksInGame, setnumberOfBlocksInGame] = useState(10);
   const [playerOneColor, setPlayerOneColor] = useState('red');
 
   const [serverResponse, setServerResponce] = useState(null); // to proces server responce in future
-  useEffect(() => {
+  /* useEffect(() => {
     socket.on('receive_message', (data) => {
       console.log(data.message);
       setServerResponce(data.message);
     });
-  }, [socket]); //TO DO specify which soket to send data
+  }, [socket]); //TO DO specify which soket to send data*/
 
   const sendData = (data) => {
     socket.emit('send_message', { data });
   };
   function handleUserGameSettingsSubmit(event) {
     if (gameSettingsSubmitted) {
+      event.preventDefault();
       setGameSettingsSubmitted(false);
     } else {
       event.preventDefault();
@@ -37,6 +41,7 @@ const GameSettings = ({ gameSettingsSubmitted, setGameSettingsSubmitted }) => {
 
   return (
     <>
+      <h1>Chose your settings to create a new game</h1>
       <form onSubmit={handleUserGameSettingsSubmit}>
         <Select
           label="Choose number of players?"
