@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "test": "jest",
     "server": "node server/src/server.js",
-    "dev-server": "nodemon server/src/server.js"
+    "dev-server": "NODE_ENV=development nodemon server/src/server.js"
   },
   "dependencies": {
     "express": "^4.18.2",
