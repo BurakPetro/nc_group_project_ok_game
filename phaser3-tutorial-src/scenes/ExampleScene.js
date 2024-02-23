@@ -22,12 +22,12 @@ export default class ExampleScene extends Phaser.Scene {
     this.currentTilePositionX;
     this.currentTilePositionY;
     this.turnSprite = null;
-
     this.setPlayer = 1;
-
-    // NOTE - numberOfPlayer may get updated from gameState, default value 4
     this.numberOfPlayer = 4;
+    this.gridArray = [];
+    this.size = 17;
   }
+
   preload() {
     this.load.image("bg", "assets/background.png");
     const blockImg = ["redtile2", "greentile", "bluetile", "orangetile"];
@@ -55,26 +55,33 @@ export default class ExampleScene extends Phaser.Scene {
     this.add.image(600, 412, "bg");
     this.turnSprite = this.createTurnSprite();
 
-    const button = this.add.sprite(1184 / 2, 750, `reset`).setInteractive();
+    const button = this.add
+      .sprite((3 * 1184) / 4, 750, `reset`)
+      .setInteractive();
     button.on("pointerdown", () => {
       socket.emit("resetBoardServer");
     });
 
     socket.on("resetBoardClient", () => {
+      if (this.winnerText) {
+        this.winnerText.setText("");
+      }
+      this.restartTimer(this.gridArray);
       resetBoard(this.children.list);
       this.setPlayer = 1;
     });
 
-    const size = 17;
-    let gridArray = [];
+    this.setGrid();
 
-    this.setGrid(size, gridArray);
+    this.restartTimer();
 
     function successCallbackFunction(gameState) {
       this.setTiles(gameState);
     }
 
     fetchGameSetup(successCallbackFunction.bind(this));
+
+    this.winnerText;
 
     this.input.on("dragstart", (pointer, gameObject) => {
       gameObject.setTint(0x868e96);
@@ -92,21 +99,33 @@ export default class ExampleScene extends Phaser.Scene {
       //check if player is using its own tiles and can go in that location
 
       if (
-        this.canATileGoInThisLocation(gridArray, gameObject, size) &&
+        this.canATileGoInThisLocation(gameObject) &&
         gameObject.texture.key === `player${this.setPlayer}`
       ) {
         gameObject.setTint(); //change the colour back
-
-        gridArray.map((gridPosition) => {
+        //this.restartTimer();
+        this.gridArray.map((gridPosition) => {
           //check if the position is accepted
           if (
             gridPosition.x === gameObject.x &&
             gridPosition.y === gameObject.y
           ) {
-            this.checkFiveInARow(gridPosition, gameObject, gridArray);
+            //this.checkFiveInARow(gridPosition, gameObject, gridArray);
             gridPosition.player = gameObject.texture.key; //update the gridArray with the player occupying the position (x,y)
             gameObject.disableInteractive();
             gridPosition.played = true;
+            //check for winner and display text
+            if (this.checkFiveInARow(gridPosition, gameObject) === true) {
+              this.winnerText = this.add
+                .text(120, 10, `Player${this.setPlayer} WINS!!!!!`, {
+                  color: "#1e1e1e",
+                })
+                .setFontSize(100);
+
+              setTimeout(() => {
+                socket.emit("resetBoardServer");
+              }, 2000);
+            }
           }
         });
 
@@ -124,16 +143,17 @@ export default class ExampleScene extends Phaser.Scene {
 
       // TODO looking into making gridArray a this. variable as passing it around a lot
 
-      this.moveSpriteByName(data.name, data.x, data.y, gridArray);
+      this.moveSpriteByName(data.name, data.x, data.y);
 
       const gridPosition =
-        gridArray[
-          this.getGridArrayIndexFromLocation(gridArray, data.x, data.y)
-        ];
+        this.gridArray[this.getGridArrayIndexFromLocation(data.x, data.y)];
       gridPosition.player = data.textureKey;
       gridPosition.played = true;
+
+      this.restartTimer();
     });
   }
+
   /**
    * moveSpriteByName - Move sprite to given location, Note does not check if location is correct
    * @date 20/02/2024 - 20:50:05
@@ -169,9 +189,8 @@ export default class ExampleScene extends Phaser.Scene {
     });
   }
 
-  canATileGoInThisLocation(gridArray, gameObject, gridSize) {
+  canATileGoInThisLocation(gameObject) {
     const currentgridArrayIndex = this.getGridArrayIndexFromLocation(
-      gridArray,
       gameObject.x,
       gameObject.y
     );
@@ -180,35 +199,35 @@ export default class ExampleScene extends Phaser.Scene {
       return false;
     }
 
-    if (gridArray[currentgridArrayIndex].player !== null) {
+    if (this.gridArray[currentgridArrayIndex].player !== null) {
       return false;
     } else if (
-      currentgridArrayIndex % 17 !== 0 &&
-      gridArray[currentgridArrayIndex - 1].player !== null
+      currentgridArrayIndex % this.size !== 0 &&
+      this.gridArray[currentgridArrayIndex - 1].player !== null
     ) {
       //TOP
       return true;
     } else if (
-      (currentgridArrayIndex + 1) % 17 !== 0 &&
-      gridArray[currentgridArrayIndex + 1].player !== null
+      (currentgridArrayIndex + 1) % this.size !== 0 &&
+      this.gridArray[currentgridArrayIndex + 1].player !== null
     ) {
       //BOTTOM
       return true;
     } else if (
-      gridSize <= currentgridArrayIndex &&
-      gridArray[currentgridArrayIndex - gridSize].player !== null
+      this.size <= currentgridArrayIndex &&
+      this.gridArray[currentgridArrayIndex - this.size].player !== null
     ) {
       //LEFT
       return true;
     } else if (
-      currentgridArrayIndex + gridSize < gridArray.length &&
-      gridArray[currentgridArrayIndex + gridSize].player !== null
+      currentgridArrayIndex + this.size < this.gridArray.length &&
+      this.gridArray[currentgridArrayIndex + this.size].player !== null
     ) {
       //RIGHT
       return true;
     } else if (
       currentgridArrayIndex === 144 &&
-      gridArray[currentgridArrayIndex].player === null
+      this.gridArray[currentgridArrayIndex].player === null
     ) {
       return true;
     }
@@ -216,9 +235,9 @@ export default class ExampleScene extends Phaser.Scene {
     return false;
   }
 
-  getGridArrayIndexFromLocation(gridArray, locationX, locationY) {
+  getGridArrayIndexFromLocation(locationX, locationY) {
     let indexValue = false;
-    gridArray.map((gridPosition, index) => {
+    this.gridArray.map((gridPosition, index) => {
       if (gridPosition.x === locationX && gridPosition.y === locationY) {
         indexValue = index;
       }
@@ -250,7 +269,7 @@ export default class ExampleScene extends Phaser.Scene {
     }
   }
 
-  checkFiveInARow(gridPosition, gameObject, gridArray) {
+  checkFiveInARow(gridPosition, gameObject) {
     let currGridArrIndex = Number(gridPosition.name.slice(4));
     let verticalCount = 0;
     let horizontalCount = 0;
@@ -274,7 +293,7 @@ export default class ExampleScene extends Phaser.Scene {
       if (i < 4) {
         if (
           currCheck - 1 >= 0 &&
-          gridArray[(currCheck -= 1)].player === gameObject.texture.key
+          this.gridArray[(currCheck -= 1)].player === gameObject.texture.key
         ) {
           verticalCount++;
         }
@@ -283,7 +302,7 @@ export default class ExampleScene extends Phaser.Scene {
       if (i >= 4 && i < 8) {
         if (
           currCheck + 1 <= 288 &&
-          gridArray[(currCheck += 1)].player === gameObject.texture.key
+          this.gridArray[(currCheck += 1)].player === gameObject.texture.key
         ) {
           verticalCount++;
         }
@@ -292,7 +311,7 @@ export default class ExampleScene extends Phaser.Scene {
       if (i >= 8 && i < 12) {
         if (
           currCheck + 17 <= 288 &&
-          gridArray[(currCheck += 17)].player === gameObject.texture.key
+          this.gridArray[(currCheck += 17)].player === gameObject.texture.key
         ) {
           horizontalCount++;
         }
@@ -301,7 +320,7 @@ export default class ExampleScene extends Phaser.Scene {
       if (i >= 12 && i < 16) {
         if (
           currCheck - 17 >= 0 &&
-          gridArray[(currCheck -= 17)].player === gameObject.texture.key
+          this.gridArray[(currCheck -= 17)].player === gameObject.texture.key
         ) {
           horizontalCount++;
         }
@@ -311,7 +330,8 @@ export default class ExampleScene extends Phaser.Scene {
         if (
           currCheck + 17 - 1 >= 0 &&
           currCheck + 17 - 1 <= 288 &&
-          gridArray[(currCheck += 17 - 1)].player === gameObject.texture.key
+          this.gridArray[(currCheck += 17 - 1)].player ===
+            gameObject.texture.key
         ) {
           positiveDiagonalCount++;
         }
@@ -321,7 +341,7 @@ export default class ExampleScene extends Phaser.Scene {
         if (
           currCheck - 17 + 1 >= 0 &&
           currCheck - 17 + 1 <= 288 &&
-          gridArray[(currCheck = currCheck - 16)].player ===
+          this.gridArray[(currCheck = currCheck - 16)].player ===
             gameObject.texture.key
         ) {
           positiveDiagonalCount++;
@@ -332,7 +352,7 @@ export default class ExampleScene extends Phaser.Scene {
         if (
           currCheck - 18 >= 0 &&
           currCheck - 18 <= 288 &&
-          gridArray[(currCheck -= 18)].player === gameObject.texture.key
+          this.gridArray[(currCheck -= 18)].player === gameObject.texture.key
         ) {
           negativeDiagonalCount++;
         }
@@ -341,7 +361,7 @@ export default class ExampleScene extends Phaser.Scene {
       if (i >= 28) {
         if (
           currCheck + 18 <= 288 &&
-          gridArray[(currCheck += 18)].player === gameObject.texture.key
+          this.gridArray[(currCheck += 18)].player === gameObject.texture.key
         ) {
           negativeDiagonalCount++;
         }
@@ -355,20 +375,20 @@ export default class ExampleScene extends Phaser.Scene {
       positiveDiagonalCount === 4 ||
       negativeDiagonalCount === 4
     ) {
-      return true
+      return true;
     } else {
-      return false
+      return false;
     }
   }
 
-  setGrid(size, gridArray) {
-    const totalTiles = size * size;
+  setGrid() {
+    const totalTiles = this.size * this.size;
     for (let i = 0; i < totalTiles; i++) {
-      const x = ((37 - size) / 2) * 32 + Math.floor(i / size) * 32; //37 is the width of the screen (1184/32)
-      const y = ((25 - size) / 2) * 32 + (i % size) * 32; //25 is the height of the screen (800/32)
+      const x = ((37 - this.size) / 2) * 32 + Math.floor(i / this.size) * 32; //37 is the width of the screen (1184/32)
+      const y = ((25 - this.size) / 2) * 32 + (i % this.size) * 32; //25 is the height of the screen (800/32)
       this.add
-        .zone(1184 / 2, 800 / 2, size * 32, size * 32)
-        .setRectangleDropZone(size * 32, size * 32);
+        .zone(1184 / 2, 800 / 2, this.size * 32, this.size * 32)
+        .setRectangleDropZone(this.size * 32, this.size * 32);
       if (i === Math.floor(totalTiles / 2)) {
         const gridPosition = this.add
           .sprite(x, y, `centreblock`) //the centre position is in a darker gray
@@ -379,7 +399,7 @@ export default class ExampleScene extends Phaser.Scene {
         gridPosition.player = null;
         gridPosition.played = false;
 
-        gridArray.push(gridPosition);
+        this.gridArray.push(gridPosition);
       } else {
         const gridPosition = this.add.sprite(x, y, `gridblock`).setOrigin(0, 0);
         gridPosition.name = `grid${i}`;
@@ -388,7 +408,7 @@ export default class ExampleScene extends Phaser.Scene {
         gridPosition.player = null;
         gridPosition.played = false;
 
-        gridArray.push(gridPosition);
+        this.gridArray.push(gridPosition);
       }
     }
   }
@@ -432,5 +452,125 @@ export default class ExampleScene extends Phaser.Scene {
     rectangle.strokeRect(25, 30, 85, 300);
     rectangle.startingLocation = [-4, -5];
     return rectangle;
+  }
+
+  restartTimer = () => {
+    this.totalTime = 5;
+    if (this.timerText) {
+      this.timerText.updateText("Timer: " + this.formatTime(this.totalTime));
+    } else {
+      this.timerText = this.add.text(
+        1184 / 4,
+        750,
+        "Timer: " + this.formatTime(this.totalTime),
+        {
+          font: "35px Arial",
+          fill: "#1e1e1e",
+        }
+      );
+      this.timerText.setOrigin(0.5);
+    }
+    if (this.timerEvent) {
+      this.timerEvent.remove();
+    }
+    this.timerEvent = this.time.addEvent({
+      delay: 1000,
+      callback: this.onTimerTick,
+      callbackScope: this,
+      loop: true,
+    });
+  };
+
+  formatTime = (seconds) => {
+    let minutes = Math.floor(seconds / 60);
+    let remainingSeconds = seconds % 60;
+
+    if (remainingSeconds < 10) {
+      remainingSeconds = "0" + remainingSeconds;
+    }
+
+    return minutes + ":" + remainingSeconds;
+  };
+
+  onTimerTick = () => {
+    this.totalTime--;
+    this.timerText.setText("Timer: " + this.formatTime(this.totalTime));
+
+    if (this.totalTime <= 0) {
+      this.timerEvent.remove();
+
+      const whereToPlaceTile = this.pickRandomLocationItCanGo();
+
+      if (whereToPlaceTile) {
+        //search for a tile that is in its original position and move it
+        for (let i = 0; i < 16; i++) {
+          const findSpriteUnmoved = this.children.list.find((child) => {
+            return child.name === `player${this.setPlayer}tile${i}`;
+          });
+          const findGridPosition = this.children.list.find((child) => {
+            return (
+              child.description === "board" &&
+              child.x === whereToPlaceTile.x &&
+              child.y === whereToPlaceTile.y
+            );
+          });
+
+          if (
+            findSpriteUnmoved.x === findSpriteUnmoved.startingLocation[0] &&
+            findSpriteUnmoved.y === findSpriteUnmoved.startingLocation[1]
+          ) {
+            findSpriteUnmoved.x = whereToPlaceTile.x;
+            findSpriteUnmoved.y = whereToPlaceTile.y;
+            i = 16;
+
+            findGridPosition.player = `player${this.setPlayer}`;
+            findSpriteUnmoved.disableInteractive();
+            findGridPosition.played = true;
+
+            //check for winner and display text
+            if (
+              this.checkFiveInARow(findGridPosition, findSpriteUnmoved) === true
+            ) {
+              this.winnerText = this.add
+                .text(120, 20, `Player${this.setPlayer} WINS!!!!`, {
+                  color: "#1e1e1e",
+                })
+                .setFontSize(100);
+            }
+            socket.emit("draggedObjectPosition", findSpriteUnmoved);
+          }
+        }
+      }
+      this.restartTimer();
+    }
+  };
+
+  getRndInteger(min, max) {
+    return Math.floor(Math.random() * (max - min)) + min;
+  }
+
+  pickRandomLocationItCanGo() {
+    const playableLocation = this.listOfAllPlayableLocations();
+    console.log(playableLocation);
+    const randomPosition = this.getRndInteger(0, playableLocation.length);
+    return playableLocation[randomPosition];
+  }
+
+  listOfAllPlayableLocations() {
+    const playableLocations = [];
+    this.gridArray.map((item, index) => {
+      if (
+        this.canATileGoInThisLocation({
+          x: this.gridArray[index].x,
+          y: this.gridArray[index].y,
+        })
+      ) {
+        playableLocations.push({
+          x: this.gridArray[index].x,
+          y: this.gridArray[index].y,
+        });
+      }
+    });
+    return playableLocations;
   }
 }
