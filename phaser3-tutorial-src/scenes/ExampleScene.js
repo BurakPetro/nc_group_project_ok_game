@@ -117,10 +117,14 @@ export default class ExampleScene extends Phaser.Scene {
             //check for winner and display text
             if (this.checkFiveInARow(gridPosition, gameObject) === true) {
               this.winnerText = this.add
-                .text(100, 20, `Player${this.setPlayer} WINS!!!!`, {
+                .text(120, 10, `Player${this.setPlayer} WINS!!!!!`, {
                   color: "#1e1e1e",
                 })
                 .setFontSize(100);
+
+              setTimeout(() => {
+                socket.emit("resetBoardServer");
+              }, 2000);
             }
           }
         });
@@ -496,7 +500,6 @@ export default class ExampleScene extends Phaser.Scene {
       this.timerEvent.remove();
 
       const whereToPlaceTile = this.pickRandomLocationItCanGo();
-      console.log(whereToPlaceTile);
 
       if (whereToPlaceTile) {
         //search for a tile that is in its original position and move it
@@ -529,7 +532,7 @@ export default class ExampleScene extends Phaser.Scene {
               this.checkFiveInARow(findGridPosition, findSpriteUnmoved) === true
             ) {
               this.winnerText = this.add
-                .text(100, 20, `Player${this.setPlayer} WINS!!!!`, {
+                .text(120, 20, `Player${this.setPlayer} WINS!!!!`, {
                   color: "#1e1e1e",
                 })
                 .setFontSize(100);
