@@ -21,11 +21,10 @@ export default class ExampleScene extends Phaser.Scene {
     super();
     this.currentTilePositionX;
     this.currentTilePositionY;
-
     this.setPlayer = 1;
-
-    // NOTE - numberOfPlayer may get updated from gameState, default value 4
     this.numberOfPlayer = 4;
+    this.gridArray = [];
+    this.size = 17;
   }
 
   preload() {
@@ -65,17 +64,14 @@ export default class ExampleScene extends Phaser.Scene {
       if (this.winnerText) {
         this.winnerText.setText("");
       }
-      this.restartTimer();
+      this.restartTimer(this.gridArray);
       resetBoard(this.children.list);
       this.setPlayer = 1;
     });
 
-    const size = 17;
-    let gridArray = [];
+    this.setGrid();
 
-    this.setGrid(size, gridArray);
-
-    this.restartTimer(gridArray);
+    this.restartTimer();
 
     function successCallbackFunction(gameState) {
       this.setTiles(gameState);
@@ -101,12 +97,12 @@ export default class ExampleScene extends Phaser.Scene {
       //check if player is using its own tiles and can go in that location
 
       if (
-        this.canATileGoInThisLocation(gridArray, gameObject, size) &&
+        this.canATileGoInThisLocation(gameObject) &&
         gameObject.texture.key === `player${this.setPlayer}`
       ) {
         gameObject.setTint(); //change the colour back
-        this.restartTimer();
-        gridArray.map((gridPosition) => {
+        //this.restartTimer();
+        this.gridArray.map((gridPosition) => {
           //check if the position is accepted
           if (
             gridPosition.x === gameObject.x &&
@@ -117,11 +113,9 @@ export default class ExampleScene extends Phaser.Scene {
             gameObject.disableInteractive();
             gridPosition.played = true;
             //check for winner and display text
-            if (
-              this.checkFiveInARow(gridPosition, gameObject, gridArray) === true
-            ) {
+            if (this.checkFiveInARow(gridPosition, gameObject) === true) {
               this.winnerText = this.add
-                .text(10, 20, `Player${this.setPlayer} WINS!!!!`, {
+                .text(100, 20, `Player${this.setPlayer} WINS!!!!`, {
                   color: "#1e1e1e",
                 })
                 .setFontSize(100);
@@ -143,14 +137,14 @@ export default class ExampleScene extends Phaser.Scene {
 
       // TODO looking into making gridArray a this. variable as passing it around a lot
 
-      this.moveSpriteByName(data.name, data.x, data.y, gridArray);
+      this.moveSpriteByName(data.name, data.x, data.y);
 
       const gridPosition =
-        gridArray[
-          this.getGridArrayIndexFromLocation(gridArray, data.x, data.y)
-        ];
+        this.gridArray[this.getGridArrayIndexFromLocation(data.x, data.y)];
       gridPosition.player = data.textureKey;
       gridPosition.played = true;
+
+      this.restartTimer();
     });
   }
 
@@ -189,9 +183,8 @@ export default class ExampleScene extends Phaser.Scene {
     });
   }
 
-  canATileGoInThisLocation(gridArray, gameObject, gridSize) {
+  canATileGoInThisLocation(gameObject) {
     const currentgridArrayIndex = this.getGridArrayIndexFromLocation(
-      gridArray,
       gameObject.x,
       gameObject.y
     );
@@ -200,35 +193,35 @@ export default class ExampleScene extends Phaser.Scene {
       return false;
     }
 
-    if (gridArray[currentgridArrayIndex].player !== null) {
+    if (this.gridArray[currentgridArrayIndex].player !== null) {
       return false;
     } else if (
-      currentgridArrayIndex % 17 !== 0 &&
-      gridArray[currentgridArrayIndex - 1].player !== null
+      currentgridArrayIndex % this.size !== 0 &&
+      this.gridArray[currentgridArrayIndex - 1].player !== null
     ) {
       //TOP
       return true;
     } else if (
-      (currentgridArrayIndex + 1) % 17 !== 0 &&
-      gridArray[currentgridArrayIndex + 1].player !== null
+      (currentgridArrayIndex + 1) % this.size !== 0 &&
+      this.gridArray[currentgridArrayIndex + 1].player !== null
     ) {
       //BOTTOM
       return true;
     } else if (
-      gridSize <= currentgridArrayIndex &&
-      gridArray[currentgridArrayIndex - gridSize].player !== null
+      this.size <= currentgridArrayIndex &&
+      this.gridArray[currentgridArrayIndex - this.size].player !== null
     ) {
       //LEFT
       return true;
     } else if (
-      currentgridArrayIndex + gridSize < gridArray.length &&
-      gridArray[currentgridArrayIndex + gridSize].player !== null
+      currentgridArrayIndex + this.size < this.gridArray.length &&
+      this.gridArray[currentgridArrayIndex + this.size].player !== null
     ) {
       //RIGHT
       return true;
     } else if (
       currentgridArrayIndex === 144 &&
-      gridArray[currentgridArrayIndex].player === null
+      this.gridArray[currentgridArrayIndex].player === null
     ) {
       return true;
     }
@@ -236,9 +229,9 @@ export default class ExampleScene extends Phaser.Scene {
     return false;
   }
 
-  getGridArrayIndexFromLocation(gridArray, locationX, locationY) {
+  getGridArrayIndexFromLocation(locationX, locationY) {
     let indexValue = false;
-    gridArray.map((gridPosition, index) => {
+    this.gridArray.map((gridPosition, index) => {
       if (gridPosition.x === locationX && gridPosition.y === locationY) {
         indexValue = index;
       }
@@ -260,7 +253,7 @@ export default class ExampleScene extends Phaser.Scene {
     }
   }
 
-  checkFiveInARow(gridPosition, gameObject, gridArray) {
+  checkFiveInARow(gridPosition, gameObject) {
     let currGridArrIndex = Number(gridPosition.name.slice(4));
     let verticalCount = 0;
     let horizontalCount = 0;
@@ -284,7 +277,7 @@ export default class ExampleScene extends Phaser.Scene {
       if (i < 4) {
         if (
           currCheck - 1 >= 0 &&
-          gridArray[(currCheck -= 1)].player === gameObject.texture.key
+          this.gridArray[(currCheck -= 1)].player === gameObject.texture.key
         ) {
           verticalCount++;
         }
@@ -293,7 +286,7 @@ export default class ExampleScene extends Phaser.Scene {
       if (i >= 4 && i < 8) {
         if (
           currCheck + 1 <= 288 &&
-          gridArray[(currCheck += 1)].player === gameObject.texture.key
+          this.gridArray[(currCheck += 1)].player === gameObject.texture.key
         ) {
           verticalCount++;
         }
@@ -302,7 +295,7 @@ export default class ExampleScene extends Phaser.Scene {
       if (i >= 8 && i < 12) {
         if (
           currCheck + 17 <= 288 &&
-          gridArray[(currCheck += 17)].player === gameObject.texture.key
+          this.gridArray[(currCheck += 17)].player === gameObject.texture.key
         ) {
           horizontalCount++;
         }
@@ -311,7 +304,7 @@ export default class ExampleScene extends Phaser.Scene {
       if (i >= 12 && i < 16) {
         if (
           currCheck - 17 >= 0 &&
-          gridArray[(currCheck -= 17)].player === gameObject.texture.key
+          this.gridArray[(currCheck -= 17)].player === gameObject.texture.key
         ) {
           horizontalCount++;
         }
@@ -321,7 +314,8 @@ export default class ExampleScene extends Phaser.Scene {
         if (
           currCheck + 17 - 1 >= 0 &&
           currCheck + 17 - 1 <= 288 &&
-          gridArray[(currCheck += 17 - 1)].player === gameObject.texture.key
+          this.gridArray[(currCheck += 17 - 1)].player ===
+            gameObject.texture.key
         ) {
           positiveDiagonalCount++;
         }
@@ -331,7 +325,7 @@ export default class ExampleScene extends Phaser.Scene {
         if (
           currCheck - 17 + 1 >= 0 &&
           currCheck - 17 + 1 <= 288 &&
-          gridArray[(currCheck = currCheck - 16)].player ===
+          this.gridArray[(currCheck = currCheck - 16)].player ===
             gameObject.texture.key
         ) {
           positiveDiagonalCount++;
@@ -342,7 +336,7 @@ export default class ExampleScene extends Phaser.Scene {
         if (
           currCheck - 18 >= 0 &&
           currCheck - 18 <= 288 &&
-          gridArray[(currCheck -= 18)].player === gameObject.texture.key
+          this.gridArray[(currCheck -= 18)].player === gameObject.texture.key
         ) {
           negativeDiagonalCount++;
         }
@@ -351,7 +345,7 @@ export default class ExampleScene extends Phaser.Scene {
       if (i >= 28) {
         if (
           currCheck + 18 <= 288 &&
-          gridArray[(currCheck += 18)].player === gameObject.texture.key
+          this.gridArray[(currCheck += 18)].player === gameObject.texture.key
         ) {
           negativeDiagonalCount++;
         }
@@ -371,14 +365,14 @@ export default class ExampleScene extends Phaser.Scene {
     }
   }
 
-  setGrid(size, gridArray) {
-    const totalTiles = size * size;
+  setGrid() {
+    const totalTiles = this.size * this.size;
     for (let i = 0; i < totalTiles; i++) {
-      const x = ((37 - size) / 2) * 32 + Math.floor(i / size) * 32; //37 is the width of the screen (1184/32)
-      const y = ((25 - size) / 2) * 32 + (i % size) * 32; //25 is the height of the screen (800/32)
+      const x = ((37 - this.size) / 2) * 32 + Math.floor(i / this.size) * 32; //37 is the width of the screen (1184/32)
+      const y = ((25 - this.size) / 2) * 32 + (i % this.size) * 32; //25 is the height of the screen (800/32)
       this.add
-        .zone(1184 / 2, 800 / 2, size * 32, size * 32)
-        .setRectangleDropZone(size * 32, size * 32);
+        .zone(1184 / 2, 800 / 2, this.size * 32, this.size * 32)
+        .setRectangleDropZone(this.size * 32, this.size * 32);
       if (i === Math.floor(totalTiles / 2)) {
         const gridPosition = this.add
           .sprite(x, y, `centreblock`) //the centre position is in a darker gray
@@ -389,7 +383,7 @@ export default class ExampleScene extends Phaser.Scene {
         gridPosition.player = null;
         gridPosition.played = false;
 
-        gridArray.push(gridPosition);
+        this.gridArray.push(gridPosition);
       } else {
         const gridPosition = this.add.sprite(x, y, `gridblock`).setOrigin(0, 0);
         gridPosition.name = `grid${i}`;
@@ -398,7 +392,7 @@ export default class ExampleScene extends Phaser.Scene {
         gridPosition.player = null;
         gridPosition.played = false;
 
-        gridArray.push(gridPosition);
+        this.gridArray.push(gridPosition);
       }
     }
   }
@@ -435,7 +429,7 @@ export default class ExampleScene extends Phaser.Scene {
     this.addTilesToBoard(gameState.tilesPlayed);
   }
 
-  restartTimer = (gridArray) => {
+  restartTimer = () => {
     this.totalTime = 5;
     if (this.timerText) {
       this.timerText.updateText("Timer: " + this.formatTime(this.totalTime));
@@ -457,7 +451,6 @@ export default class ExampleScene extends Phaser.Scene {
     this.timerEvent = this.time.addEvent({
       delay: 1000,
       callback: this.onTimerTick,
-      args: [gridArray],
       callbackScope: this,
       loop: true,
     });
@@ -474,14 +467,16 @@ export default class ExampleScene extends Phaser.Scene {
     return minutes + ":" + remainingSeconds;
   };
 
-  onTimerTick = (gridArray) => {
+  onTimerTick = () => {
     this.totalTime--;
     this.timerText.setText("Timer: " + this.formatTime(this.totalTime));
 
     if (this.totalTime <= 0) {
       this.timerEvent.remove();
 
-      const whereToPlaceTile = this.pickRandomLocationItCanGo(gridArray);
+      const whereToPlaceTile = this.pickRandomLocationItCanGo();
+      console.log(whereToPlaceTile);
+
       if (whereToPlaceTile) {
         //search for a tile that is in its original position and move it
         for (let i = 0; i < 16; i++) {
@@ -495,6 +490,7 @@ export default class ExampleScene extends Phaser.Scene {
               child.y === whereToPlaceTile.y
             );
           });
+
           if (
             findSpriteUnmoved.x === findSpriteUnmoved.startingLocation[0] &&
             findSpriteUnmoved.y === findSpriteUnmoved.startingLocation[1]
@@ -509,14 +505,10 @@ export default class ExampleScene extends Phaser.Scene {
 
             //check for winner and display text
             if (
-              this.checkFiveInARow(
-                findGridPosition,
-                findSpriteUnmoved,
-                gridArray
-              ) === true
+              this.checkFiveInARow(findGridPosition, findSpriteUnmoved) === true
             ) {
               this.winnerText = this.add
-                .text(10, 20, `Player${this.setPlayer} WINS!!!!`, {
+                .text(100, 20, `Player${this.setPlayer} WINS!!!!`, {
                   color: "#1e1e1e",
                 })
                 .setFontSize(100);
@@ -525,7 +517,7 @@ export default class ExampleScene extends Phaser.Scene {
           }
         }
       }
-      this.restartTimer(gridArray);
+      this.restartTimer();
     }
   };
 
@@ -533,25 +525,25 @@ export default class ExampleScene extends Phaser.Scene {
     return Math.floor(Math.random() * (max - min)) + min;
   }
 
-  pickRandomLocationItCanGo(gridArray) {
-    const playableLocation = this.listOfAllPlayableLocations(gridArray);
+  pickRandomLocationItCanGo() {
+    const playableLocation = this.listOfAllPlayableLocations();
+    console.log(playableLocation);
     const randomPosition = this.getRndInteger(0, playableLocation.length);
     return playableLocation[randomPosition];
   }
 
-  listOfAllPlayableLocations(gridArray) {
+  listOfAllPlayableLocations() {
     const playableLocations = [];
-    gridArray.map((position, index) => {
+    this.gridArray.map((item, index) => {
       if (
-        this.canATileGoInThisLocation(
-          gridArray,
-          { x: gridArray[index].x, y: gridArray[index].y },
-          17
-        )
+        this.canATileGoInThisLocation({
+          x: this.gridArray[index].x,
+          y: this.gridArray[index].y,
+        })
       ) {
         playableLocations.push({
-          x: gridArray[index].x,
-          y: gridArray[index].y,
+          x: this.gridArray[index].x,
+          y: this.gridArray[index].y,
         });
       }
     });
