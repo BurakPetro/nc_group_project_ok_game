@@ -1,3 +1,5 @@
+import { resetBoard } from "./helper/setUpBoard.js";
+
 const socket = io();
 const params = new URLSearchParams(document.location.search);
 const room_id = params.get("room_id");
@@ -61,10 +63,8 @@ export default class ExampleScene extends Phaser.Scene {
 
     socket.on("resetBoardClient", () => {
       this.restartTimer();
-      gridArray = [];
+      resetBoard(this.children.list);
       this.setPlayer = 1;
-      this.setGrid(size, gridArray);
-      this.setTiles({ players: this.numberOfPlayer, tilesPlayed: [] });
     });
 
     const size = 17;
@@ -105,6 +105,7 @@ export default class ExampleScene extends Phaser.Scene {
             gridPosition.x === gameObject.x &&
             gridPosition.y === gameObject.y
           ) {
+            this.checkFiveInARow(gridPosition, gameObject, gridArray);
             gridPosition.player = gameObject.texture.key; //update the gridArray with the player occupying the position (x,y)
             gameObject.disableInteractive();
             gridPosition.played = true;
@@ -156,7 +157,6 @@ export default class ExampleScene extends Phaser.Scene {
       console.log(`Sprite with name ${spriteName} not found`);
     }
   }
-
   /**
    * addTilesToBoard move the tiles in the array and sets correct player turn
    * @date 20/02/2024 - 20:46:55
@@ -243,6 +243,117 @@ export default class ExampleScene extends Phaser.Scene {
     }
   }
 
+  checkFiveInARow(gridPosition, gameObject, gridArray) {
+    let currGridArrIndex = Number(gridPosition.name.slice(4));
+    let verticalCount = 0;
+    let horizontalCount = 0;
+    let positiveDiagonalCount = 0;
+    let negativeDiagonalCount = 0;
+    let currCheck = currGridArrIndex;
+    for (let i = 0; i < 32; i++) {
+      // if checked 4 to a given side, go back to middle
+      if (
+        i === 4 ||
+        i === 8 ||
+        i === 12 ||
+        i === 16 ||
+        i === 20 ||
+        i === 24 ||
+        i === 28
+      ) {
+        currCheck = currGridArrIndex;
+      }
+      // check above
+      if (i < 4) {
+        if (
+          currCheck - 1 >= 0 &&
+          gridArray[(currCheck -= 1)].player === gameObject.texture.key
+        ) {
+          verticalCount++;
+        }
+      }
+      // check below
+      if (i >= 4 && i < 8) {
+        if (
+          currCheck + 1 <= 288 &&
+          gridArray[(currCheck += 1)].player === gameObject.texture.key
+        ) {
+          verticalCount++;
+        }
+      }
+      // check to the right
+      if (i >= 8 && i < 12) {
+        if (
+          currCheck + 17 <= 288 &&
+          gridArray[(currCheck += 17)].player === gameObject.texture.key
+        ) {
+          horizontalCount++;
+        }
+      }
+      // check to the left
+      if (i >= 12 && i < 16) {
+        if (
+          currCheck - 17 >= 0 &&
+          gridArray[(currCheck -= 17)].player === gameObject.texture.key
+        ) {
+          horizontalCount++;
+        }
+      }
+      // check top right
+      if (i >= 16 && i < 20) {
+        if (
+          currCheck + 17 - 1 >= 0 &&
+          currCheck + 17 - 1 <= 288 &&
+          gridArray[(currCheck += 17 - 1)].player === gameObject.texture.key
+        ) {
+          positiveDiagonalCount++;
+        }
+      }
+      // check bottom left
+      if (i >= 20 && i < 24) {
+        if (
+          currCheck - 17 + 1 >= 0 &&
+          currCheck - 17 + 1 <= 288 &&
+          gridArray[(currCheck = currCheck - 16)].player ===
+            gameObject.texture.key
+        ) {
+          positiveDiagonalCount++;
+        }
+      }
+      // check top left
+      if (i >= 24 && i < 28) {
+        if (
+          currCheck - 18 >= 0 &&
+          currCheck - 18 <= 288 &&
+          gridArray[(currCheck -= 18)].player === gameObject.texture.key
+        ) {
+          negativeDiagonalCount++;
+        }
+      }
+      // check bottom right
+      if (i >= 28) {
+        if (
+          currCheck + 18 <= 288 &&
+          gridArray[(currCheck += 18)].player === gameObject.texture.key
+        ) {
+          negativeDiagonalCount++;
+        }
+      }
+    }
+
+    // console.log the winner
+    if (
+      verticalCount >= 4 ||
+      horizontalCount >= 4 ||
+      positiveDiagonalCount === 4 ||
+      negativeDiagonalCount === 4
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   setGrid(size, gridArray) {
     const totalTiles = size * size;
     for (let i = 0; i < totalTiles; i++) {
@@ -256,23 +367,21 @@ export default class ExampleScene extends Phaser.Scene {
           .sprite(x, y, `centreblock`) //the centre position is in a darker gray
           .setOrigin(0, 0);
         gridPosition.name = `grid${i}`;
-        gridArray.push({
-          name: gridPosition.name,
-          x: x,
-          y: y,
-          player: null,
-          played: false,
-        });
+        gridPosition.startingLocation = [x, y];
+        gridPosition.description = "board";
+        gridPosition.player = null;
+        gridPosition.played = false;
+
+        gridArray.push(gridPosition);
       } else {
         const gridPosition = this.add.sprite(x, y, `gridblock`).setOrigin(0, 0);
         gridPosition.name = `grid${i}`;
-        gridArray.push({
-          name: gridPosition.name,
-          x: x,
-          y: y,
-          player: null,
-          played: false,
-        });
+        gridPosition.startingLocation = [x, y];
+        gridPosition.description = "board";
+        gridPosition.player = null;
+        gridPosition.played = false;
+
+        gridArray.push(gridPosition);
       }
     }
   }
@@ -301,6 +410,9 @@ export default class ExampleScene extends Phaser.Scene {
           .setOrigin(0, 0);
         block.setInteractive({ draggable: true });
         block.name = `player${playerIndex + 1}tile${i}`;
+        block.startingLocation = [x, y];
+        block.description = "playersTile";
+        block.depth = 1;
       }
     });
     this.addTilesToBoard(gameState.tilesPlayed);
