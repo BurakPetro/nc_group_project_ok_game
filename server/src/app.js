@@ -1,11 +1,27 @@
 const express = require("express");
 const http = require("http");
 const path = require("path");
-const socketIO = require("socket.io");
+const socketIO = require("socket.io"); // CORS block interactions between client frontend and server back end, "*" mean alow all and will be considered as security fail, later need to specify and remove "*"
 const app = express();
-const server = http.createServer(app);
-const io = socketIO(server);
 
+//const { Server } = require('socket.io');
+/*const io = new Server(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST'],
+  },
+});*/
+
+const cors = require("cors");
+app.use(cors());
+
+const server = http.createServer(app);
+const io = socketIO(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
+});
 const { getHello } = require("./controllers/controllers.js");
 const { loadConfigFromFile } = require("vite");
 
@@ -14,7 +30,7 @@ if (process.env.NODE_ENV === "development") {
   console.log("Running in development mode");
   roomData = require("./test/roomTestDate.js").roomTestDate;
 }
-// TODO add function to allGameStates to get ride of games no one is using
+// TODO add function to allGameStates to remove games no one is currently using
 /**
  * allGameStates to hold the data for all games currently being played
  * @date 20/02/2024 - 20:52:21
@@ -30,6 +46,21 @@ app.use(express.static(path.join(__dirname, "../..", "phaser3-tutorial-src")));
 app.get("/api/hello", getHello);
 
 app.get("/game", (req, res) => {
+  const room_id = req.query.room_id;
+  let playersCount = req.query.players;
+
+  if (["2", "3", "4"].includes(playersCount)) {
+    playersCount = Number(playersCount);
+  } else {
+    playersCount = 4;
+  }
+  console.log(room_id, playersCount, "<-- player count");
+
+  if (!roomData.hasOwnProperty(room_id)) {
+    roomData[room_id] = { players: playersCount, tilesPlayed: [] };
+  }
+  console.log(roomData[room_id]);
+
   res.sendFile(
     path.join(__dirname, "../..", "phaser3-tutorial-src/prototype.html")
   );
@@ -54,6 +85,11 @@ io.on("connection", (socket) => {
     }
 
     console.log(`User joined room: ${room_id}`);
+  });
+
+  socket.on("send_message", (data) => {
+    console.log(data, "<<<chat data");
+    socket.broadcast.emit("receive_message", data);
   });
 
   socket.on("draggedObjectPosition", (data) => {

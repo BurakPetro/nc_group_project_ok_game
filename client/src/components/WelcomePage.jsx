@@ -7,6 +7,13 @@ import moment from 'moment';
 
 const WelcomePage = () => {
   const carrentDate = moment.utc().format('LLL');
+  const [gameSettings, setGameSettings] = useState({
+    boardSize: 17,
+    numberOfPlayers: 2,
+    numberOfBlocksInGame: 10,
+    playerOneColor: 'red',
+    gameSettingsSubmitted: false,
+  });
 
   const [chatHistory, setChatHistory] = useState([
     {
@@ -14,16 +21,16 @@ const WelcomePage = () => {
       message: 'Welcom to OK game! Please treat other players with respect.',
     },
   ]);
-  const [gameSettingsSubmitted, setGameSettingsSubmitted] = useState(false);
-  const socket = io.connect('http://localhost:3001');
+
+  const socket = io.connect('http://localhost:3000');
   useEffect(() => {
     socket.on('receive_message', (data) => {
-      //console.log(data.chatMessage);
+      console.log(data.chatMessage);
       if (data.chatMessage) {
         setChatHistory([...chatHistory, data.chatMessage]);
       }
     });
-  }, [socket]); //TO DO specify which soket to send data
+  }, [socket]);
 
   return (
     <>
@@ -47,10 +54,10 @@ const WelcomePage = () => {
       </button>
       <GameSettings
         socket={socket}
-        gameSettingsSubmitted={gameSettingsSubmitted}
-        setGameSettingsSubmitted={setGameSettingsSubmitted}
+        gameSettings={gameSettings}
+        setGameSettings={setGameSettings}
       />
-      <LinkToJoinGame gameSettingsSubmitted={gameSettingsSubmitted} />
+      <LinkToJoinGame gameSettings={gameSettings} />
       <Chat
         socket={socket}
         chatHistory={chatHistory}
