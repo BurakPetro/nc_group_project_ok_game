@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 const LinkToJoinGame = ({ gameSettingsSubmitted }) => {
   const [inputJoinLinkHolder, setInputJoinLinkHolder] = useState(
     'Your joining game link here'
@@ -7,6 +7,7 @@ const LinkToJoinGame = ({ gameSettingsSubmitted }) => {
   const [joinLink, setJoinLink] = useState(
     'Create game and share link with other players'
   );
+
   function generateLinkForNewGame() {
     // TO DO create function to take link from serve and dislpay for user
     setJoinLink('http://localhost:3001/');
@@ -19,6 +20,9 @@ const LinkToJoinGame = ({ gameSettingsSubmitted }) => {
   function stopWaitingForGame() {
     setInputJoinLinkHolder('');
     setwaitingForGame(false);
+  }
+  function shortCutToSeeGame() {
+    window.location.replace('http://localhost:3000/game');
   }
   return (
     <>
@@ -48,7 +52,7 @@ const LinkToJoinGame = ({ gameSettingsSubmitted }) => {
         >
           Create game
         </button>
-        <button>TemButton</button>
+        <button onClick={shortCutToSeeGame}>TemButton</button>
       </div>
     </>
   );

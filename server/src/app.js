@@ -1,18 +1,34 @@
-const express = require("express");
-const http = require("http");
-const path = require("path");
-const socketIO = require("socket.io");
+const express = require('express');
+const http = require('http');
+const path = require('path');
+const socketIO = require('socket.io'); // CORS block interactions between client frontend and server back end, "*" mean alow all and will be considered as security fail, later need to specify and remove "*"
 const app = express();
-const server = http.createServer(app);
-const io = socketIO(server);
 
-const { getHello } = require("./controllers/controllers.js");
-const { loadConfigFromFile } = require("vite");
+//const { Server } = require('socket.io');
+/*const io = new Server(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST'],
+  },
+});*/
+
+const cors = require('cors');
+app.use(cors());
+
+const server = http.createServer(app);
+const io = socketIO(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST'],
+  },
+});
+const { getHello } = require('./controllers/controllers.js');
+const { loadConfigFromFile } = require('vite');
 
 let roomData = {};
-if (process.env.NODE_ENV === "development") {
-  console.log("Running in development mode");
-  roomData = require("./test/roomTestDate.js").roomTestDate;
+if (process.env.NODE_ENV === 'development') {
+  console.log('Running in development mode');
+  roomData = require('./test/roomTestDate.js').roomTestDate;
 }
 // TODO add function to allGameStates to get ride of games no one is using
 /**
@@ -25,26 +41,26 @@ const allGameStates = roomData;
 
 app.use(express.json());
 
-app.use(express.static(path.join(__dirname, "../..", "phaser3-tutorial-src")));
+app.use(express.static(path.join(__dirname, '../..', 'phaser3-tutorial-src')));
 
-app.get("/api/hello", getHello);
+app.get('/api/hello', getHello);
 
-app.get("/game", (req, res) => {
+app.get('/game', (req, res) => {
   res.sendFile(
-    path.join(__dirname, "../..", "phaser3-tutorial-src/prototype.html")
+    path.join(__dirname, '../..', 'phaser3-tutorial-src/prototype.html')
   );
 });
 
 app.use((err, req, res, next) => {
-  console.log(err, "error in error handling block app.js");
+  console.log(err, 'error in error handling block app.js');
 
   next(err);
 });
 
-io.on("connection", (socket) => {
-  console.log("A user connected");
+io.on('connection', (socket) => {
+  console.log('A user connected');
 
-  socket.on("joinRoom", (room_id) => {
+  socket.on('joinRoom', (room_id) => {
     socket.join(room_id);
 
     if (!allGameStates.hasOwnProperty(room_id)) {
@@ -56,26 +72,31 @@ io.on("connection", (socket) => {
     console.log(`User joined room: ${room_id}`);
   });
 
-  socket.on("draggedObjectPosition", (data) => {
+  socket.on('send_message', (data) => {
+    console.log(data, '<<<chat data');
+    socket.broadcast.emit('receive_message', data);
+  });
+
+  socket.on('draggedObjectPosition', (data) => {
     room_id = Array.from(socket.rooms)[1];
 
     allGameStates[room_id].tilesPlayed.push(data);
 
-    io.to(room_id).emit("drag-end", data);
+    io.to(room_id).emit('drag-end', data);
   });
-  socket.on("getGameState", (room_id) => {
-    socket.emit("sendGameState", allGameStates[room_id]);
+  socket.on('getGameState', (room_id) => {
+    socket.emit('sendGameState', allGameStates[room_id]);
   });
 
-  socket.on("resetBoardServer", (room_id) => {
+  socket.on('resetBoardServer', (room_id) => {
     room_id = Array.from(socket.rooms)[1];
 
     allGameStates[room_id].tilesPlayed = [];
-    io.to(room_id).emit("resetBoardClient");
+    io.to(room_id).emit('resetBoardClient');
   });
 
-  socket.on("disconnect", () => {
-    console.log("User disconnected");
+  socket.on('disconnect', () => {
+    console.log('User disconnected');
   });
 });
 

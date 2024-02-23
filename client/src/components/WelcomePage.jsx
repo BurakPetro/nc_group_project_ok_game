@@ -15,15 +15,15 @@ const WelcomePage = () => {
     },
   ]);
   const [gameSettingsSubmitted, setGameSettingsSubmitted] = useState(false);
-  const socket = io.connect('http://localhost:3001');
+  const socket = io.connect('http://localhost:3000');
   useEffect(() => {
     socket.on('receive_message', (data) => {
-      //console.log(data.chatMessage);
+      console.log(data.chatMessage);
       if (data.chatMessage) {
         setChatHistory([...chatHistory, data.chatMessage]);
       }
     });
-  }, [socket]); //TO DO specify which soket to send data
+  }, [socket]);
 
   return (
     <>
