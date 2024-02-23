@@ -2,17 +2,8 @@ import io from 'socket.io-client';
 import Select from './Select.jsx';
 import { useState, useEffect } from 'react';
 
-const GameSettings = ({
-  gameSettingsSubmitted,
-  setGameSettingsSubmitted,
-  socket,
-}) => {
-  const [boardSize, setboardSize] = useState(17);
-  const [numberOfPlayers, setNumberOfPlayers] = useState(2);
-  const [numberOfBlocksInGame, setnumberOfBlocksInGame] = useState(10);
-  const [playerOneColor, setPlayerOneColor] = useState('red');
-
-  const [serverResponse, setServerResponce] = useState(null); // to proces server responce in future
+const GameSettings = ({ gameSettings, setGameSettings, socket }) => {
+  //const [serverResponse, setServerResponce] = useState(null); // to proces server responce in future
   /* useEffect(() => {
     socket.on('receive_message', (data) => {
       console.log(data.message);
@@ -20,22 +11,23 @@ const GameSettings = ({
     });
   }, [socket]); //TO DO specify which soket to send data*/
 
-  const sendData = (data) => {
+  /*const sendData = (data) => {
     socket.emit('send_message', { data });
-  };
+  };*/
   function handleUserGameSettingsSubmit(event) {
-    if (gameSettingsSubmitted) {
+    if (gameSettings.gameSettingsSubmitted) {
       event.preventDefault();
-      setGameSettingsSubmitted(false);
+      setGameSettings({
+        ...gameSettings,
+        gameSettingsSubmitted: false,
+      });
     } else {
       event.preventDefault();
-      const gameSettings = {};
-      gameSettings.boardSize = boardSize;
-      gameSettings.numberOfPlayers = numberOfPlayers;
-      gameSettings.numberOfBlocksInGame = numberOfBlocksInGame;
-      gameSettings.playerOneColor = playerOneColor;
-      sendData(gameSettings);
-      setGameSettingsSubmitted(true);
+      console.log(gameSettings);
+      setGameSettings({
+        ...gameSettings,
+        gameSettingsSubmitted: true,
+      });
     }
   }
 
@@ -50,10 +42,13 @@ const GameSettings = ({
             { label: 'three players', value: 3 },
             { label: 'four players', value: 4 },
           ]}
-          value={numberOfPlayers}
-          disabled={gameSettingsSubmitted}
+          value={gameSettings.numberOfPlayers}
+          disabled={gameSettings.gameSettingsSubmitted}
           onChange={(event) => {
-            setNumberOfPlayers(event.target.value);
+            setGameSettings({
+              ...gameSettings,
+              numberOfPlayers: event.target.value,
+            });
           }}
         />
         <Select
@@ -65,10 +60,13 @@ const GameSettings = ({
             { label: '20X20', value: 20 },
             { label: '25X25', value: 25 },
           ]}
-          value={boardSize}
-          disabled={gameSettingsSubmitted}
+          value={gameSettings.boardSize}
+          disabled={gameSettings.gameSettingsSubmitted}
           onChange={(event) => {
-            setboardSize(event.target.value);
+            setGameSettings({
+              ...gameSettings,
+              boardSize: event.target.value,
+            });
           }}
         />
         <Select
@@ -78,10 +76,13 @@ const GameSettings = ({
             { label: '15', value: 15 },
             { label: '20', value: 20 },
           ]}
-          value={numberOfBlocksInGame}
-          disabled={gameSettingsSubmitted}
+          value={gameSettings.numberOfBlocksInGame}
+          disabled={gameSettings.gameSettingsSubmitted}
           onChange={(event) => {
-            setnumberOfBlocksInGame(event.target.value);
+            setGameSettings({
+              ...gameSettings,
+              numberOfBlocksInGame: event.target.value,
+            });
           }}
         />
         <Select
@@ -92,15 +93,18 @@ const GameSettings = ({
             { label: 'orange', value: 'orange' },
             { label: 'green', value: 'green' },
           ]}
-          value={playerOneColor}
-          disabled={gameSettingsSubmitted}
+          value={gameSettings.playerOneColor}
+          disabled={gameSettings.gameSettingsSubmitted}
           onChange={(event) => {
-            setPlayerOneColor(event.target.value);
+            setGameSettings({
+              ...gameSettings,
+              playerOneColor: event.target.value,
+            });
           }}
         />
 
         <button type="submit">
-          {!gameSettingsSubmitted ? 'Submit' : 'Change Settings'}
+          {!gameSettings.gameSettingsSubmitted ? 'Submit' : 'Change Settings'}
         </button>
       </form>
     </>
