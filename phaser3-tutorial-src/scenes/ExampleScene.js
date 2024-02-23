@@ -21,6 +21,7 @@ export default class ExampleScene extends Phaser.Scene {
     super();
     this.currentTilePositionX;
     this.currentTilePositionY;
+    this.turnSprite = null;
 
     this.setPlayer = 1;
 
@@ -52,6 +53,7 @@ export default class ExampleScene extends Phaser.Scene {
 
   create() {
     this.add.image(600, 412, "bg");
+    this.turnSprite = this.createTurnSprite();
 
     const button = this.add.sprite(1184 / 2, 750, `reset`).setInteractive();
     button.on("pointerdown", () => {
@@ -236,6 +238,16 @@ export default class ExampleScene extends Phaser.Scene {
     } else {
       this.setPlayer = Number(lastTilePlayedName[6]) + 1;
     }
+
+    if (this.setPlayer === 2) {
+      this.turnSprite.setPosition(1055, -5);
+    } else if (this.setPlayer === 3) {
+      this.turnSprite.setPosition(1055, 445);
+    } else if (this.setPlayer === 4) {
+      this.turnSprite.setPosition(-4, 440);
+    } else {
+      this.turnSprite.setPosition(-4, -5);
+    }
   }
 
   checkFiveInARow(gridPosition, gameObject, gridArray) {
@@ -411,5 +423,14 @@ export default class ExampleScene extends Phaser.Scene {
       }
     });
     this.addTilesToBoard(gameState.tilesPlayed);
+  }
+
+  createTurnSprite() {
+    const rectangle = this.add.graphics();
+
+    rectangle.lineStyle(2, 0x000000);
+    rectangle.strokeRect(25, 30, 85, 300);
+    rectangle.startingLocation = [-4, -5];
+    return rectangle;
   }
 }
