@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import moment from 'moment';
+import { useState } from "react";
+import moment from "moment";
 const Chat = ({ chatHistory, socket, setChatHistory }) => {
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const sendMessage = () => {
     const chatMessage = {};
     chatMessage.date = moment();
     chatMessage.message = message;
-    socket.emit('send_message', { chatMessage });
+    socket.emit("send_message", { chatMessage });
     // setChatHistory([...chatHistory, data.chatMessage]);
   };
 
@@ -16,7 +16,9 @@ const Chat = ({ chatHistory, socket, setChatHistory }) => {
         {chatHistory.map((oneMessage, index) => {
           return (
             <div key={index}>
-              <div className="date-in-chat">{oneMessage.date}</div>
+              <div className="date-in-chat">
+                {moment(oneMessage.date).format("LLL")}
+              </div>
               <div className="message-in-chat">{oneMessage.message}</div>
             </div>
           );
