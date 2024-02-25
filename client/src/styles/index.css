@@ -1,0 +1,26 @@
+body {
+  box-sizing: border-box;
+  margin: 0;
+}
+#root {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+}
+.global-btn {
+  height: 30px;
+  width: fit-content;
+  padding: 0 20px;
+  border-radius: 7px;
+  cursor: pointer;
+  margin: 2px;
+  border: 2px solid #beb8e5;
+  background-color: #c5bdf2;
+}
+.global-btn:hover {
+  background-color: white;
+  color: #8f84d5;
+}

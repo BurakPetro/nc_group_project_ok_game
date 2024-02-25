@@ -1,16 +1,26 @@
-section {
-  display: flex;
+.main-instructions {
+  flex-grow: 1;
   width: 100%;
-  height: 100%;
-  background-color: #0d0d35;
-  z-index: 2;
+  background: #d9edf87d;
+}
+section.instuctions {
+  display: flex;
+  flex-direction: column;
+  width: 80%;
+  max-width: 1350px;
+  position: relative;
+  margin: auto;
+  border: 1px solid #a9d7f0;
+  border-radius: 10px;
+  padding: 30px;
+  background: #d9edf87d;
 }
 
-h2 {
+.instuctions h2 {
   text-decoration: underline;
 }
 
-li {
+.instuctions li {
   text-align: left;
   line-height: 2;
 }
