@@ -15,7 +15,7 @@ const Chat = ({ chatHistory, socket, setChatHistory }) => {
       <div className="chat-box">
         {chatHistory.map((oneMessage, index) => {
           return (
-            <div key={index}>
+            <div key={index} className="chat-history">
               <div className="date-in-chat">
                 {moment(oneMessage.date).format("LLL")}
               </div>
@@ -23,15 +23,18 @@ const Chat = ({ chatHistory, socket, setChatHistory }) => {
             </div>
           );
         })}
-      </div>
-      <div>
-        <input
-          placeholder="Message..."
-          onChange={(event) => {
-            setMessage(event.target.value);
-          }}
-        />
-        <button onClick={sendMessage}>Send Message</button>
+        <div className="send-message-block">
+          <input
+            className="message-input"
+            placeholder="Message..."
+            onChange={(event) => {
+              setMessage(event.target.value);
+            }}
+          />
+          <button className="global-btn btn-purple" onClick={sendMessage}>
+            Send Message
+          </button>
+        </div>
       </div>
     </>
   );

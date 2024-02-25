@@ -1,5 +1,13 @@
 import { useState, useEffect } from "react";
-const LinkToJoinGame = ({ gameSettings }) => {
+import GameSettings from "./GameSettings.jsx";
+const LinkToJoinGame = () => {
+  const [gameSettings, setGameSettings] = useState({
+    boardSize: 17,
+    numberOfPlayers: 2,
+    numberOfBlocksInGame: 10,
+    playerOneColor: "red",
+    gameSettingsSubmitted: false,
+  });
   const [inputJoinLinkHolder, setInputJoinLinkHolder] = useState("");
   const [gameCreated, setGameCreated] = useState(false);
   const [waitingForGame, setwaitingForGame] = useState(false);
@@ -51,43 +59,64 @@ const LinkToJoinGame = ({ gameSettings }) => {
   }
   return (
     <>
-      <div className="link-block">
-        <input
-          value={inputJoinLinkHolder}
-          placeholder="Your joining game link goes here"
-          onChange={(event) => {
-            setInputJoinLinkHolder(event.target.value);
-          }}
-          disabled={waitingForGame ? true : gameCreated ? true : false}
-        />
-        {waitingForGame ? (
-          <button onClick={stopWaitingForGame}>Cancel</button>
-        ) : (
-          <button disabled={gameCreated} onClick={procesLinkToJoinGame}>
-            Join Game
-          </button>
-        )}
+      <div className="">
+        <div className="link-block">
+          <input
+            className="link-input"
+            value={inputJoinLinkHolder}
+            placeholder="Your joining game link goes here"
+            onChange={(event) => {
+              setInputJoinLinkHolder(event.target.value);
+            }}
+            disabled={waitingForGame ? true : gameCreated ? true : false}
+          />
+          {waitingForGame ? (
+            <button
+              className="global-btn join-game-button"
+              onClick={stopWaitingForGame}
+            >
+              Cancel
+            </button>
+          ) : (
+            <button
+              className="global-btn join-game-button"
+              disabled={gameCreated}
+              onClick={procesLinkToJoinGame}
+            >
+              Join Game
+            </button>
+          )}
+        </div>
 
         <div className="link-to-join-game">
           {joinLink === "Create game and share link with other players"
             ? joinLink
             : "Share this link with other players " + joinLink}
         </div>
-
-        <button
-          className="create-game-button"
-          onClick={generateLinkForNewGame}
-          disabled={
-            waitingForGame
-              ? true
-              : gameSettings.gameSettingsSubmitted
-              ? false
-              : true
-          }
-        >
-          {gameCreated ? "Cancel game creation" : "Create game"}
-        </button>
-        <button onClick={shortCutToSeeGame}>TemButton</button>
+        <section className="game-settings-sec">
+          <GameSettings
+            gameSettings={gameSettings}
+            setGameSettings={setGameSettings}
+          />
+          <div className="link-actions">
+            <button
+              className="global-btn"
+              onClick={generateLinkForNewGame}
+              disabled={
+                waitingForGame
+                  ? true
+                  : gameSettings.gameSettingsSubmitted
+                  ? false
+                  : true
+              }
+            >
+              {gameCreated ? "Cancel game creation" : "Create game"}
+            </button>
+            <button className="global-btn" onClick={shortCutToSeeGame}>
+              TemButton
+            </button>
+          </div>
+        </section>
       </div>
     </>
   );
