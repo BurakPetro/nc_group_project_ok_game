@@ -1,4 +1,5 @@
 import { resetBoard } from "./helper/setUpBoard.js";
+import { moveSpriteByName } from "./helper/spriteUtils.js";
 
 const socket = io();
 const params = new URLSearchParams(document.location.search);
@@ -139,7 +140,7 @@ export default class ExampleScene extends Phaser.Scene {
 
       // TODO looking into making gridArray a this. variable as passing it around a lot
 
-      this.moveSpriteByName(data.name, data.x, data.y);
+      moveSpriteByName(this, data.name, data.x, data.y);
 
       const gridPosition =
         this.gridArray[this.getGridArrayIndexFromLocation(data.x, data.y)];
@@ -151,26 +152,6 @@ export default class ExampleScene extends Phaser.Scene {
   }
 
   /**
-   * moveSpriteByName - Move sprite to given location, Note does not check if location is correct
-   * @date 20/02/2024 - 20:50:05
-   *
-   * @param {Object} spriteName
-   * @param {Number} newX
-   * @param {Number} newY
-   */
-  moveSpriteByName(spriteName, newX, newY) {
-    const spriteToMove = this.children.list.find((child) => {
-      return child.name === spriteName;
-    });
-    // TODO set gridPosition player to player and player to true
-    if (spriteToMove) {
-      spriteToMove.setPosition(newX, newY);
-      spriteToMove.disableInteractive();
-    } else {
-      console.log(`Sprite with name ${spriteName} not found`);
-    }
-  }
-  /**
    * addTilesToBoard move the tiles in the array and sets correct player turn
    * @date 20/02/2024 - 20:46:55
    *
@@ -178,7 +159,7 @@ export default class ExampleScene extends Phaser.Scene {
    */
   addTilesToBoard(tilesToAdd) {
     tilesToAdd.forEach((value, index) => {
-      this.moveSpriteByName(value.name, value.x, value.y);
+      moveSpriteByName(this, value.name, value.x, value.y);
       if (tilesToAdd.length === index + 1) {
         this.updateWhoTurnItIsFromPlayedTile(value.name);
       }
