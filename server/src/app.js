@@ -3,6 +3,12 @@ const http = require("http");
 const path = require("path");
 const socketIO = require("socket.io"); // CORS block interactions between client frontend and server back end, "*" mean alow all and will be considered as security fail, later need to specify and remove "*"
 const app = express();
+const {
+  addGameStateIfItDoesNotExist,
+  tileMovedInGame,
+  resetBoard,
+  getGameState,
+} = require("./models/gameState.models.js");
 
 //const { Server } = require('socket.io');
 /*const io = new Server(server, {
@@ -25,19 +31,7 @@ const io = socketIO(server, {
 const { getHello } = require("./controllers/controllers.js");
 const { loadConfigFromFile } = require("vite");
 
-let roomData = {};
-if (process.env.NODE_ENV === "development") {
-  console.log("Running in development mode");
-  roomData = require("./test/roomTestDate.js").roomTestDate;
-}
-// TODO add function to allGameStates to remove games no one is currently using
-/**
- * allGameStates to hold the data for all games currently being played
- * @date 20/02/2024 - 20:52:21
- *
- * @type {{}}
- */
-const allGameStates = roomData;
+
 
 app.use(express.json());
 
@@ -49,17 +43,7 @@ app.get("/game", (req, res) => {
   const room_id = req.query.room_id;
   let playersCount = req.query.players;
 
-  if (["2", "3", "4"].includes(playersCount)) {
-    playersCount = Number(playersCount);
-  } else {
-    playersCount = 4;
-  }
-  console.log(room_id, playersCount, "<-- player count");
-
-  if (!roomData.hasOwnProperty(room_id)) {
-    roomData[room_id] = { players: playersCount, tilesPlayed: [] };
-  }
-  console.log(roomData[room_id]);
+  addGameStateIfItDoesNotExist(room_id, playersCount);
 
   res.sendFile(
     path.join(__dirname, "../..", "phaser3-tutorial-src/prototype.html")
@@ -73,16 +57,13 @@ app.use((err, req, res, next) => {
 });
 
 io.on("connection", (socket) => {
+  // TODO currently there is no data validation on the socket. There client could send bad request and the be sent directly to other users
   console.log("A user connected");
 
   socket.on("joinRoom", (room_id) => {
     socket.join(room_id);
 
-    if (!allGameStates.hasOwnProperty(room_id)) {
-      console.log(`Create Room: ${room_id}`);
-      // TODO we made need to change the default room set up if room does not exist.
-      allGameStates[room_id] = { players: 4, tilesPlayed: [] };
-    }
+    addGameStateIfItDoesNotExist(room_id);
 
     console.log(`User joined room: ${room_id}`);
   });
@@ -95,18 +76,20 @@ io.on("connection", (socket) => {
   socket.on("draggedObjectPosition", (data) => {
     room_id = Array.from(socket.rooms)[1];
 
-    allGameStates[room_id].tilesPlayed.push(data);
+    // allGameStates[room_id].tilesPlayed.push(data);
+    tileMovedInGame(room_id, data);
 
     io.to(room_id).emit("drag-end", data);
   });
   socket.on("getGameState", (room_id) => {
-    socket.emit("sendGameState", allGameStates[room_id]);
+    socket.emit("sendGameState", getGameState(room_id));
   });
 
   socket.on("resetBoardServer", (room_id) => {
     room_id = Array.from(socket.rooms)[1];
 
-    allGameStates[room_id].tilesPlayed = [];
+    // allGameStates[room_id].tilesPlayed = [];
+    resetBoard(room_id);
     io.to(room_id).emit("resetBoardClient");
   });
 
