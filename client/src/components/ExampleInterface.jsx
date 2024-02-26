@@ -1,18 +1,15 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
 
 const ExampleInterface = ({ setgameSettings }) => {
-  const socket = io.connect('http://localhost:3001');
+  const socket = io.connect('https://ok-game.onrender.com/game');
   const [message, setMessage] = useState('');
-  const navigate = useNavigate();
   const [boardSize, setboardSize] = useState(10);
   const [massageReceived, setMessageReceived] = useState('');
   function handleUserGameSettings(event) {
     event.preventDefault();
 
     setgameSettings(boardSize);
-    navigate('/game1');
   }
   const sendMessage = () => {
     socket.emit('send_message', { message });

@@ -16,7 +16,7 @@ const WelcomePage = () => {
     },
   ]);
 
-  const socket = io.connect("http://localhost:3000");
+  const socket = io.connect("https://ok-game.onrender.com/game");
   useEffect(() => {
     socket.on("receive_message", (data) => {
       console.log(data.chatMessage);

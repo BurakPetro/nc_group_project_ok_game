@@ -20,7 +20,7 @@ const GameSettings = ({ gameSettings, setGameSettings }) => {
 
   return (
     <>
-      <h2>Chose your settings to create a new game</h2>
+      <h2>Choose your settings to create a new game</h2>
       <form onSubmit={handleUserGameSettingsSubmit} className="settings-form">
         <div className="setting-line">
           <Select
