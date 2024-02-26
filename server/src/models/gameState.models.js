@@ -27,6 +27,8 @@ function addGameStateIfItDoesNotExist(room_id, playersCount) {
 }
 
 function tileMovedInGame(room_id, tileMovedObject) {
+  // TODO there is a bug that sometime happen here. further review required
+
   allGameStates[room_id].tilesPlayed.push(tileMovedObject);
 }
 
