@@ -3,6 +3,13 @@ const http = require("http");
 const path = require("path");
 const socketIO = require("socket.io"); // CORS block interactions between client frontend and server back end, "*" mean alow all and will be considered as security fail, later need to specify and remove "*"
 const app = express();
+const ENV = process.env.NODE_ENV || "development";
+
+require("dotenv").config({ path: `${__dirname}/../.env.${ENV}` });
+
+if (!process.env.NODE_ENV) {
+  throw new Error("NODE_ENV is not set.");
+}
 
 //const { Server } = require('socket.io');
 /*const io = new Server(server, {
