@@ -12,7 +12,28 @@
     <link rel="stylesheet" type="text/css" href="styles.css" />
   </head>
   <body>
-    <div id="phaser-example"></div>
+    <div class="main-display">
+      <header>
+        <div class="header-block">
+          <img src="./assets/ok-hand-default.svg" alt="OkSvg" />
+          <span class="logo-text">Game</span>
+        </div>
+        <div>
+          <a class="global-button" href="http://127.0.0.1:5173/"
+            >Back to lobby</a
+          >
+          <a
+            class="global-button"
+            target="_blank"
+            href="http://127.0.0.1:5173/instructions"
+            >Game Rules</a
+          >
+        </div>
+      </header>
+
+      <div id="phaser-example"></div>
+    </div>
+
     <script type="module" src="main.js"></script>
   </body>
 </html>
