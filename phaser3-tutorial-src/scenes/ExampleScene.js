@@ -117,14 +117,10 @@ export default class ExampleScene extends Phaser.Scene {
             //check for winner and display text
             if (this.checkFiveInARow(gridPosition, gameObject) === true) {
               this.winnerText = this.add
-                .text(120, 10, `Player${this.setPlayer} WINS!!!!!`, {
+                .text(120, 10, `Player${this.setPlayer} WINS!!!!`, {
                   color: "#1e1e1e",
                 })
                 .setFontSize(100);
-
-              setTimeout(() => {
-                socket.emit("resetBoardServer");
-              }, 2000);
             }
           }
         });
@@ -455,7 +451,7 @@ export default class ExampleScene extends Phaser.Scene {
   }
 
   restartTimer = () => {
-    this.totalTime = 5;
+    this.totalTime = 30;
     if (this.timerText) {
       this.timerText.updateText("Timer: " + this.formatTime(this.totalTime));
     } else {
