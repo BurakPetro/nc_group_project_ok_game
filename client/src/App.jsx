@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import Instructions from './components/Instructions';
-import WelcomePage from './components/WelcomePage';
-import { Routes, Route } from 'react-router-dom';
+import { useState } from "react";
+import Instructions from "./components/Instructions";
+import WelcomePage from "./components/WelcomePage";
+import { Routes, Route } from "react-router-dom";
 
 function App() {
   return (
