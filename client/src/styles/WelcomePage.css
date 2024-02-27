@@ -192,3 +192,21 @@ button.send-message-button {
   margin-right: 10px;
   margin-top: 0;
 }
+.header-buttons img {
+  height: 26px;
+}
+.header-buttons img:hover {
+  background: #beb8e5;
+}
+.main {
+  display: flex;
+  flex-direction: column;
+  width: 80%;
+  max-width: 1350px;
+  position: relative;
+  margin: auto;
+  border: 1px solid #a9d7f0;
+  border-radius: 10px;
+  padding: 30px;
+  background: #d9edf87d;
+}
