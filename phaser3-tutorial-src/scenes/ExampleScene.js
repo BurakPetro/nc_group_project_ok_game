@@ -34,8 +34,8 @@ export default class ExampleScene extends Phaser.Scene {
     this.player3IsBot = true;
     this.player4IsBot = true;
     this.assignedPlayers = {};
-    this.timePerTurn = 60
-    this.playLocally = true
+    this.timePerTurn = 60;
+    this.playLocally = true;
   }
 
   preload() {
@@ -79,7 +79,7 @@ export default class ExampleScene extends Phaser.Scene {
     this.restartTimer();
 
     function successCallbackFunction(gameState) {
-      setGameStateToGame(gameState, this)
+      setGameStateToGame(gameState, this);
     }
 
     fetchGameSetup(successCallbackFunction.bind(this));
