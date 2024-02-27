@@ -114,11 +114,7 @@ export default class ExampleScene extends Phaser.Scene {
             gameObject.disableInteractive();
             gridPosition.played = true;
             if (this.checkWinner(gridPosition, gameObject) === true) {
-              this.winnerText = this.add
-                .text(120, 10, `Player${this.setPlayer} WINS!!!!`, {
-                  color: "#1e1e1e",
-                })
-                .setFontSize(100);
+              this.printWinner();
             }
           }
         });
@@ -132,7 +128,7 @@ export default class ExampleScene extends Phaser.Scene {
     });
     socket.on("drag-end", (data) => {
       this.updateWhoTurnItIsFromPlayedTile(data.name);
-      moveSpriteByName(data.name, data.x, data.y);
+      moveSpriteByName(this, data.name, data.x, data.y);
       const gridPosition =
         this.gridArray[this.getGridArrayIndexFromLocation(data.x, data.y)];
       gridPosition.player = data.textureKey;
@@ -507,15 +503,19 @@ export default class ExampleScene extends Phaser.Scene {
         findGridPosition.player = `player${this.setPlayer}`;
         findGridPosition.played = true;
         if (this.checkWinner(findGridPosition, findSpriteUnmoved) === true) {
-          this.winnerText = this.add
-            .text(120, 20, `Player${this.setPlayer} WINS!!!!`, {
-              color: "#1e1e1e",
-            })
-            .setFontSize(100);
+          this.printWinner();
         }
         socket.emit("draggedObjectPosition", findSpriteUnmoved);
       }
     }, 3000);
+  }
+
+  printWinner() {
+    this.winnerText = this.add
+      .text(120, 20, `Player${this.setPlayer} WINS!!!!`, {
+        color: "#1e1e1e",
+      })
+      .setFontSize(100);
   }
 
   getRndInteger(min, max) {
