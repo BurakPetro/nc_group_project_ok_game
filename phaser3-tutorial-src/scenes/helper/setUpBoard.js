@@ -20,6 +20,22 @@ export function resetBoard(spriteList) {
     if (sprite.description === "playersTile") {
       sprite.setInteractive({ draggable: true });
     }
-
   });
+}
+
+export function setGameStateToGame(gameState, scene) {
+  console.log(gameState, "setGameStateToGame");
+  scene.assignedPlayers = gameState.assignedPlayers;
+  scene.timePerTurn = gameState.timer;
+  scene.restartTimer();
+  scene.playLocally = gameState.playLocally;
+
+  scene.player2IsBot =
+    scene.assignedPlayers["player2"] === "bot" ? true : false;
+  scene.player3IsBot =
+    scene.assignedPlayers["player3"] === "bot" ? true : false;
+  scene.player4IsBot =
+    scene.assignedPlayers["player4"] === "bot" ? true : false;
+
+  scene.setTiles(gameState);
 }
