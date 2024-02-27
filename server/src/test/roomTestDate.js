@@ -1,9 +1,32 @@
 const roomTestDate = {
-  testRoom1: { players: 2, tilesPlayed: [] },
-  testRoom2: { players: 3, tilesPlayed: [] },
-  testRoom3: { players: 4, tilesPlayed: [] },
+  testRoom1: {
+    players: 2,
+    tilesPlayed: [],
+    assignedPlayers: { player1: null, player2: null },
+  },
+  testRoom2: {
+    players: 3,
+    tilesPlayed: [],
+    assignedPlayers: { player1: null, player2: null, player3: null },
+  },
+  testRoom3: {
+    players: 4,
+    tilesPlayed: [],
+    assignedPlayers: {
+      player1: null,
+      player2: null,
+      player3: null,
+      player4: null,
+    },
+  },
   testRoom4: {
     players: 4,
+    assignedPlayers: {
+      player1: null,
+      player2: null,
+      player3: null,
+      player4: null,
+    },
     tilesPlayed: [
       {
         name: "player1tile14",
@@ -121,6 +144,12 @@ const roomTestDate = {
   },
   testRoom5: {
     players: 4,
+    assignedPlayers: {
+      player1: null,
+      player2: null,
+      player3: null,
+      player4: null,
+    },
     tilesPlayed: [
       {
         name: "player1tile14",
