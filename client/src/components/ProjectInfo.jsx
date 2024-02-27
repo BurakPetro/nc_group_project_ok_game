@@ -2,10 +2,10 @@ import reactLogo from "../assets/react.svg";
 import vitelLogo from "../assets/vite.svg";
 import javascriptLogo from "../assets/javascript.png";
 import phaserLogo from "../assets/phaser.png";
-import "../styles/ProgectInfo.css";
+import "../styles/ProjectInfo.css";
 import socketIoLogo from "../assets/socketio.png";
 import NorthcodersLogo from "../assets/northcoders.jpg";
-const ProgectInfo = () => {
+const ProjectInfo = () => {
   return (
     <>
       <div className="main">
@@ -83,4 +83,4 @@ const ProgectInfo = () => {
   );
 };
 
-export default ProgectInfo;
+export default ProjectInfo;
