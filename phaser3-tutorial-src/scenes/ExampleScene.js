@@ -29,7 +29,7 @@ export default class ExampleScene extends Phaser.Scene {
     this.size = 17;
     this.playerBlocks = []; // Array to store references to player blocks
     this.playerBlocksIndex = 0; // Access specific blocks
-    this.player2IsBot = true;
+    this.player2IsBot = false;
     this.player3IsBot = true;
     this.player4IsBot = true;
   }
@@ -89,10 +89,14 @@ export default class ExampleScene extends Phaser.Scene {
 
     this.winnerText;
 
+    //this.setTilesInteractive();
+
     this.input.on("dragstart", (pointer, gameObject) => {
-      gameObject.setTint(0x868e96);
-      this.currentTilePositionX = gameObject.x;
-      this.currentTilePositionY = gameObject.y;
+      if (gameObject.texture.key === `player${this.setPlayer}`) {
+        gameObject.setTint(0x868e96);
+        this.currentTilePositionX = gameObject.x;
+        this.currentTilePositionY = gameObject.y;
+      }
     });
 
     this.input.on("drag", (pointer, gameObject, dragX, dragY) => {
@@ -101,24 +105,23 @@ export default class ExampleScene extends Phaser.Scene {
       gameObject.setPosition(dragX, dragY);
     });
 
-    this.input.keyboard.on("keydown-UP", (event) => {
-      this.playerBlocks[this.playerBlocksIndex].y -= 32; // Move up by one grid position
+    this.keyboardUp = this.input.keyboard.on("keydown-UP", (event) => {
+      this.playerBlocks[this.playerBlocksIndex].y -= 32;
       this.playerBlocks[this.playerBlocksIndex].y = Phaser.Math.Snap.To(
         this.playerBlocks[this.playerBlocksIndex].y,
         32
       );
     });
 
-    this.input.keyboard.on("keydown-DOWN", (event) => {
-      this.playerBlocks[this.playerBlocksIndex].y += 32; // Move down by one grid position
+    this.keyboardDown = this.input.keyboard.on("keydown-DOWN", (event) => {
+      this.playerBlocks[this.playerBlocksIndex].y += 32;
       this.playerBlocks[this.playerBlocksIndex].y = Phaser.Math.Snap.To(
         this.playerBlocks[this.playerBlocksIndex].y,
         32
       );
     });
 
-    this.input.keyboard.on("keydown-LEFT", (event) => {
-      // Move left by one grid position
+    this.keyboardLeft = this.input.keyboard.on("keydown-LEFT", (event) => {
       this.playerBlocks[this.playerBlocksIndex].x -= 32;
       this.playerBlocks[this.playerBlocksIndex].x = Phaser.Math.Snap.To(
         this.playerBlocks[this.playerBlocksIndex].x,
@@ -126,8 +129,8 @@ export default class ExampleScene extends Phaser.Scene {
       );
     });
 
-    this.input.keyboard.on("keydown-RIGHT", (event) => {
-      // Move right by one grid position
+    this.keyboardRight = this.input.keyboard.on("keydown-RIGHT", (event) => {
+      this.playerBlocks[this.playerBlocksIndex].setTint(0x868e96);
       this.playerBlocks[this.playerBlocksIndex].x += 32;
       this.playerBlocks[this.playerBlocksIndex].x = Phaser.Math.Snap.To(
         this.playerBlocks[this.playerBlocksIndex].x,
@@ -136,18 +139,18 @@ export default class ExampleScene extends Phaser.Scene {
     });
 
     this.input.on("dragend", (pointer, gameObject, dropped) => {
+      gameObject.setTint();
       if (
         this.canATileGoInThisLocation(gameObject) &&
         gameObject.texture.key === `player${this.setPlayer}`
       ) {
-        gameObject.setTint();
         this.gridArray.map((gridPosition) => {
           if (
             gridPosition.x === gameObject.x &&
             gridPosition.y === gameObject.y
           ) {
             gridPosition.player = gameObject.texture.key;
-            gameObject.disableInteractive();
+            this.setTilesNotInteractive();
             gridPosition.played = true;
             if (this.checkWinner(gridPosition, gameObject) === true) {
               this.printWinner();
@@ -156,14 +159,13 @@ export default class ExampleScene extends Phaser.Scene {
         });
         socket.emit("draggedObjectPosition", gameObject);
       } else {
-        gameObject.setTint();
-        //if the object is dropped outside the grid it goes back to its original position in the deck
         gameObject.x = gameObject.input.dragStartX;
         gameObject.y = gameObject.input.dragStartY;
       }
     });
 
-    this.input.keyboard.on("keydown-ENTER", (event) => {
+    this.input.keyboard.on("keydown-ENTER", () => {
+      this.playerBlocks[this.playerBlocksIndex].setTint();
       if (
         this.canATileGoInThisLocation(
           this.playerBlocks[this.playerBlocksIndex]
@@ -171,46 +173,34 @@ export default class ExampleScene extends Phaser.Scene {
         this.playerBlocks[this.playerBlocksIndex].texture.key ===
           `player${this.setPlayer}`
       ) {
-        this.playerBlocks[this.playerBlocksIndex].setTint(); //change the colour back
-        //this.restartTimer();
         this.gridArray.map((gridPosition) => {
-          //check if the position is accepted
           if (
             gridPosition.x === this.playerBlocks[this.playerBlocksIndex].x &&
             gridPosition.y === this.playerBlocks[this.playerBlocksIndex].y
           ) {
-            //this.checkFiveInARow(gridPosition, gameObject, gridArray);
             gridPosition.player =
-              this.playerBlocks[this.playerBlocksIndex].texture.key; //update the gridArray with the player occupying the position (x,y)
-            this.playerBlocks[this.playerBlocksIndex].disableInteractive();
+              this.playerBlocks[this.playerBlocksIndex].texture.key;
+            this.setTilesNotInteractive();
             gridPosition.played = true;
-            //check for winner and display text
             if (
-              this.checkFiveInARow(
+              this.checkWinner(
                 gridPosition,
                 this.playerBlocks[this.playerBlocksIndex]
               ) === true
             ) {
-              this.winnerText = this.add
-                .text(120, 10, `Player${this.setPlayer} WINS!!!!`, {
-                  color: "#1e1e1e",
-                })
-                .setFontSize(100);
+              this.printWinner();
             }
           }
         });
-
         socket.emit(
           "draggedObjectPosition",
           this.playerBlocks[this.playerBlocksIndex]
         );
       } else {
-        this.playerBlocks[this.playerBlocksIndex].setTint();
-        //if the object is dropped outside the grid it goes back to its original position in the deck
         this.playerBlocks[this.playerBlocksIndex].x =
-          this.playerBlocks[this.playerBlocksIndex].input.dragStartX;
+          this.playerBlocks[this.playerBlocksIndex].startingLocation[0];
         this.playerBlocks[this.playerBlocksIndex].y =
-          this.playerBlocks[this.playerBlocksIndex].input.dragStartY;
+          this.playerBlocks[this.playerBlocksIndex].startingLocation[1];
       }
     });
 
@@ -223,6 +213,56 @@ export default class ExampleScene extends Phaser.Scene {
       gridPosition.played = true;
       this.restartTimer();
     });
+  }
+
+  setTilesInteractive() {
+    //this is to allow only the tiles of the current players to be moved
+    if (
+      this.setPlayer === 1 ||
+      (this.setPlayer === 2 && this.player2IsBot === false) ||
+      (this.setPlayer === 3 && this.player3IsBot === false) ||
+      (this.setPlayer === 4 && this.player4IsBot === false)
+    ) {
+      this.keyboardDown.enabled = true;
+      this.keyboardUp.enabled = true;
+      this.keyboardRight.enabled = true;
+      this.keyboardLeft.enabled = true;
+      for (let i = 0; i < 16; i++) {
+        const tileToBeSetInteractive = this.children.list.find((child) => {
+          return child.name === `player${this.setPlayer}tile${i}`;
+        });
+        if (
+          tileToBeSetInteractive.x ===
+            tileToBeSetInteractive.startingLocation[0] &&
+          tileToBeSetInteractive.y ===
+            tileToBeSetInteractive.startingLocation[1]
+        ) {
+          tileToBeSetInteractive.setInteractive({ draggable: true });
+        }
+      }
+    } else {
+      //this is to prevent the bots tiles to be moved with the keyboard
+      this.keyboardDown.enabled = false;
+      this.keyboardUp.enabled = false;
+      this.keyboardRight.enabled = false;
+      this.keyboardLeft.enabled = false;
+    }
+  }
+
+  setTilesNotInteractive() {
+    for (let i = 0; i < 16; i++) {
+      const tileToBeSetNotInteractive = this.children.list.find((child) => {
+        return child.name === `player${this.setPlayer}tile${i}`;
+      });
+      if (
+        tileToBeSetNotInteractive.x ===
+          tileToBeSetNotInteractive.startingLocation[0] &&
+        tileToBeSetNotInteractive.y ===
+          tileToBeSetNotInteractive.startingLocation[1]
+      ) {
+        tileToBeSetNotInteractive.disableInteractive();
+      }
+    }
   }
 
   /**
@@ -292,9 +332,9 @@ export default class ExampleScene extends Phaser.Scene {
         indexValue = index;
       }
     });
-
     return indexValue;
   }
+
   /**
    * updateWhoTurnItIsFromPlayedTile - update players who's turn it is by providing it with the name of the last tile played
    * @date 21/02/2024 - 10:22:41
@@ -307,6 +347,7 @@ export default class ExampleScene extends Phaser.Scene {
     } else {
       this.setPlayer = Number(lastTilePlayedName[6]) + 1;
     }
+    this.setTilesInteractive();
     if (this.setPlayer === 2) {
       this.turnSprite.setPosition(1055, -5);
       if (this.player2IsBot === true) {
@@ -482,7 +523,6 @@ export default class ExampleScene extends Phaser.Scene {
         gridPosition.description = "board";
         gridPosition.player = null;
         gridPosition.played = false;
-
         this.gridArray.push(gridPosition);
       }
     }
@@ -505,11 +545,9 @@ export default class ExampleScene extends Phaser.Scene {
       for (let i = 0; i < 16; i++) {
         const x = player.x + Math.floor(i / 8) * 32;
         const y = 32 + player.y + (i % 8) * 32;
-
         const block = this.add
           .sprite(x, y, `player${playerIndex + 1}`)
           .setOrigin(0, 0);
-        block.setInteractive({ draggable: true });
         block.name = `player${playerIndex + 1}tile${i}`;
         block.startingLocation = [x, y];
         block.description = "playersTile";
@@ -518,6 +556,7 @@ export default class ExampleScene extends Phaser.Scene {
       }
     });
     this.addTilesToBoard(gameState.tilesPlayed);
+    this.setTilesInteractive();
   }
 
   createTurnSprite() {
@@ -598,7 +637,6 @@ export default class ExampleScene extends Phaser.Scene {
         }
         findSpriteUnmoved.x = whereToPlaceTile.x;
         findSpriteUnmoved.y = whereToPlaceTile.y;
-        findSpriteUnmoved.disableInteractive();
         findGridPosition.player = `player${this.setPlayer}`;
         findGridPosition.played = true;
         if (this.checkWinner(findGridPosition, findSpriteUnmoved) === true) {
