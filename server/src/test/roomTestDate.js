@@ -3,15 +3,21 @@ const roomTestDate = {
     players: 2,
     tilesPlayed: [],
     assignedPlayers: { player1: null, player2: null },
+    timer: 30,
+    playLocally: true,
   },
   testRoom2: {
     players: 3,
     tilesPlayed: [],
+    timer: 30,
+    playLocally: true,
     assignedPlayers: { player1: null, player2: null, player3: null },
   },
   testRoom3: {
     players: 4,
     tilesPlayed: [],
+    timer: 30,
+    playLocally: true,
     assignedPlayers: {
       player1: null,
       player2: null,
@@ -21,6 +27,8 @@ const roomTestDate = {
   },
   testRoom4: {
     players: 4,
+    timer: 30,
+    playLocally: true,
     assignedPlayers: {
       player1: null,
       player2: null,
@@ -144,6 +152,8 @@ const roomTestDate = {
   },
   testRoom5: {
     players: 4,
+    timer: 30,
+    playLocally: true,
     assignedPlayers: {
       player1: null,
       player2: null,
