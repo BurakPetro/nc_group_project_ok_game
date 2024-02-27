@@ -7,11 +7,11 @@ const Header = () => {
         <img src={OkSvg} alt="OkSvg" />
         <span>Game</span>
       </header>
-      <a href="google.com">
-        <img src={group} alt="group of 5 people" />
-      </a>
 
       <div className="header-buttons">
+        <a href="/progect-info">
+          <img src={group} alt="group of 5 people" className="global-btn" />
+        </a>
         <button className="global-btn btn-purple">Login</button>
         <button
           className="global-btn btn-purple"
