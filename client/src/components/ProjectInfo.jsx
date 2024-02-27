@@ -32,7 +32,7 @@ const ProjectInfo = () => {
             </a>
           </li>
           <li>
-            <a target="_blank" href="https://github.com/BurakPetro">
+            <a target="_blank" href="https://github.com/rsr83">
               Rafael Ramalho
             </a>
           </li>
