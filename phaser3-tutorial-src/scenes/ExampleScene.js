@@ -25,17 +25,22 @@ export default class ExampleScene extends Phaser.Scene {
     this.currentTilePositionY;
     this.turnSprite = null;
     this.setPlayer = 1;
-    this.numberOfPlayer = 4;
+    this.numberOfPlayer = 2;
     this.gridArray = [];
     this.size = 17;
+    this.playerBlocks = []; // Array to store references to player blocks
+    this.playerBlocksIndex = 0; // Access specific blocks
+    this.player2IsBot = true;
+    this.player3IsBot = true;
+    this.player4IsBot = true;
     this.assignedPlayers = {};
     this.timePerTurn = 60
     this.playLocally = true
   }
 
   preload() {
-    this.load.image("bg", "assets/background.png");
-    const blockImg = ["redtile2", "greentile", "bluetile", "orangetile"];
+    this.load.image("bg", "assets/background2.png");
+    const blockImg = ["purple", "darkblue", "lightblue", "orange"];
     blockImg.forEach((color, index) => {
       this.load.spritesheet(`player${index + 1}`, `assets/${color}.png`, {
         frameWidth: 30,
@@ -93,27 +98,96 @@ export default class ExampleScene extends Phaser.Scene {
       gameObject.setPosition(dragX, dragY);
     });
 
-    this.input.on("dragend", (pointer, gameObject, dropped) => {
-      //check if player is using its own tiles and can go in that location
+    this.input.keyboard.on("keydown-UP", (event) => {
+      this.playerBlocks[this.playerBlocksIndex].y -= 32; // Move up by one grid position
+      this.playerBlocks[this.playerBlocksIndex].y = Phaser.Math.Snap.To(
+        this.playerBlocks[this.playerBlocksIndex].y,
+        32
+      );
+    });
 
+    this.input.keyboard.on("keydown-DOWN", (event) => {
+      this.playerBlocks[this.playerBlocksIndex].y += 32; // Move down by one grid position
+      this.playerBlocks[this.playerBlocksIndex].y = Phaser.Math.Snap.To(
+        this.playerBlocks[this.playerBlocksIndex].y,
+        32
+      );
+    });
+
+    this.input.keyboard.on("keydown-LEFT", (event) => {
+      // Move left by one grid position
+      this.playerBlocks[this.playerBlocksIndex].x -= 32;
+      this.playerBlocks[this.playerBlocksIndex].x = Phaser.Math.Snap.To(
+        this.playerBlocks[this.playerBlocksIndex].x,
+        32
+      );
+    });
+
+    this.input.keyboard.on("keydown-RIGHT", (event) => {
+      // Move right by one grid position
+      this.playerBlocks[this.playerBlocksIndex].x += 32;
+      this.playerBlocks[this.playerBlocksIndex].x = Phaser.Math.Snap.To(
+        this.playerBlocks[this.playerBlocksIndex].x,
+        32
+      );
+    });
+
+    this.input.on("dragend", (pointer, gameObject, dropped) => {
       if (
         this.canATileGoInThisLocation(gameObject) &&
         gameObject.texture.key === `player${this.setPlayer}`
       ) {
-        gameObject.setTint(); //change the colour back
-        //this.restartTimer();
+        gameObject.setTint();
         this.gridArray.map((gridPosition) => {
-          //check if the position is accepted
           if (
             gridPosition.x === gameObject.x &&
             gridPosition.y === gameObject.y
           ) {
-            //this.checkFiveInARow(gridPosition, gameObject, gridArray);
-            gridPosition.player = gameObject.texture.key; //update the gridArray with the player occupying the position (x,y)
+            gridPosition.player = gameObject.texture.key;
             gameObject.disableInteractive();
             gridPosition.played = true;
+            if (this.checkWinner(gridPosition, gameObject) === true) {
+              this.printWinner();
+            }
+          }
+        });
+        socket.emit("draggedObjectPosition", gameObject);
+      } else {
+        gameObject.setTint();
+        //if the object is dropped outside the grid it goes back to its original position in the deck
+        gameObject.x = gameObject.input.dragStartX;
+        gameObject.y = gameObject.input.dragStartY;
+      }
+    });
+
+    this.input.keyboard.on("keydown-ENTER", (event) => {
+      if (
+        this.canATileGoInThisLocation(
+          this.playerBlocks[this.playerBlocksIndex]
+        ) &&
+        this.playerBlocks[this.playerBlocksIndex].texture.key ===
+          `player${this.setPlayer}`
+      ) {
+        this.playerBlocks[this.playerBlocksIndex].setTint(); //change the colour back
+        //this.restartTimer();
+        this.gridArray.map((gridPosition) => {
+          //check if the position is accepted
+          if (
+            gridPosition.x === this.playerBlocks[this.playerBlocksIndex].x &&
+            gridPosition.y === this.playerBlocks[this.playerBlocksIndex].y
+          ) {
+            //this.checkFiveInARow(gridPosition, gameObject, gridArray);
+            gridPosition.player =
+              this.playerBlocks[this.playerBlocksIndex].texture.key; //update the gridArray with the player occupying the position (x,y)
+            this.playerBlocks[this.playerBlocksIndex].disableInteractive();
+            gridPosition.played = true;
             //check for winner and display text
-            if (this.checkFiveInARow(gridPosition, gameObject) === true) {
+            if (
+              this.checkFiveInARow(
+                gridPosition,
+                this.playerBlocks[this.playerBlocksIndex]
+              ) === true
+            ) {
               this.winnerText = this.add
                 .text(120, 10, `Player${this.setPlayer} WINS!!!!`, {
                   color: "#1e1e1e",
@@ -123,12 +197,17 @@ export default class ExampleScene extends Phaser.Scene {
           }
         });
 
-        socket.emit("draggedObjectPosition", gameObject);
+        socket.emit(
+          "draggedObjectPosition",
+          this.playerBlocks[this.playerBlocksIndex]
+        );
       } else {
-        gameObject.setTint();
+        this.playerBlocks[this.playerBlocksIndex].setTint();
         //if the object is dropped outside the grid it goes back to its original position in the deck
-        gameObject.x = gameObject.input.dragStartX;
-        gameObject.y = gameObject.input.dragStartY;
+        this.playerBlocks[this.playerBlocksIndex].x =
+          this.playerBlocks[this.playerBlocksIndex].input.dragStartX;
+        this.playerBlocks[this.playerBlocksIndex].y =
+          this.playerBlocks[this.playerBlocksIndex].input.dragStartY;
       }
     });
   }
@@ -157,7 +236,6 @@ export default class ExampleScene extends Phaser.Scene {
     if (currentgridArrayIndex === false) {
       return false;
     }
-
     if (this.gridArray[currentgridArrayIndex].player !== null) {
       return false;
     } else if (
@@ -185,7 +263,7 @@ export default class ExampleScene extends Phaser.Scene {
       //RIGHT
       return true;
     } else if (
-      currentgridArrayIndex === 144 &&
+      currentgridArrayIndex === Math.floor((this.size * this.size) / 2) &&
       this.gridArray[currentgridArrayIndex].player === null
     ) {
       return true;
@@ -216,15 +294,47 @@ export default class ExampleScene extends Phaser.Scene {
     } else {
       this.setPlayer = Number(lastTilePlayedName[6]) + 1;
     }
-
     if (this.setPlayer === 2) {
       this.turnSprite.setPosition(1055, -5);
+      if (this.player2IsBot === true) {
+        this.botMove();
+      }
     } else if (this.setPlayer === 3) {
       this.turnSprite.setPosition(1055, 445);
+      if (this.player3IsBot === true) {
+        this.botMove();
+      }
     } else if (this.setPlayer === 4) {
       this.turnSprite.setPosition(-4, 440);
+      if (this.player4IsBot === true) {
+        this.botMove();
+      }
     } else {
       this.turnSprite.setPosition(-4, -5);
+    }
+
+    // loop through playerBlocks, find and update index for next available tile for the next player to use, this allows keyboard input to work
+    this.playerBlocks.splice(this.playerBlocksIndex, 1); // remove tile, already played
+    this.playerBlocksIndex = 0; // reset first before loop
+    while (
+      Number(this.playerBlocks[this.playerBlocksIndex].name.slice(6, 7)) !==
+      this.setPlayer
+    ) {
+      this.playerBlocksIndex++;
+    }
+  }
+
+  checkWinner(gridPosition, gameObject) {
+    const arrayOfCounts = this.checkFiveInARow(gridPosition, gameObject);
+    if (
+      arrayOfCounts.verticalCount >= 4 ||
+      arrayOfCounts.horizontalCount >= 4 ||
+      arrayOfCounts.positiveDiagonalCount >= 4 ||
+      arrayOfCounts.negativeDiagonalCount >= 4
+    ) {
+      return true;
+    } else {
+      return false;
     }
   }
 
@@ -326,18 +436,12 @@ export default class ExampleScene extends Phaser.Scene {
         }
       }
     }
-
-    // console.log the winner
-    if (
-      verticalCount >= 4 ||
-      horizontalCount >= 4 ||
-      positiveDiagonalCount === 4 ||
-      negativeDiagonalCount === 4
-    ) {
-      return true;
-    } else {
-      return false;
-    }
+    return {
+      verticalCount: verticalCount,
+      horizontalCount: horizontalCount,
+      positiveDiagonalCount: positiveDiagonalCount,
+      negativeDiagonalCount: negativeDiagonalCount,
+    };
   }
 
   setGrid() {
@@ -357,7 +461,6 @@ export default class ExampleScene extends Phaser.Scene {
         gridPosition.description = "board";
         gridPosition.player = null;
         gridPosition.played = false;
-
         this.gridArray.push(gridPosition);
       } else {
         const gridPosition = this.add.sprite(x, y, `gridblock`).setOrigin(0, 0);
@@ -386,7 +489,6 @@ export default class ExampleScene extends Phaser.Scene {
           color: player.color,
         })
         .setFontSize(15);
-
       for (let i = 0; i < 16; i++) {
         const x = player.x + Math.floor(i / 8) * 32;
         const y = 32 + player.y + (i % 8) * 32;
@@ -399,6 +501,7 @@ export default class ExampleScene extends Phaser.Scene {
         block.startingLocation = [x, y];
         block.description = "playersTile";
         block.depth = 1;
+        this.playerBlocks.push(block);
       }
     });
     this.addTilesToBoard(gameState.tilesPlayed);
@@ -406,7 +509,6 @@ export default class ExampleScene extends Phaser.Scene {
 
   createTurnSprite() {
     const rectangle = this.add.graphics();
-
     rectangle.lineStyle(2, 0x000000);
     rectangle.strokeRect(25, 30, 85, 300);
     rectangle.startingLocation = [-4, -5];
@@ -444,66 +546,64 @@ export default class ExampleScene extends Phaser.Scene {
   formatTime = (seconds) => {
     let minutes = Math.floor(seconds / 60);
     let remainingSeconds = seconds % 60;
-
     if (remainingSeconds < 10) {
       remainingSeconds = "0" + remainingSeconds;
     }
-
     return minutes + ":" + remainingSeconds;
   };
 
   onTimerTick = () => {
     this.totalTime--;
     this.timerText.setText("Timer: " + this.formatTime(this.totalTime));
-
     if (this.totalTime <= 0) {
       this.timerEvent.remove();
+      this.botMove();
+    }
+  };
 
+  botMove() {
+    setTimeout(() => {
       const whereToPlaceTile = this.pickRandomLocationItCanGo();
-
       if (whereToPlaceTile) {
-        //search for a tile that is in its original position and move it
+        const findGridPosition = this.children.list.find((child) => {
+          return (
+            child.description === "board" &&
+            child.x === whereToPlaceTile.x &&
+            child.y === whereToPlaceTile.y
+          );
+        });
+        let findSpriteUnmoved;
         for (let i = 0; i < 16; i++) {
-          const findSpriteUnmoved = this.children.list.find((child) => {
+          findSpriteUnmoved = this.children.list.find((child) => {
             return child.name === `player${this.setPlayer}tile${i}`;
           });
-          const findGridPosition = this.children.list.find((child) => {
-            return (
-              child.description === "board" &&
-              child.x === whereToPlaceTile.x &&
-              child.y === whereToPlaceTile.y
-            );
-          });
-
           if (
             findSpriteUnmoved.x === findSpriteUnmoved.startingLocation[0] &&
             findSpriteUnmoved.y === findSpriteUnmoved.startingLocation[1]
           ) {
-            findSpriteUnmoved.x = whereToPlaceTile.x;
-            findSpriteUnmoved.y = whereToPlaceTile.y;
-            i = 16;
-
-            findGridPosition.player = `player${this.setPlayer}`;
-            findSpriteUnmoved.disableInteractive();
-            findGridPosition.played = true;
-
-            //check for winner and display text
-            if (
-              this.checkFiveInARow(findGridPosition, findSpriteUnmoved) === true
-            ) {
-              this.winnerText = this.add
-                .text(120, 20, `Player${this.setPlayer} WINS!!!!`, {
-                  color: "#1e1e1e",
-                })
-                .setFontSize(100);
-            }
-            socket.emit("draggedObjectPosition", findSpriteUnmoved);
+            break;
           }
         }
+        findSpriteUnmoved.x = whereToPlaceTile.x;
+        findSpriteUnmoved.y = whereToPlaceTile.y;
+        findSpriteUnmoved.disableInteractive();
+        findGridPosition.player = `player${this.setPlayer}`;
+        findGridPosition.played = true;
+        if (this.checkWinner(findGridPosition, findSpriteUnmoved) === true) {
+          this.printWinner();
+        }
+        socket.emit("draggedObjectPosition", findSpriteUnmoved);
       }
-      this.restartTimer();
-    }
-  };
+    }, 3000);
+  }
+
+  printWinner() {
+    this.winnerText = this.add
+      .text(120, 20, `Player${this.setPlayer} WINS!!!!`, {
+        color: "#1e1e1e",
+      })
+      .setFontSize(100);
+  }
 
   getRndInteger(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
@@ -511,7 +611,6 @@ export default class ExampleScene extends Phaser.Scene {
 
   pickRandomLocationItCanGo() {
     const playableLocation = this.listOfAllPlayableLocations();
-    // console.log(playableLocation);
     const randomPosition = this.getRndInteger(0, playableLocation.length);
     return playableLocation[randomPosition];
   }

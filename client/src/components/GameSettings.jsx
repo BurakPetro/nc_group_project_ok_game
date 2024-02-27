@@ -1,7 +1,7 @@
 const GameSettings = ({ gameSettings, setGameSettings }) => {
   return (
     <>
-      <h2>Chose your settings to create a new game</h2>
+      <h2>Choose your settings to create a new game</h2>
       <div className="setting-line">
         <div className="settings-first-row">
           <div className="chose-number-of-players">
