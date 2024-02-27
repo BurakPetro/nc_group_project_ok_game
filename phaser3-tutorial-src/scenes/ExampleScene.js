@@ -1,5 +1,6 @@
 import { resetBoard } from "./helper/setUpBoard.js";
 import { moveSpriteByName } from "./helper/spriteUtils.js";
+import socketHandler from "./helper/socketHandler.js";
 
 const socket = io();
 const params = new URLSearchParams(document.location.search);
@@ -27,6 +28,7 @@ export default class ExampleScene extends Phaser.Scene {
     this.numberOfPlayer = 4;
     this.gridArray = [];
     this.size = 17;
+    this.assignedPlayers = {}
   }
 
   preload() {
@@ -63,14 +65,7 @@ export default class ExampleScene extends Phaser.Scene {
       socket.emit("resetBoardServer");
     });
 
-    socket.on("resetBoardClient", () => {
-      if (this.winnerText) {
-        this.winnerText.setText("");
-      }
-      this.restartTimer(this.gridArray);
-      resetBoard(this.children.list);
-      this.setPlayer = 1;
-    });
+    socketHandler(socket, this);
 
     this.setGrid();
 
@@ -133,21 +128,6 @@ export default class ExampleScene extends Phaser.Scene {
         gameObject.x = gameObject.input.dragStartX;
         gameObject.y = gameObject.input.dragStartY;
       }
-    });
-
-    socket.on("drag-end", (data) => {
-      this.updateWhoTurnItIsFromPlayedTile(data.name);
-
-      // TODO looking into making gridArray a this. variable as passing it around a lot
-
-      moveSpriteByName(this, data.name, data.x, data.y);
-
-      const gridPosition =
-        this.gridArray[this.getGridArrayIndexFromLocation(data.x, data.y)];
-      gridPosition.player = data.textureKey;
-      gridPosition.played = true;
-
-      this.restartTimer();
     });
   }
 
