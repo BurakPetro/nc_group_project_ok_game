@@ -1,5 +1,6 @@
-import { resetBoard } from "./helper/setUpBoard.js";
+import { resetBoard, setGameStateToGame } from "./helper/setUpBoard.js";
 import { moveSpriteByName } from "./helper/spriteUtils.js";
+import socketHandler from "./helper/socketHandler.js";
 
 const socket = io();
 const params = new URLSearchParams(document.location.search);
@@ -32,6 +33,9 @@ export default class ExampleScene extends Phaser.Scene {
     this.player2IsBot = true;
     this.player3IsBot = true;
     this.player4IsBot = true;
+    this.assignedPlayers = {};
+    this.timePerTurn = 60;
+    this.playLocally = true;
   }
 
   preload() {
@@ -68,21 +72,14 @@ export default class ExampleScene extends Phaser.Scene {
       socket.emit("resetBoardServer");
     });
 
-    socket.on("resetBoardClient", () => {
-      if (this.winnerText) {
-        this.winnerText.setText("");
-      }
-      this.setPlayer = 1;
-      this.restartTimer();
-      resetBoard(this.children.list);
-    });
+    socketHandler(socket, this);
 
     this.setGrid();
 
     this.restartTimer();
 
     function successCallbackFunction(gameState) {
-      this.setTiles(gameState);
+      setGameStateToGame(gameState, this);
     }
 
     fetchGameSetup(successCallbackFunction.bind(this));
@@ -212,16 +209,6 @@ export default class ExampleScene extends Phaser.Scene {
         this.playerBlocks[this.playerBlocksIndex].y =
           this.playerBlocks[this.playerBlocksIndex].input.dragStartY;
       }
-    });
-
-    socket.on("drag-end", (data) => {
-      this.updateWhoTurnItIsFromPlayedTile(data.name);
-      moveSpriteByName(this, data.name, data.x, data.y);
-      const gridPosition =
-        this.gridArray[this.getGridArrayIndexFromLocation(data.x, data.y)];
-      gridPosition.player = data.textureKey;
-      gridPosition.played = true;
-      this.restartTimer();
     });
   }
 
@@ -529,7 +516,8 @@ export default class ExampleScene extends Phaser.Scene {
   }
 
   restartTimer = () => {
-    this.totalTime = 30;
+    // TODO currently they can not turn timer off
+    this.totalTime = this.timePerTurn;
     if (this.timerText) {
       this.timerText.updateText("Timer: " + this.formatTime(this.totalTime));
     } else {
