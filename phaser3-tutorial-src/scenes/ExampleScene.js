@@ -1,4 +1,5 @@
 import { resetBoard } from "./helper/setUpBoard.js";
+import { moveSpriteByName } from "./helper/spriteUtils.js";
 
 const socket = io();
 const params = new URLSearchParams(document.location.search);
@@ -131,7 +132,7 @@ export default class ExampleScene extends Phaser.Scene {
     });
     socket.on("drag-end", (data) => {
       this.updateWhoTurnItIsFromPlayedTile(data.name);
-      this.moveSpriteByName(data.name, data.x, data.y);
+      moveSpriteByName(data.name, data.x, data.y);
       const gridPosition =
         this.gridArray[this.getGridArrayIndexFromLocation(data.x, data.y)];
       gridPosition.player = data.textureKey;
@@ -167,7 +168,7 @@ export default class ExampleScene extends Phaser.Scene {
    */
   addTilesToBoard(tilesToAdd) {
     tilesToAdd.forEach((value, index) => {
-      this.moveSpriteByName(value.name, value.x, value.y);
+      moveSpriteByName(this, value.name, value.x, value.y);
       if (tilesToAdd.length === index + 1) {
         this.updateWhoTurnItIsFromPlayedTile(value.name);
       }
