@@ -31,8 +31,8 @@ export default class ExampleScene extends Phaser.Scene {
     this.playerBlocks = []; // Array to store references to player blocks
     this.playerBlocksIndex = 0; // Access specific blocks
     this.player2IsBot = false;
-    this.player3IsBot = true;
-    this.player4IsBot = true;
+    this.player3IsBot = false;
+    this.player4IsBot = false;
     this.assignedPlayers = {};
     this.timePerTurn = 60;
     this.playLocally = true;
@@ -85,8 +85,6 @@ export default class ExampleScene extends Phaser.Scene {
     fetchGameSetup(successCallbackFunction.bind(this));
 
     this.winnerText;
-
-    //this.setTilesInteractive();
 
     this.input.on("dragstart", (pointer, gameObject) => {
       if (gameObject.texture.key === `player${this.setPlayer}`) {
