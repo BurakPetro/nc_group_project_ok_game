@@ -31,7 +31,10 @@ const Chat = ({ chatHistory, socket, setChatHistory }) => {
               setMessage(event.target.value);
             }}
           />
-          <button className="global-btn btn-purple" onClick={sendMessage}>
+          <button
+            className="global-btn send-message-button"
+            onClick={sendMessage}
+          >
             Send Message
           </button>
         </div>
