@@ -11,7 +11,7 @@ export function moveSpriteByName(scene, spriteName, newX, newY) {
   const spriteToMove = scene.children.list.find((child) => {
     return child.name === spriteName;
   });
-  // TODO set gridPosition player to player and player to true
+
   if (spriteToMove) {
     spriteToMove.setPosition(newX, newY);
     spriteToMove.disableInteractive();
@@ -24,5 +24,17 @@ export function moveSpriteByName(scene, spriteName, newX, newY) {
     }
   } else {
     console.log(`Sprite with name ${spriteName} not found`);
+  }
+}
+
+export function canOnlyMoveOwnTiles(scene) {
+  // if playLocally = false make it so they can only move there own tiles
+  // TODO see if it still works after reset
+  if (scene.playLocally === false) {
+    scene.playerBlocks.forEach((tile) => {
+      if (tile.playerAssignment !== scene.whichPlayerAmI) {
+        tile.setInteractive({ draggable: false });
+      }
+    });
   }
 }

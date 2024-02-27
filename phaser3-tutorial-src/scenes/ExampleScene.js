@@ -1,4 +1,4 @@
-import { resetBoard, setGameStateToGame } from "./helper/setUpBoard.js";
+import { setGameStateToGame } from "./helper/setUpBoard.js";
 import { moveSpriteByName } from "./helper/spriteUtils.js";
 import socketHandler from "./helper/socketHandler.js";
 
@@ -35,7 +35,10 @@ export default class ExampleScene extends Phaser.Scene {
     this.player4IsBot = false;
     this.assignedPlayers = {};
     this.timePerTurn = 60;
-    this.playLocally = true;
+    this.playLocally = true; // false will stop them from moving other tiles
+    this.playersNames = []; // store text of players
+    this.socket = socket;
+    this.whichPlayerAmI = ""; // store value of which player user is e.g. player1
   }
 
   preload() {
@@ -522,11 +525,14 @@ export default class ExampleScene extends Phaser.Scene {
       { x: 32, y: 480, color: "#1e1e1e" },
     ].slice(0, gameState.players);
     playerData.forEach((player, playerIndex) => {
-      this.add
+      const playerText = this.add
         .text(player.x, player.y, `Player ${playerIndex + 1}`, {
           color: player.color,
         })
         .setFontSize(15);
+      playerText.playerNumber = `player${playerIndex + 1}`;
+
+      this.playersNames.push(playerText);
       for (let i = 0; i < 16; i++) {
         const x = player.x + Math.floor(i / 8) * 32;
         const y = 32 + player.y + (i % 8) * 32;
@@ -537,6 +543,7 @@ export default class ExampleScene extends Phaser.Scene {
         block.startingLocation = [x, y];
         block.description = "playersTile";
         block.depth = 1;
+        block.playerAssignment = `player${playerIndex + 1}`;
         this.playerBlocks.push(block);
       }
     });
