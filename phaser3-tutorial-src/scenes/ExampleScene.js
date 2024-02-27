@@ -1,4 +1,4 @@
-import { resetBoard } from "./helper/setUpBoard.js";
+import { resetBoard, setGameStateToGame } from "./helper/setUpBoard.js";
 import { moveSpriteByName } from "./helper/spriteUtils.js";
 import socketHandler from "./helper/socketHandler.js";
 
@@ -28,7 +28,9 @@ export default class ExampleScene extends Phaser.Scene {
     this.numberOfPlayer = 4;
     this.gridArray = [];
     this.size = 17;
-    this.assignedPlayers = {}
+    this.assignedPlayers = {};
+    this.timePerTurn = 60
+    this.playLocally = true
   }
 
   preload() {
@@ -72,7 +74,7 @@ export default class ExampleScene extends Phaser.Scene {
     this.restartTimer();
 
     function successCallbackFunction(gameState) {
-      this.setTiles(gameState);
+      setGameStateToGame(gameState, this)
     }
 
     fetchGameSetup(successCallbackFunction.bind(this));
@@ -412,7 +414,8 @@ export default class ExampleScene extends Phaser.Scene {
   }
 
   restartTimer = () => {
-    this.totalTime = 30;
+    // TODO currently they can not turn timer off
+    this.totalTime = this.timePerTurn;
     if (this.timerText) {
       this.timerText.updateText("Timer: " + this.formatTime(this.totalTime));
     } else {
@@ -508,7 +511,7 @@ export default class ExampleScene extends Phaser.Scene {
 
   pickRandomLocationItCanGo() {
     const playableLocation = this.listOfAllPlayableLocations();
-    console.log(playableLocation);
+    // console.log(playableLocation);
     const randomPosition = this.getRndInteger(0, playableLocation.length);
     return playableLocation[randomPosition];
   }

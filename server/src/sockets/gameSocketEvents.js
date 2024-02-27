@@ -9,8 +9,6 @@ const {
 } = require("../models/gameState.models");
 
 module.exports = (socket, io) => {
-  // TODO emit new player joined
-  // TODO emit player left
   socket.on("joinRoom", (room_id) => {
     socket.join(room_id);
     addGameStateIfItDoesNotExist(room_id);
@@ -19,7 +17,7 @@ module.exports = (socket, io) => {
       "playersAssignmentUpdate",
       fetchPlayerAssignment(room_id)
     );
-    console.log(`User joined room: ${room_id}`);
+    console.log(`user is in room_id: ${room_id}`);
   });
 
   socket.on("draggedObjectPosition", (data) => {

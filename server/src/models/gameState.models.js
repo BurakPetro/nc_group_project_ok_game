@@ -12,25 +12,58 @@ if (process.env.NODE_ENV === "development") {
  */
 const allGameStates = roomData;
 
-function addGameStateIfItDoesNotExist(room_id, playersCount) {
-  if (["2", "3", "4"].includes(playersCount)) {
-    playersCount = Number(playersCount);
-  } else {
-    playersCount = 4;
-  }
-  const assignedPlayers = {};
-
-  for (let index = 1; index <= playersCount; index++) {
-    assignedPlayers[`player${index}`] = null;
-  }
-
+function addGameStateIfItDoesNotExist(
+  room_id,
+  playersCount,
+  bots,
+  playLocally,
+  timer
+) {
   if (!allGameStates.hasOwnProperty(room_id)) {
+    if (["2", "3", "4"].includes(playersCount)) {
+      playersCount = Number(playersCount);
+    } else {
+      playersCount = 4;
+    }
+    if (["1", "2", "3"].includes(bots)) {
+      bots = Math.min(Number(bots), playersCount - 1);
+    } else {
+      bots = 0;
+    }
+
+    if (playLocally === undefined || playLocally === "true") {
+      playLocally = true;
+    } else if (playLocally === "false") {
+      playLocally = false;
+    }
+
+    if (["1", "10", "30", "60"].includes(timer)) {
+      timer = Number(timer);
+    } else {
+      timer = 0;
+    }
+
+    const assignedPlayers = {};
+
+    for (let index = 1; index <= playersCount; index++) {
+      // add bots to end of the players list if required
+      if (index + bots > playersCount) {
+        assignedPlayers[`player${index}`] = "bot";
+      } else {
+        assignedPlayers[`player${index}`] = null;
+      }
+    }
     allGameStates[room_id] = {
       players: playersCount,
       tilesPlayed: [],
       assignedPlayers,
+      playLocally,
+      timer,
     };
-    console.log(allGameStates[room_id]);
+    console.log(
+      allGameStates[room_id],
+      `\nGame has been set up on room_id: ${room_id} `
+    );
     return `add game room_id: ${room_id}`;
   }
   return `game already on room_id: ${room_id}`;
@@ -61,7 +94,7 @@ function addPlayerToGame(room_id, user_id) {
       foundPlayer = true;
     }
   });
-  console.log(allGameStates[room_id].assignedPlayers, "assignedPlayers");
+
   return foundPlayer;
 }
 
@@ -80,7 +113,6 @@ function removePlayerFromGame(user_id) {
     }
   }
   if (room_id) {
-    console.log(room_id, "<--- this is room id");
     return room_id;
   }
 }
@@ -96,5 +128,5 @@ module.exports = {
   getGameState,
   addPlayerToGame,
   removePlayerFromGame,
-  fetchPlayerAssignment
+  fetchPlayerAssignment,
 };

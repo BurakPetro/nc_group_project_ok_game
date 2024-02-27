@@ -20,6 +20,13 @@ export function resetBoard(spriteList) {
     if (sprite.description === "playersTile") {
       sprite.setInteractive({ draggable: true });
     }
-
   });
+}
+
+export function setGameStateToGame(gameState, scene) {
+  console.log(gameState, "setGameStateToGame");
+  scene.assignedPlayers = gameState.assignedPlayers;
+  scene.timerPerTurn = gameState.timer;
+  scene.playLocally = gameState.playLocally;
+  scene.setTiles(gameState);
 }
