@@ -26,6 +26,8 @@ export default class ExampleScene extends Phaser.Scene {
     this.numberOfPlayer = 4;
     this.gridArray = [];
     this.size = 17;
+    this.playerBlocks = []; // Array to store references to player blocks
+    this.playerBlocksIndex = 0; // Access specific blocks
   }
 
   preload() {
@@ -95,6 +97,40 @@ export default class ExampleScene extends Phaser.Scene {
       gameObject.setPosition(dragX, dragY);
     });
 
+    this.input.keyboard.on("keydown-UP", (event) => {
+      this.playerBlocks[this.playerBlocksIndex].y -= 32; // Move up by one grid position
+      this.playerBlocks[this.playerBlocksIndex].y = Phaser.Math.Snap.To(
+        this.playerBlocks[this.playerBlocksIndex].y,
+        32
+      );
+    });
+
+    this.input.keyboard.on("keydown-DOWN", (event) => {
+      this.playerBlocks[this.playerBlocksIndex].y += 32; // Move down by one grid position
+      this.playerBlocks[this.playerBlocksIndex].y = Phaser.Math.Snap.To(
+        this.playerBlocks[this.playerBlocksIndex].y,
+        32
+      );
+    });
+
+    this.input.keyboard.on("keydown-LEFT", (event) => {
+      // Move left by one grid position
+      this.playerBlocks[this.playerBlocksIndex].x -= 32;
+      this.playerBlocks[this.playerBlocksIndex].x = Phaser.Math.Snap.To(
+        this.playerBlocks[this.playerBlocksIndex].x,
+        32
+      );
+    });
+
+    this.input.keyboard.on("keydown-RIGHT", (event) => {
+      // Move right by one grid position
+      this.playerBlocks[this.playerBlocksIndex].x += 32;
+      this.playerBlocks[this.playerBlocksIndex].x = Phaser.Math.Snap.To(
+        this.playerBlocks[this.playerBlocksIndex].x,
+        32
+      );
+    });
+
     this.input.on("dragend", (pointer, gameObject, dropped) => {
       //check if player is using its own tiles and can go in that location
 
@@ -131,6 +167,57 @@ export default class ExampleScene extends Phaser.Scene {
         //if the object is dropped outside the grid it goes back to its original position in the deck
         gameObject.x = gameObject.input.dragStartX;
         gameObject.y = gameObject.input.dragStartY;
+      }
+    });
+
+    this.input.keyboard.on("keydown-ENTER", (event) => {
+      if (
+        this.canATileGoInThisLocation(
+          this.playerBlocks[this.playerBlocksIndex]
+        ) &&
+        this.playerBlocks[this.playerBlocksIndex].texture.key ===
+          `player${this.setPlayer}`
+      ) {
+        this.playerBlocks[this.playerBlocksIndex].setTint(); //change the colour back
+        //this.restartTimer();
+        this.gridArray.map((gridPosition) => {
+          //check if the position is accepted
+          if (
+            gridPosition.x === this.playerBlocks[this.playerBlocksIndex].x &&
+            gridPosition.y === this.playerBlocks[this.playerBlocksIndex].y
+          ) {
+            //this.checkFiveInARow(gridPosition, gameObject, gridArray);
+            gridPosition.player =
+              this.playerBlocks[this.playerBlocksIndex].texture.key; //update the gridArray with the player occupying the position (x,y)
+            this.playerBlocks[this.playerBlocksIndex].disableInteractive();
+            gridPosition.played = true;
+            //check for winner and display text
+            if (
+              this.checkFiveInARow(
+                gridPosition,
+                this.playerBlocks[this.playerBlocksIndex]
+              ) === true
+            ) {
+              this.winnerText = this.add
+                .text(120, 10, `Player${this.setPlayer} WINS!!!!`, {
+                  color: "#1e1e1e",
+                })
+                .setFontSize(100);
+            }
+          }
+        });
+
+        socket.emit(
+          "draggedObjectPosition",
+          this.playerBlocks[this.playerBlocksIndex]
+        );
+      } else {
+        this.playerBlocks[this.playerBlocksIndex].setTint();
+        //if the object is dropped outside the grid it goes back to its original position in the deck
+        this.playerBlocks[this.playerBlocksIndex].x =
+          this.playerBlocks[this.playerBlocksIndex].input.dragStartX;
+        this.playerBlocks[this.playerBlocksIndex].y =
+          this.playerBlocks[this.playerBlocksIndex].input.dragStartY;
       }
     });
 
@@ -263,6 +350,16 @@ export default class ExampleScene extends Phaser.Scene {
     } else {
       this.turnSprite.setPosition(-4, -5);
     }
+
+    // loop through playerBlocks, find and update index for next available tile for the next player to use, this allows keyboard input to work
+    this.playerBlocks.splice(this.playerBlocksIndex, 1); // remove tile, already played
+    this.playerBlocksIndex = 0; // reset first before loop
+    while (
+      Number(this.playerBlocks[this.playerBlocksIndex].name.slice(6, 7)) !==
+      this.setPlayer
+    ) {
+      this.playerBlocksIndex++;
+    }
   }
 
   checkFiveInARow(gridPosition, gameObject) {
@@ -364,7 +461,6 @@ export default class ExampleScene extends Phaser.Scene {
       }
     }
 
-    // console.log the winner
     if (
       verticalCount >= 4 ||
       horizontalCount >= 4 ||
@@ -436,6 +532,7 @@ export default class ExampleScene extends Phaser.Scene {
         block.startingLocation = [x, y];
         block.description = "playersTile";
         block.depth = 1;
+        this.playerBlocks.push(block);
       }
     });
     this.addTilesToBoard(gameState.tilesPlayed);
