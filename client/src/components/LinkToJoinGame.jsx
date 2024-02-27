@@ -33,7 +33,7 @@ const LinkToJoinGame = () => {
       setInputJoinLinkHolder("waiting for other players");
       setGameCreated(true);
       setJoinLink(
-        `http://localhost:3000/game?room_id=${generateRandomString()}&players=${
+        `https://ok-game.onrender.com/game?room_id=${generateRandomString()}&players=${
           gameSettings.numberOfPlayers
         }`
       );
@@ -92,7 +92,7 @@ const LinkToJoinGame = () => {
         <div className="link-to-join-game">
           {joinLink === "Create game and share link with other players"
             ? joinLink
-            : "Share this link with other players " + joinLink}
+            : "Share this link with other players: " + joinLink}
         </div>
         <section className="game-settings-sec">
           <GameSettings
