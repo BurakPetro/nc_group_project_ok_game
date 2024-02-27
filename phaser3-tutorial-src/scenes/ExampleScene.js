@@ -142,25 +142,6 @@ export default class ExampleScene extends Phaser.Scene {
   }
 
   /**
-   * moveSpriteByName - Move sprite to given location, Note does not check if location is correct
-   * @date 20/02/2024 - 20:50:05
-   *
-   * @param {Object} spriteName
-   * @param {Number} newX
-   * @param {Number} newY
-   */
-  moveSpriteByName(spriteName, newX, newY) {
-    const spriteToMove = this.children.list.find((child) => {
-      return child.name === spriteName;
-    });
-    if (spriteToMove) {
-      spriteToMove.setPosition(newX, newY);
-      spriteToMove.disableInteractive();
-    } else {
-      console.log(`Sprite with name ${spriteName} not found`);
-    }
-  }
-  /**
    * addTilesToBoard move the tiles in the array and sets correct player turn
    * @date 20/02/2024 - 20:46:55
    *
@@ -543,42 +524,8 @@ export default class ExampleScene extends Phaser.Scene {
 
   pickRandomLocationItCanGo() {
     const playableLocation = this.listOfAllPlayableLocations();
-    /*
-    let countsByPlayableLocation = [];
-    playableLocation.map((location) => {
-      const gridPosition = this.children.list.find((child) => {
-        return (
-          child.description === "board" &&
-          child.x === location.x &&
-          child.y === location.y
-        );
-      });
-      const arrayOfCounts = this.checkFiveInARow(gridPosition, {
-        texture: { key: `player${this.setPlayer}` },
-      });
-      countsByPlayableLocation.push({
-        location: location,
-        counts: arrayOfCounts,
-      });
-    });
-    let bestCount = 0;
-    let bestLocation = {};
-    countsByPlayableLocation.map((location) => {
-      const maxCount = Math.max(
-        location.counts.verticalCount,
-        location.counts.horizontalCount,
-        location.counts.positiveDiagonalCount,
-        location.counts.negativeDiagonalCount
-      );
-      if (maxCount >= bestCount) {
-        bestCount = maxCount;
-        bestLocation = location.location;
-      }
-    });
-    return bestLocation;*/
-    //const randomPosition = this.getRndInteger(0, playableLocation.length);
-    //return playableLocation[randomPosition];
-    return playableLocation[0];
+    const randomPosition = this.getRndInteger(0, playableLocation.length);
+    return playableLocation[randomPosition];
   }
 
   listOfAllPlayableLocations() {
