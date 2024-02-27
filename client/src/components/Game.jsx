@@ -2,7 +2,13 @@ import React, { useEffect } from 'react';
 import Phaser from 'phaser';
 //import sceneWrap from './scenes/ExampleScene.js';
 import io from 'socket.io-client';
-const socket = io.connect('https://ok-game.onrender.com/game');
+
+let socket;
+  if (process.env.NODE_ENV === 'development') {
+    socket = io.connect('http://localhost:3001')
+  } else {
+    socket = io.connect('https://ok-game.onrender.com/game');
+  }
 
 function Game({ gameSettings, setgameSettings }) {
   let game = null;

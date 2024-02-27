@@ -12,11 +12,17 @@ const WelcomePage = () => {
   const [chatHistory, setChatHistory] = useState([
     {
       date: carrentDate,
-      message: "Welcom to OK game! Please treat other players with respect.",
+      message: "Welcome to OK play! Please treat other players with respect.",
     },
   ]);
 
-  const socket = io.connect("https://ok-game.onrender.com/game");
+  let socket;
+  if (process.env.NODE_ENV === 'development') {
+    socket = io.connect('http://localhost:3000')
+  } else {
+    socket = io.connect('https://ok-game.onrender.com/game');
+  }
+
   useEffect(() => {
     socket.on("receive_message", (data) => {
       console.log(data.chatMessage);

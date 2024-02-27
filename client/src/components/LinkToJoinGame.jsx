@@ -16,6 +16,9 @@ const LinkToJoinGame = () => {
   const [joinLink, setJoinLink] = useState(
     "Create game and share link with other players"
   );
+
+  let devServer = "http://localhost:3000/game";
+
   function generateRandomString() {
     const alphabet = "abcdefghijklmnopqrstuvwxyz";
     let randomString = "";
@@ -29,11 +32,20 @@ const LinkToJoinGame = () => {
   }
   function generateLinkForNewGame() {
     // TO DO create function to take link from serve and dislpay for user
-    if (!gameCreated) {
+    if (!gameCreated && process.env.NODE_ENV === 'development') {
       setInputJoinLinkHolder("waiting for other players");
       setGameCreated(true);
       setJoinLink(
-        `https://ok-game.onrender.com/game?room_id=${generateRandomString()}&players=${
+        `${devServer}?room_id=${generateRandomString()}&players=${
+          gameSettings.numberOfPlayers
+        }`
+      );
+    } else if (!gameCreated && process.env.NODE_ENV === 'production') {
+      devServer = 'https://ok-game.onrender.com/game'
+      setInputJoinLinkHolder("waiting for other players");
+      setGameCreated(true);
+      setJoinLink(
+        `${devServer}?room_id=${generateRandomString()}&players=${
           gameSettings.numberOfPlayers
         }`
       );

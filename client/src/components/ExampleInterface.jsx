@@ -2,7 +2,12 @@ import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 
 const ExampleInterface = ({ setgameSettings }) => {
-  const socket = io.connect('https://ok-game.onrender.com/game');
+  let socket;
+  if (process.env.NODE_ENV === 'development') {
+    socket = io.connect('http://localhost:3001')
+  } else {
+    socket = io.connect('https://ok-game.onrender.com/game');
+  }
   const [message, setMessage] = useState('');
   const [boardSize, setboardSize] = useState(10);
   const [massageReceived, setMessageReceived] = useState('');
