@@ -1,3 +1,6 @@
+import { updatePlayerName } from "./playerUtils.js";
+import { canOnlyMoveOwnTiles } from "./spriteUtils.js";
+
 /**
  * resets board to original layout
  * NOTE only to be used on reset press
@@ -26,9 +29,17 @@ export function resetBoard(spriteList) {
 export function setGameStateToGame(gameState, scene) {
   console.log(gameState, "setGameStateToGame");
   scene.assignedPlayers = gameState.assignedPlayers;
+
+  for (const player in scene.assignedPlayers) {
+    if (scene.assignedPlayers[player] === scene.socket.id) {
+        scene.whichPlayerAmI = player
+    }
+}
+
   scene.timePerTurn = gameState.timer;
   scene.restartTimer();
   scene.playLocally = gameState.playLocally;
+
 
   scene.player2IsBot =
     scene.assignedPlayers["player2"] === "bot" ? true : false;
@@ -38,4 +49,7 @@ export function setGameStateToGame(gameState, scene) {
     scene.assignedPlayers["player4"] === "bot" ? true : false;
 
   scene.setTiles(gameState);
+  // note setTiles before updatePlayerName as the text for name is added in here
+  updatePlayerName(scene);
+  canOnlyMoveOwnTiles(scene);
 }

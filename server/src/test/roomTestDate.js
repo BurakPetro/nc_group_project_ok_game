@@ -3,6 +3,9 @@ const roomTestDate = {
     players: 2,
     tilesPlayed: [],
     assignedPlayers: { player1: null, player2: null },
+    // think how we could add random gen names
+    playersNames: { player1: 'Pirate Steve', player2: 'Cool cow' },
+
     timer: 30,
     playLocally: true,
   },
