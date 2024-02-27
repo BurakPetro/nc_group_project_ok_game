@@ -13,6 +13,7 @@ const GameSettings = ({ gameSettings, setGameSettings }) => {
                 setGameSettings({
                   ...gameSettings,
                   numberOfPlayers: 2,
+                  numberOfBots: 0,
                 });
               }}
             >
@@ -25,6 +26,7 @@ const GameSettings = ({ gameSettings, setGameSettings }) => {
                 setGameSettings({
                   ...gameSettings,
                   numberOfPlayers: 3,
+                  numberOfBots: 0,
                 });
               }}
             >
@@ -37,11 +39,67 @@ const GameSettings = ({ gameSettings, setGameSettings }) => {
                 setGameSettings({
                   ...gameSettings,
                   numberOfPlayers: 4,
+                  numberOfBots: 0,
                 });
               }}
             >
               4
             </button>
+            <div className="chose-number-of-bots">
+              <h4>Number of bots</h4>
+              <button
+                className="global-btn setting-button"
+                disabled={gameSettings.numberOfBots === 0 ? true : false}
+                onClick={() => {
+                  setGameSettings({
+                    ...gameSettings,
+                    numberOfBots: 0,
+                  });
+                }}
+              >
+                0
+              </button>
+              <button
+                className="global-btn setting-button"
+                disabled={gameSettings.numberOfBots === 1 ? true : false}
+                onClick={() => {
+                  setGameSettings({
+                    ...gameSettings,
+                    numberOfBots: 1,
+                  });
+                }}
+              >
+                1
+              </button>
+              {gameSettings.numberOfPlayers >= 3 ? (
+                <button
+                  className="global-btn setting-button"
+                  disabled={gameSettings.numberOfBots === 2 ? true : false}
+                  onClick={() => {
+                    setGameSettings({
+                      ...gameSettings,
+                      numberOfBots: 2,
+                    });
+                  }}
+                >
+                  2
+                </button>
+              ) : null}
+              {gameSettings.numberOfPlayers === 4 ? (
+                <button
+                  className="global-btn setting-button"
+                  disabled={gameSettings.numberOfBots === 3 ? true : false}
+                  onClick={() => {
+                    setGameSettings({
+                      ...gameSettings,
+                      numberOfBots: 3,
+                    });
+                  }}
+                >
+                  3
+                </button>
+              ) : null}
+            </div>
           </div>
           <div className="board-size">
             <h4>Board size</h4>
@@ -83,6 +141,7 @@ const GameSettings = ({ gameSettings, setGameSettings }) => {
             </button>
           </div>
         </div>
+
         <div className="settings-second-row">
           <div className="blocks-per-player">
             <h4>Number of blocks per player</h4>
@@ -122,6 +181,33 @@ const GameSettings = ({ gameSettings, setGameSettings }) => {
             >
               20
             </button>
+            <div className="choose-to-play-locally">
+              <h4>Play locally</h4>
+              <button
+                className="global-btn setting-button"
+                disabled={gameSettings.toPlayLocaly}
+                onClick={() => {
+                  setGameSettings({
+                    ...gameSettings,
+                    toPlayLocaly: true,
+                  });
+                }}
+              >
+                Yes
+              </button>
+              <button
+                className="global-btn setting-button"
+                disabled={!gameSettings.toPlayLocaly}
+                onClick={() => {
+                  setGameSettings({
+                    ...gameSettings,
+                    toPlayLocaly: false,
+                  });
+                }}
+              >
+                No
+              </button>
+            </div>
           </div>
           <div className="seconds-per-turn">
             <h4>Seconds per turn</h4>
@@ -160,6 +246,18 @@ const GameSettings = ({ gameSettings, setGameSettings }) => {
               }}
             >
               60
+            </button>
+            <button
+              className="global-btn setting-button"
+              disabled={gameSettings.secondsPerTurn ? false : true}
+              onClick={() => {
+                setGameSettings({
+                  ...gameSettings,
+                  secondsPerTurn: false,
+                });
+              }}
+            >
+              OFF
             </button>
           </div>
         </div>

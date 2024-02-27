@@ -8,6 +8,8 @@ const LinkToJoinGame = () => {
     numberOfBlocksInGame: 10,
     playerOneColor: "red",
     secondsPerTurn: 30,
+    numberOfBots: 0,
+    toPlayLocaly: false,
     gameSettingsSubmitted: false,
   });
   const [inputJoinLinkHolder, setInputJoinLinkHolder] = useState("");
@@ -35,7 +37,9 @@ const LinkToJoinGame = () => {
       setJoinLink(
         `https://ok-game.onrender.com/game?room_id=${generateRandomString()}&players=${
           gameSettings.numberOfPlayers
-        }`
+        }&bots=${gameSettings.numberOfBots}&playlocally=${
+          gameSettings.toPlayLocaly
+        }&timer=${gameSettings.secondsPerTurn}`
       );
     } else {
       setGameCreated(false);
@@ -55,7 +59,7 @@ const LinkToJoinGame = () => {
     setInputJoinLinkHolder("");
     setwaitingForGame(false);
   }
-  function shortCutToSeeGame() {
+  function startGame() {
     window.location.replace(joinLink);
   }
   return (
@@ -110,7 +114,7 @@ const LinkToJoinGame = () => {
             <button
               disabled={!gameCreated}
               className="global-btn"
-              onClick={shortCutToSeeGame}
+              onClick={startGame}
             >
               Start game
             </button>
