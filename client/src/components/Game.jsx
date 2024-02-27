@@ -1,14 +1,14 @@
-import React, { useEffect } from 'react';
-import Phaser from 'phaser';
+import React, { useEffect } from "react";
+import Phaser from "phaser";
 //import sceneWrap from './scenes/ExampleScene.js';
-import io from 'socket.io-client';
+import io from "socket.io-client";
 
 let socket;
-  if (process.env.NODE_ENV === 'development') {
-    socket = io.connect('http://localhost:3001')
-  } else {
-    socket = io.connect('https://ok-game.onrender.com/game');
-  }
+if (process.env.NODE_ENV === "development") {
+  socket = io.connect("http://localhost:3000");
+} else {
+  socket = io.connect("https://ok-game.onrender.com/game");
+}
 
 function Game({ gameSettings, setgameSettings }) {
   let game = null;
@@ -21,13 +21,13 @@ function Game({ gameSettings, setgameSettings }) {
       }
 
       preload() {
-        this.load.image('bg', 'assets/background.png');
+        this.load.image("bg", "assets/background.png");
         const blockImg = [
-          'redtile2',
-          'greentile',
-          'bluetile',
-          'orangetile',
-          'purpletile',
+          "redtile2",
+          "greentile",
+          "bluetile",
+          "orangetile",
+          "purpletile",
         ];
         blockImg.forEach((color, index) => {
           this.load.spritesheet(`player${index + 1}`, `assets/${color}.png`, {
@@ -36,17 +36,17 @@ function Game({ gameSettings, setgameSettings }) {
           });
         });
         //TODO currently sprite 'block6' is being using as the stationary board, May be a good idea to have tiles and board different names. Also do we need a board, we know the first player, first move is always the same, therefor we could just play there tile in the centre of board and have logic to only allow tiles to be placed around it
-        this.load.spritesheet('gridblock', 'assets/graytile.png', {
+        this.load.spritesheet("gridblock", "assets/graytile.png", {
           frameWidth: 30,
           frameHeight: 30,
         });
-        this.load.spritesheet('centreblock', 'assets/centraltile.png', {
+        this.load.spritesheet("centreblock", "assets/centraltile.png", {
           frameWidth: 30,
           frameHeight: 30,
         });
       }
       create() {
-        this.add.image(600, 412, 'bg');
+        this.add.image(600, 412, "bg");
 
         //  grid
 
@@ -84,10 +84,10 @@ function Game({ gameSettings, setgameSettings }) {
         }
 
         const playerData = [
-          { x: 32, y: 32, color: '#1e1e1e' },
-          { x: 1088, y: 32, color: '#1e1e1e' },
-          { x: 1088, y: 480, color: '#1e1e1e' },
-          { x: 32, y: 480, color: '#1e1e1e' },
+          { x: 32, y: 32, color: "#1e1e1e" },
+          { x: 1088, y: 32, color: "#1e1e1e" },
+          { x: 1088, y: 480, color: "#1e1e1e" },
+          { x: 32, y: 480, color: "#1e1e1e" },
         ];
 
         playerData.forEach((player, playerIndex) => {
@@ -109,15 +109,15 @@ function Game({ gameSettings, setgameSettings }) {
           }
         });
 
-        this.input.on('dragstart', (pointer, gameObject) => {});
+        this.input.on("dragstart", (pointer, gameObject) => {});
 
-        this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
+        this.input.on("drag", (pointer, gameObject, dragX, dragY) => {
           dragX = Phaser.Math.Snap.To(dragX, 32);
           dragY = Phaser.Math.Snap.To(dragY, 32);
           gameObject.setPosition(dragX, dragY);
         });
 
-        this.input.on('dragend', (pointer, gameObject) => {
+        this.input.on("dragend", (pointer, gameObject) => {
           gridArray.map((gridPosition) => {
             if (
               gridPosition.x === gameObject.x &&
@@ -126,7 +126,7 @@ function Game({ gameSettings, setgameSettings }) {
               gridPosition.player = gameObject.texture.key; //update the gridArray with the player occupying the position (x,y)
             }
           });
-          socket.emit('draggedObjectPosition', gameObject);
+          socket.emit("draggedObjectPosition", gameObject);
         });
       }
     };
@@ -135,11 +135,11 @@ function Game({ gameSettings, setgameSettings }) {
     type: Phaser.AUTO,
     width: 1184,
     height: 800,
-    parent: 'phaser-example',
+    parent: "phaser-example",
 
     scene: sceneWrap(gameSettings),
     physics: {
-      default: 'arcade',
+      default: "arcade",
       arcade: {},
     },
   };

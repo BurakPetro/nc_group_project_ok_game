@@ -34,16 +34,18 @@ const LinkToJoinGame = () => {
   }
   function generateLinkForNewGame() {
     // TO DO create function to take link from serve and dislpay for user
-    if (!gameCreated && process.env.NODE_ENV === 'development') {
+    if (!gameCreated && process.env.NODE_ENV === "development") {
       setInputJoinLinkHolder("waiting for other players");
       setGameCreated(true);
       setJoinLink(
         `${devServer}?room_id=${generateRandomString()}&players=${
           gameSettings.numberOfPlayers
-        }`
+        }&bots=${gameSettings.numberOfBots}&playlocally=${
+          gameSettings.toPlayLocaly
+        }&timer=${gameSettings.secondsPerTurn}`
       );
-    } else if (!gameCreated && process.env.NODE_ENV === 'production') {
-      devServer = 'https://ok-game.onrender.com/game'
+    } else if (!gameCreated && process.env.NODE_ENV === "production") {
+      devServer = "https://ok-game.onrender.com/game";
       setInputJoinLinkHolder("waiting for other players");
       setGameCreated(true);
       setJoinLink(
