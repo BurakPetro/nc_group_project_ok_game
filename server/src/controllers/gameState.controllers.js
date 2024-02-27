@@ -8,6 +8,9 @@ const getGame = (req, res) => {
 
   const room_id = req.query.room_id;
   let playersCount = req.query.players;
+  let bots = req.query.bots;
+  let playlocally = req.query.playlocally; // can be true or false
+  let timer = req.query.timer; // can be 10 or 30 or 60 or false(OFF)
 
   addGameStateIfItDoesNotExist(room_id, playersCount);
 

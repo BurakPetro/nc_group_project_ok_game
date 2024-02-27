@@ -1,11 +1,15 @@
 import { useState, useEffect } from "react";
 import GameSettings from "./GameSettings.jsx";
+
 const LinkToJoinGame = () => {
   const [gameSettings, setGameSettings] = useState({
     boardSize: 17,
     numberOfPlayers: 2,
     numberOfBlocksInGame: 10,
     playerOneColor: "red",
+    secondsPerTurn: 30,
+    numberOfBots: 0,
+    toPlayLocaly: false,
     gameSettingsSubmitted: false,
   });
   const [inputJoinLinkHolder, setInputJoinLinkHolder] = useState("");
@@ -33,7 +37,9 @@ const LinkToJoinGame = () => {
       setJoinLink(
         `https://ok-game.onrender.com/game?room_id=${generateRandomString()}&players=${
           gameSettings.numberOfPlayers
-        }`
+        }&bots=${gameSettings.numberOfBots}&playlocally=${
+          gameSettings.toPlayLocaly
+        }&timer=${gameSettings.secondsPerTurn}`
       );
     } else {
       setGameCreated(false);
@@ -48,13 +54,12 @@ const LinkToJoinGame = () => {
     }
 
     setwaitingForGame(true);
-    console.log(inputJoinLinkHolder);
   }
   function stopWaitingForGame() {
     setInputJoinLinkHolder("");
     setwaitingForGame(false);
   }
-  function shortCutToSeeGame() {
+  function startGame() {
     window.location.replace(joinLink);
   }
   return (
@@ -102,18 +107,16 @@ const LinkToJoinGame = () => {
             <button
               className="global-btn"
               onClick={generateLinkForNewGame}
-              disabled={
-                waitingForGame
-                  ? true
-                  : gameSettings.gameSettingsSubmitted
-                  ? false
-                  : true
-              }
+              disabled={waitingForGame}
             >
               {gameCreated ? "Cancel game creation" : "Create game"}
             </button>
-            <button className="global-btn" onClick={shortCutToSeeGame}>
-              TemButton
+            <button
+              disabled={!gameCreated}
+              className="global-btn"
+              onClick={startGame}
+            >
+              Start game
             </button>
           </div>
         </section>

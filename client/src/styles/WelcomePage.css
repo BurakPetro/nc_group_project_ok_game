@@ -54,15 +54,17 @@ h1 {
   color: #8f84d5;
   outline: #ffd6a5;
 }
-.join-game-button {
-  box-sizing: content-box;
 
+button.join-game-button {
+  box-sizing: content-box;
+  height: 32px;
   width: 100px;
   border-top-right-radius: 10px;
   border-bottom-right-radius: 10px;
   border-top-left-radius: 0px;
   border-bottom-left-radius: 0px;
   cursor: pointer;
+  margin-left: 0;
 }
 
 .link-block {
@@ -106,9 +108,8 @@ h1 {
   position: relative;
 }
 
-.settings-form .setting-line {
+.setting-line {
   display: flex;
-  width: 100%;
 }
 
 .settings-form label {
@@ -167,4 +168,27 @@ h1 {
   background-color: white;
   color: #8f84d5;
   outline: #ffd6a5;
+}
+.setting-button:disabled {
+  color: black;
+  border: 2px solid black;
+}
+.date-in-chat {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: small;
+  color: gray;
+}
+.message-in-chat {
+  font-family: "Times New Roman", Times, serif;
+  font-size: larger;
+  color: black;
+}
+button.send-message-button {
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+  height: 34px;
+  margin-left: 0;
+  margin-bottom: 13px;
+  margin-right: 10px;
+  margin-top: 0;
 }
