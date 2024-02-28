@@ -34,11 +34,12 @@ export default class ExampleScene extends Phaser.Scene {
     this.player3IsBot = false;
     this.player4IsBot = false;
     this.assignedPlayers = {};
-    this.timePerTurn = 60;
+    this.timePerTurn = 0;
     this.playLocally = true; // false will stop them from moving other tiles
     this.playersNames = []; // store text of players
     this.socket = socket;
     this.whichPlayerAmI = ""; // store value of which player user is e.g. player1
+    this.gameIsFinished = false;
   }
 
   preload() {
@@ -69,7 +70,7 @@ export default class ExampleScene extends Phaser.Scene {
     this.turnSprite = this.createTurnSprite();
 
     const button = this.add
-      .sprite((3 * 1184) / 4, 750, `reset`)
+      .sprite((2 * 1184) / 3, 750, `reset`)
       .setInteractive();
     button.on("pointerdown", () => {
       socket.emit("resetBoardServer");
@@ -150,9 +151,6 @@ export default class ExampleScene extends Phaser.Scene {
             gridPosition.player = gameObject.texture.key;
             this.setTilesNotInteractive();
             gridPosition.played = true;
-            if (this.checkWinner(gridPosition, gameObject) === true) {
-              this.printWinner();
-            }
           }
         });
         socket.emit("draggedObjectPosition", gameObject);
@@ -180,14 +178,6 @@ export default class ExampleScene extends Phaser.Scene {
               this.playerBlocks[this.playerBlocksIndex].texture.key;
             this.setTilesNotInteractive();
             gridPosition.played = true;
-            if (
-              this.checkWinner(
-                gridPosition,
-                this.playerBlocks[this.playerBlocksIndex]
-              ) === true
-            ) {
-              this.printWinner();
-            }
           }
         });
         socket.emit(
@@ -330,40 +320,44 @@ export default class ExampleScene extends Phaser.Scene {
    * @param {String} lastTilePlayedName
    */
   updateWhoTurnItIsFromPlayedTile(lastTilePlayedName) {
-    if (Number(lastTilePlayedName[6]) === this.numberOfPlayer) {
-      this.setPlayer = 1;
-    } else {
-      this.setPlayer = Number(lastTilePlayedName[6]) + 1;
-    }
-    this.setTilesInteractive();
-    if (this.setPlayer === 2) {
-      this.turnSprite.setPosition(1055, -5);
-      if (this.player2IsBot === true) {
-        this.botMove();
+    setTimeout(() => {
+      if (
+        Number(lastTilePlayedName[6]) === this.numberOfPlayer &&
+        this.gameIsFinished === false
+      ) {
+        this.setPlayer = 1;
+      } else {
+        this.setPlayer = Number(lastTilePlayedName[6]) + 1;
       }
-    } else if (this.setPlayer === 3) {
-      this.turnSprite.setPosition(1055, 445);
-      if (this.player3IsBot === true) {
-        this.botMove();
+      this.setTilesInteractive();
+      if (this.setPlayer === 2 && this.gameIsFinished === false) {
+        this.turnSprite.setPosition(1055, -5);
+        if (this.player2IsBot === true) {
+          this.botMove();
+        }
+      } else if (this.setPlayer === 3 && this.gameIsFinished === false) {
+        this.turnSprite.setPosition(1055, 445);
+        if (this.player3IsBot === true) {
+          this.botMove();
+        }
+      } else if (this.setPlayer === 4 && this.gameIsFinished === false) {
+        this.turnSprite.setPosition(-4, 440);
+        if (this.player4IsBot === true) {
+          this.botMove();
+        }
+      } else if (this.gameIsFinished === false) {
+        this.turnSprite.setPosition(-4, -5);
       }
-    } else if (this.setPlayer === 4) {
-      this.turnSprite.setPosition(-4, 440);
-      if (this.player4IsBot === true) {
-        this.botMove();
+      // loop through playerBlocks, find and update index for next available tile for the next player to use, this allows keyboard input to work
+      this.playerBlocks.splice(this.playerBlocksIndex, 1); // remove tile, already played
+      this.playerBlocksIndex = 0; // reset first before loop
+      while (
+        Number(this.playerBlocks[this.playerBlocksIndex].name.slice(6, 7)) !==
+        this.setPlayer
+      ) {
+        this.playerBlocksIndex++;
       }
-    } else {
-      this.turnSprite.setPosition(-4, -5);
-    }
-
-    // loop through playerBlocks, find and update index for next available tile for the next player to use, this allows keyboard input to work
-    this.playerBlocks.splice(this.playerBlocksIndex, 1); // remove tile, already played
-    this.playerBlocksIndex = 0; // reset first before loop
-    while (
-      Number(this.playerBlocks[this.playerBlocksIndex].name.slice(6, 7)) !==
-      this.setPlayer
-    ) {
-      this.playerBlocksIndex++;
-    }
+    }, 500);
   }
 
   checkWinner(gridPosition, gameObject) {
@@ -417,7 +411,7 @@ export default class ExampleScene extends Phaser.Scene {
       if (i < 4) {
         if (
           currCheck % this.size !== 0 &&
-          this.gridArray[(currCheck -= 1)].player === gameObject.texture.key &&
+          this.gridArray[(currCheck -= 1)].player === gameObject.textureKey &&
           !blockedInDirection.above
         ) {
           verticalCount++;
@@ -429,7 +423,7 @@ export default class ExampleScene extends Phaser.Scene {
       if (i >= 4 && i < 8) {
         if (
           (1 + currCheck) % this.size !== 0 &&
-          this.gridArray[(currCheck += 1)].player === gameObject.texture.key &&
+          this.gridArray[(currCheck += 1)].player === gameObject.textureKey &&
           !blockedInDirection.below
         ) {
           verticalCount++;
@@ -442,7 +436,7 @@ export default class ExampleScene extends Phaser.Scene {
         if (
           currCheck + this.size < this.size ** 2 &&
           this.gridArray[(currCheck += this.size)].player ===
-            gameObject.texture.key &&
+            gameObject.textureKey &&
           !blockedInDirection.right
         ) {
           horizontalCount++;
@@ -455,7 +449,7 @@ export default class ExampleScene extends Phaser.Scene {
         if (
           currCheck - this.size >= 0 &&
           this.gridArray[(currCheck -= this.size)].player ===
-            gameObject.texture.key &&
+            gameObject.textureKey &&
           !blockedInDirection.left
         ) {
           horizontalCount++;
@@ -468,8 +462,8 @@ export default class ExampleScene extends Phaser.Scene {
         if (
           currCheck % this.size !== 0 &&
           currCheck + this.size < this.size ** 2 &&
-          this.gridArray[(currCheck += this.size - 1)].player ===
-            gameObject.texture.key &&
+          this.gridArray[(currCheck += 17 - 1)].player ===
+            gameObject.textureKey &&
           !blockedInDirection.topRight
         ) {
           positiveDiagonalCount++;
@@ -483,7 +477,7 @@ export default class ExampleScene extends Phaser.Scene {
           (1 + currCheck) % this.size !== 0 &&
           currCheck - this.size >= 0 &&
           this.gridArray[(currCheck -= this.size + 1)].player ===
-            gameObject.texture.key &&
+            gameObject.textureKey &&
           !blockedInDirection.bottomLeft
         ) {
           positiveDiagonalCount++;
@@ -497,7 +491,7 @@ export default class ExampleScene extends Phaser.Scene {
           currCheck % this.size !== 0 &&
           currCheck - this.size >= 0 &&
           this.gridArray[(currCheck -= this.size + 1)].player ===
-            gameObject.texture.key &&
+            gameObject.textureKey &&
           !blockedInDirection.topLeft
         ) {
           negativeDiagonalCount++;
@@ -511,7 +505,7 @@ export default class ExampleScene extends Phaser.Scene {
           (1 + currCheck) % this.size !== 0 &&
           currCheck + this.size < this.size ** 2 &&
           this.gridArray[(currCheck += this.size + 1)].player ===
-            gameObject.texture.key &&
+            gameObject.textureKey &&
           !blockedInDirection.bottomRight
         ) {
           negativeDiagonalCount++;
@@ -573,7 +567,6 @@ export default class ExampleScene extends Phaser.Scene {
         })
         .setFontSize(15);
       playerText.playerNumber = `player${playerIndex + 1}`;
-
       this.playersNames.push(playerText);
       for (let i = 0; i < 16; i++) {
         const x = player.x + Math.floor(i / 8) * 32;
@@ -602,31 +595,33 @@ export default class ExampleScene extends Phaser.Scene {
   }
 
   restartTimer = () => {
-    // TODO currently they can not turn timer off
-    this.totalTime = this.timePerTurn;
-    if (this.timerText) {
-      this.timerText.updateText("Timer: " + this.formatTime(this.totalTime));
-    } else {
-      this.timerText = this.add.text(
-        1184 / 4,
-        750,
-        "Timer: " + this.formatTime(this.totalTime),
-        {
-          font: "35px Arial",
-          fill: "#1e1e1e",
-        }
-      );
-      this.timerText.setOrigin(0.5);
+    if (this.timePerTurn > 0 && this.gameIsFinished === false) {
+      this.totalTime = this.timePerTurn;
+      if (this.timerText) {
+        this.timerText.updateText(this.formatTime(this.totalTime));
+      } else {
+        this.timerText = this.add.text(
+          1184 / 3,
+          750,
+          this.formatTime(this.totalTime),
+          {
+            font: "bold 35px Arial",
+            fill: "#1e1e1e",
+          }
+        );
+        this.timerText.setOrigin(0.5);
+      }
+      if (this.timerEvent) {
+        this.timerEvent.remove();
+      }
+      this.timerEvent = this.time.addEvent({
+        delay: 1000,
+        callback: this.onTimerTick,
+        callbackScope: this,
+        loop: true,
+        paused: false,
+      });
     }
-    if (this.timerEvent) {
-      this.timerEvent.remove();
-    }
-    this.timerEvent = this.time.addEvent({
-      delay: 1000,
-      callback: this.onTimerTick,
-      callbackScope: this,
-      loop: true,
-    });
   };
 
   formatTime = (seconds) => {
@@ -640,7 +635,7 @@ export default class ExampleScene extends Phaser.Scene {
 
   onTimerTick = () => {
     this.totalTime--;
-    this.timerText.setText("Timer: " + this.formatTime(this.totalTime));
+    this.timerText.setText(this.formatTime(this.totalTime));
     if (this.totalTime <= 0) {
       this.timerEvent.remove();
       this.botMove();
@@ -674,20 +669,40 @@ export default class ExampleScene extends Phaser.Scene {
         findSpriteUnmoved.y = whereToPlaceTile.y;
         findGridPosition.player = `player${this.setPlayer}`;
         findGridPosition.played = true;
-        if (this.checkWinner(findGridPosition, findSpriteUnmoved) === true) {
-          this.printWinner();
-        }
         socket.emit("draggedObjectPosition", findSpriteUnmoved);
       }
-    }, 3000);
+    }, 500);
   }
 
   printWinner() {
-    this.winnerText = this.add
-      .text(120, 20, `Player${this.setPlayer} WINS!!!!`, {
-        color: "#1e1e1e",
-      })
-      .setFontSize(100);
+    if (this.setPlayer === 1) {
+      this.winnerText = this.add
+        .text(120, 20, `${this.playersGeneratedNames.player1} WINS!!!!`, {
+          color: "#1e1e1e",
+        })
+        .setFontSize(100);
+    }
+    if (this.setPlayer === 2) {
+      this.winnerText = this.add
+        .text(120, 20, `${this.playersGeneratedNames.player2} WINS!!!!`, {
+          color: "#1e1e1e",
+        })
+        .setFontSize(100);
+    }
+    if (this.setPlayer === 3) {
+      this.winnerText = this.add
+        .text(120, 20, `${this.playersGeneratedNames.player3} WINS!!!!`, {
+          color: "#1e1e1e",
+        })
+        .setFontSize(100);
+    }
+    if (this.setPlayer === 4) {
+      this.winnerText = this.add
+        .text(120, 20, `${this.playersGeneratedNames.player4} WINS!!!!`, {
+          color: "#1e1e1e",
+        })
+        .setFontSize(100);
+    }
   }
 
   getRndInteger(min, max) {
@@ -696,8 +711,38 @@ export default class ExampleScene extends Phaser.Scene {
 
   pickRandomLocationItCanGo() {
     const playableLocation = this.listOfAllPlayableLocations();
-    const randomPosition = this.getRndInteger(0, playableLocation.length);
-    return playableLocation[randomPosition];
+    let countsByPlayableLocation = [];
+    playableLocation.map((location) => {
+      const gridPosition = this.children.list.find((child) => {
+        return (
+          child.description === "board" &&
+          child.x === location.x &&
+          child.y === location.y
+        );
+      });
+      const arrayOfCounts = this.checkFiveInARow(gridPosition, {
+        textureKey: `player${this.setPlayer}`,
+      });
+      countsByPlayableLocation.push({
+        location: location,
+        counts: arrayOfCounts,
+      });
+    });
+    let bestCount = 0;
+    let bestLocation = {};
+    countsByPlayableLocation.map((location) => {
+      const maxCount = Math.max(
+        location.counts.verticalCount,
+        location.counts.horizontalCount,
+        location.counts.positiveDiagonalCount,
+        location.counts.negativeDiagonalCount
+      );
+      if (maxCount >= bestCount) {
+        bestCount = maxCount;
+        bestLocation = location.location;
+      }
+    });
+    return bestLocation;
   }
 
   listOfAllPlayableLocations() {
