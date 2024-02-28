@@ -1,3 +1,4 @@
+import { updatePlayerName } from "./playerUtils.js";
 import { resetBoard } from "./setUpBoard.js";
 import { moveSpriteByName } from "./spriteUtils.js";
 
@@ -27,7 +28,7 @@ const socketHandler = (socket, scene) => {
   socket.on("playersAssignmentUpdate", (assignedPlayers) => {
     // TODO that when players have been updated it updates the screen
     scene.assignedPlayers = assignedPlayers;
-
+    updatePlayerName(scene);
   });
 };
 
