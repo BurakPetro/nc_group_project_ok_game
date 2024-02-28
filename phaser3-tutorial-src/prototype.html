@@ -32,6 +32,11 @@
       </header>
 
       <div id="phaser-example"></div>
+      <p id="currentGame"></p>
+      <script>
+        document.getElementById("currentGame").innerHTML =
+          "Link to join game:<br>" + window.location.href;
+      </script>
     </div>
 
     <script type="module" src="main.js"></script>
