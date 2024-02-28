@@ -1,3 +1,5 @@
+const { funUserNames } = require("./usernameGenerator.models.js");
+
 let roomData = {};
 if (process.env.NODE_ENV === "development") {
   console.log("Running in development mode");
@@ -53,12 +55,16 @@ function addGameStateIfItDoesNotExist(
         assignedPlayers[`player${index}`] = null;
       }
     }
+
+    playersGeneratedNames = funUserNames(assignedPlayers);
+
     allGameStates[room_id] = {
       players: playersCount,
       tilesPlayed: [],
       assignedPlayers,
       playLocally,
       timer,
+      playersGeneratedNames,
     };
     console.log(
       allGameStates[room_id],
@@ -78,7 +84,9 @@ function tileMovedInGame(room_id, tileMovedObject) {
 }
 
 function resetBoard(room_id) {
-  allGameStates[room_id].tilesPlayed = [];
+  if (allGameStates[room_id]) {
+    allGameStates[room_id].tilesPlayed = [];
+  }
 }
 
 function saveGame(room_id) {

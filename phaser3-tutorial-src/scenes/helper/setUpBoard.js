@@ -32,6 +32,7 @@ export function setGameStateToGame(gameState, scene) {
       scene.whichPlayerAmI = player;
     }
   }
+  scene.playersGeneratedNames = gameState.playersGeneratedNames;
 
   scene.player1Name = gameState.playersNames.player1;
   scene.player2Name = gameState.playersNames.player2;
