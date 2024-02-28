@@ -20,9 +20,9 @@ const socketHandler = (socket, scene) => {
     gridPosition.player = data.textureKey;
     gridPosition.played = true;
     if (scene.checkWinner(gridPosition, data) === true) {
+      scene.printWinner();
       scene.timerEvent.remove();
       scene.gameIsFinished = true;
-      scene.printWinner();
     }
     scene.restartTimer();
   });

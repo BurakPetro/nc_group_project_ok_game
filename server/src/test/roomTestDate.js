@@ -3,9 +3,7 @@ const roomTestDate = {
     players: 2,
     tilesPlayed: [],
     assignedPlayers: { player1: null, player2: null },
-    // think how we could add random gen names
-    playersNames: { player1: "Pirate Steve", player2: "Cool cow" },
-
+    playersNames: { player1: "Dean", player2: "Rafael" },
     timer: 0,
     playLocally: true,
   },
@@ -15,6 +13,11 @@ const roomTestDate = {
     timer: 30,
     playLocally: true,
     assignedPlayers: { player1: null, player2: null, player3: null },
+    playersNames: {
+      player1: "Mohsin",
+      player2: "Ahmed",
+      player3: "Petro",
+    },
   },
   testRoom3: {
     players: 4,
@@ -23,9 +26,15 @@ const roomTestDate = {
     playLocally: true,
     assignedPlayers: {
       player1: null,
-      player2: null,
-      player3: null,
-      player4: null,
+      player2: `bot`,
+      player3: `bot`,
+      player4: `bot`,
+    },
+    playersNames: {
+      player1: "Mohsin",
+      player2: `bot1`,
+      player3: `bot2`,
+      player4: `bot3`,
     },
   },
   testRoom4: {
@@ -37,6 +46,12 @@ const roomTestDate = {
       player2: null,
       player3: null,
       player4: null,
+    },
+    playersNames: {
+      player1: "Dean",
+      player2: "Ahmed",
+      player3: "Petro",
+      player4: "Rafael",
     },
     tilesPlayed: [
       {
@@ -162,6 +177,12 @@ const roomTestDate = {
       player2: null,
       player3: null,
       player4: null,
+    },
+    playersNames: {
+      player1: "Dean",
+      player2: "Ahmed",
+      player3: "Petro",
+      player4: "Rafael",
     },
     tilesPlayed: [
       {
