@@ -577,7 +577,7 @@ export default class ExampleScene extends Phaser.Scene {
       this.playersNames.push(playerText);
       for (let i = 0; i < 16; i++) {
         const x = player.x + Math.floor(i / 8) * 32;
-        const y = 32 + player.y + (i % 8) * 32;
+        const y = 50 + player.y + (i % 8) * 32;
         const block = this.add
           .sprite(x, y, `player${playerIndex + 1}`)
           .setOrigin(0, 0);
@@ -596,7 +596,7 @@ export default class ExampleScene extends Phaser.Scene {
   createTurnSprite() {
     const rectangle = this.add.graphics();
     rectangle.lineStyle(2, 0x000000);
-    rectangle.strokeRect(25, 30, 85, 300);
+    rectangle.strokeRect(25, 30, 92, 316);
     rectangle.startingLocation = [-4, -5];
     return rectangle;
   }

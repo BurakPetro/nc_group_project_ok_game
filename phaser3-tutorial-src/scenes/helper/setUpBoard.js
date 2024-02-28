@@ -32,14 +32,14 @@ export function setGameStateToGame(gameState, scene) {
 
   for (const player in scene.assignedPlayers) {
     if (scene.assignedPlayers[player] === scene.socket.id) {
-        scene.whichPlayerAmI = player
+      scene.whichPlayerAmI = player;
     }
-}
+  }
+  scene.playersGeneratedNames = gameState.playersGeneratedNames;
 
   scene.timePerTurn = gameState.timer;
   scene.restartTimer();
   scene.playLocally = gameState.playLocally;
-
 
   scene.player2IsBot =
     scene.assignedPlayers["player2"] === "bot" ? true : false;
