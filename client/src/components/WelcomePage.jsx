@@ -18,10 +18,10 @@ const WelcomePage = () => {
   ]);
 
   let socket;
-  if (process.env.NODE_ENV === 'development') {
-    socket = io.connect('http://localhost:3000')
+  if (process.env.NODE_ENV === "development") {
+    socket = io.connect("http://localhost:3000");
   } else {
-    socket = io.connect('https://ok-game.onrender.com/game');
+    socket = io.connect("https://ok-game.onrender.com/game");
   }
 
   useEffect(() => {
@@ -31,7 +31,7 @@ const WelcomePage = () => {
         setChatHistory([...chatHistory, data.chatMessage]);
       }
     });
-  }, [socket]);
+  });
 
   return (
     <div className="main-block">

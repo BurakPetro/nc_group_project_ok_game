@@ -81,6 +81,10 @@ function resetBoard(room_id) {
   allGameStates[room_id].tilesPlayed = [];
 }
 
+function saveGame(room_id) {
+  // TODO have a button in dev mode that allows you to save your game to the test data
+}
+
 function getGameState(room_id) {
   return allGameStates[room_id];
 }

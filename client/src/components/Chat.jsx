@@ -7,7 +7,7 @@ const Chat = ({ chatHistory, socket, setChatHistory }) => {
     chatMessage.date = moment();
     chatMessage.message = message;
     socket.emit("send_message", { chatMessage });
-    // setChatHistory([...chatHistory, data.chatMessage]);
+    setChatHistory([...chatHistory, chatMessage]);
   };
 
   return (

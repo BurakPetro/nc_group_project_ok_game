@@ -1,4 +1,4 @@
-import { resetBoard, setGameStateToGame } from "./helper/setUpBoard.js";
+import { setGameStateToGame } from "./helper/setUpBoard.js";
 import { moveSpriteByName } from "./helper/spriteUtils.js";
 import socketHandler from "./helper/socketHandler.js";
 
@@ -35,7 +35,10 @@ export default class ExampleScene extends Phaser.Scene {
     this.player4IsBot = false;
     this.assignedPlayers = {};
     this.timePerTurn = 0;
-    this.playLocally = true;
+    this.playLocally = true; // false will stop them from moving other tiles
+    this.playersNames = []; // store text of players
+    this.socket = socket;
+    this.whichPlayerAmI = ""; // store value of which player user is e.g. player1
     this.gameIsFinished = false;
   }
 
@@ -374,6 +377,19 @@ export default class ExampleScene extends Phaser.Scene {
     let positiveDiagonalCount = 0;
     let negativeDiagonalCount = 0;
     let currCheck = currGridArrIndex;
+
+    // variable to know if gap in same line or hit edge of board
+    const blockedInDirection = {
+      above: false,
+      below: false,
+      right: false,
+      left: false,
+      topRight: false,
+      bottomLeft: false,
+      topLeft: false,
+      bottomRight: false,
+    };
+
     for (let i = 0; i < 32; i++) {
       // if checked 4 to a given side, go back to middle
       if (
@@ -390,87 +406,118 @@ export default class ExampleScene extends Phaser.Scene {
       // check above
       if (i < 4) {
         if (
-          currCheck - 1 >= 0 &&
+          currCheck % this.size !== 0 &&
           //this.gridArray[(currCheck -= 1)].player === gameObject.texture.key
-          this.gridArray[(currCheck -= 1)].player === gameObject.textureKey
+          this.gridArray[(currCheck -= 1)].player === gameObject.textureKey &&
+          !blockedInDirection.above
         ) {
           verticalCount++;
+        } else {
+          blockedInDirection.above = true;
         }
       }
       // check below
       if (i >= 4 && i < 8) {
         if (
-          currCheck + 1 <= 288 &&
+          (1 + currCheck) % this.size !== 0 &&
           //this.gridArray[(currCheck += 1)].player === gameObject.texture.key
-          this.gridArray[(currCheck += 1)].player === gameObject.textureKey
+          this.gridArray[(currCheck += 1)].player === gameObject.textureKey &&
+          !blockedInDirection.below
         ) {
           verticalCount++;
+        } else {
+          blockedInDirection.below = true;
         }
       }
       // check to the right
       if (i >= 8 && i < 12) {
         if (
-          currCheck + 17 <= 288 &&
+          currCheck + this.size < this.size ** 2 &&
           //this.gridArray[(currCheck += 17)].player === gameObject.texture.key
-          this.gridArray[(currCheck += 17)].player === gameObject.textureKey
+          this.gridArray[(currCheck += this.size)].player ===
+            gameObject.textureKey &&
+          !blockedInDirection.right
         ) {
           horizontalCount++;
+        } else {
+          blockedInDirection.right = true;
         }
       }
       // check to the left
       if (i >= 12 && i < 16) {
         if (
-          currCheck - 17 >= 0 &&
+          currCheck - this.size >= 0 &&
           //this.gridArray[(currCheck -= 17)].player === gameObject.texture.key
-          this.gridArray[(currCheck -= 17)].player === gameObject.textureKey
+          this.gridArray[(currCheck -= this.size)].player ===
+            gameObject.textureKey &&
+          !blockedInDirection.left
         ) {
           horizontalCount++;
+        } else {
+          blockedInDirection.left = true;
         }
       }
       // check top right
       if (i >= 16 && i < 20) {
         if (
-          currCheck + 17 - 1 >= 0 &&
-          currCheck + 17 - 1 <= 288 &&
-          //this.gridArray[(currCheck += 17 - 1)].player ===
-          //gameObject.texture.key
-          this.gridArray[(currCheck += 17 - 1)].player === gameObject.textureKey
+          currCheck % this.size !== 0 &&
+          currCheck + this.size < this.size ** 2 &&
+          //this.gridArray[(currCheck += this.size - 1)].player ===
+          //gameObject.texture.key &&
+          //!blockedInDirection.topRight
+          this.gridArray[(currCheck += 17 - 1)].player ===
+            gameObject.textureKey &&
+          !blockedInDirection.topRight
         ) {
           positiveDiagonalCount++;
+        } else {
+          blockedInDirection.topRight = true;
         }
       }
       // check bottom left
       if (i >= 20 && i < 24) {
         if (
-          currCheck - 17 + 1 >= 0 &&
-          currCheck - 17 + 1 <= 288 &&
+          (1 + currCheck) % this.size !== 0 &&
+          currCheck - this.size >= 0 &&
           //this.gridArray[(currCheck = currCheck - 16)].player ===
           // gameObject.texture.key
-          this.gridArray[(currCheck = currCheck - 16)].player ===
-            gameObject.textureKey
+          this.gridArray[(currCheck -= this.size + 1)].player ===
+            gameObject.textureKey &&
+          !blockedInDirection.bottomLeft
         ) {
           positiveDiagonalCount++;
+        } else {
+          blockedInDirection.bottomLeft = true;
         }
       }
       // check top left
       if (i >= 24 && i < 28) {
         if (
-          currCheck - 18 >= 0 &&
-          currCheck - 18 <= 288 &&
+          currCheck % this.size !== 0 &&
+          currCheck - this.size >= 0 &&
           //this.gridArray[(currCheck -= 18)].player === gameObject.texture.key
-          this.gridArray[(currCheck -= 18)].player === gameObject.textureKey
+          this.gridArray[(currCheck -= this.size + 1)].player ===
+            gameObject.textureKey &&
+          !blockedInDirection.topLeft
         ) {
           negativeDiagonalCount++;
+        } else {
+          blockedInDirection.topLeft = true;
         }
       }
       // check bottom right
       if (i >= 28) {
         if (
-          currCheck + 18 <= 288 &&
+          (1 + currCheck) % this.size !== 0 &&
+          currCheck + this.size < this.size ** 2 &&
           //this.gridArray[(currCheck += 18)].player === gameObject.texture.key
-          this.gridArray[(currCheck += 18)].player === gameObject.textureKey
+          this.gridArray[(currCheck += this.size + 1)].player ===
+            gameObject.textureKey &&
+          !blockedInDirection.bottomRight
         ) {
           negativeDiagonalCount++;
+        } else {
+          blockedInDirection.bottomRight = true;
         }
       }
     }
@@ -521,11 +568,14 @@ export default class ExampleScene extends Phaser.Scene {
       { x: 32, y: 480, color: "#1e1e1e" },
     ].slice(0, gameState.players);
     playerData.forEach((player, playerIndex) => {
-      this.add
+      const playerText = this.add
         .text(player.x, player.y, `Player ${playerIndex + 1}`, {
           color: player.color,
         })
         .setFontSize(15);
+      playerText.playerNumber = `player${playerIndex + 1}`;
+
+      this.playersNames.push(playerText);
       for (let i = 0; i < 16; i++) {
         const x = player.x + Math.floor(i / 8) * 32;
         const y = 32 + player.y + (i % 8) * 32;
@@ -536,6 +586,7 @@ export default class ExampleScene extends Phaser.Scene {
         block.startingLocation = [x, y];
         block.description = "playersTile";
         block.depth = 1;
+        block.playerAssignment = `player${playerIndex + 1}`;
         this.playerBlocks.push(block);
       }
     });
