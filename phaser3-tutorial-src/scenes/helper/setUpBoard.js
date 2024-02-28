@@ -7,10 +7,8 @@
  * @param {Array of Objects} spriteList
  */
 export function resetBoard(spriteList) {
-  // console.log(spriteList);
   spriteList.forEach((sprite) => {
     if (sprite.startingLocation) {
-      // console.log(sprite.name);
       [sprite.x, sprite.y] = sprite.startingLocation;
     }
     if (sprite.description === "board") {
@@ -24,18 +22,15 @@ export function resetBoard(spriteList) {
 }
 
 export function setGameStateToGame(gameState, scene) {
-  console.log(gameState, "setGameStateToGame");
   scene.assignedPlayers = gameState.assignedPlayers;
   scene.timePerTurn = gameState.timer;
   scene.restartTimer();
   scene.playLocally = gameState.playLocally;
-
   scene.player2IsBot =
     scene.assignedPlayers["player2"] === "bot" ? true : false;
   scene.player3IsBot =
     scene.assignedPlayers["player3"] === "bot" ? true : false;
   scene.player4IsBot =
     scene.assignedPlayers["player4"] === "bot" ? true : false;
-
   scene.setTiles(gameState);
 }

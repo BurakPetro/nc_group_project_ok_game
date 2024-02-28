@@ -34,8 +34,9 @@ export default class ExampleScene extends Phaser.Scene {
     this.player3IsBot = false;
     this.player4IsBot = false;
     this.assignedPlayers = {};
-    this.timePerTurn = 60;
+    this.timePerTurn = 0;
     this.playLocally = true;
+    this.gameIsFinished = false;
   }
 
   preload() {
@@ -147,9 +148,10 @@ export default class ExampleScene extends Phaser.Scene {
             gridPosition.player = gameObject.texture.key;
             this.setTilesNotInteractive();
             gridPosition.played = true;
+            /*
             if (this.checkWinner(gridPosition, gameObject) === true) {
               this.printWinner();
-            }
+            }*/
           }
         });
         socket.emit("draggedObjectPosition", gameObject);
@@ -177,6 +179,7 @@ export default class ExampleScene extends Phaser.Scene {
               this.playerBlocks[this.playerBlocksIndex].texture.key;
             this.setTilesNotInteractive();
             gridPosition.played = true;
+            /*
             if (
               this.checkWinner(
                 gridPosition,
@@ -184,7 +187,7 @@ export default class ExampleScene extends Phaser.Scene {
               ) === true
             ) {
               this.printWinner();
-            }
+            }*/
           }
         });
         socket.emit(
@@ -401,7 +404,8 @@ export default class ExampleScene extends Phaser.Scene {
       if (i < 4) {
         if (
           currCheck - 1 >= 0 &&
-          this.gridArray[(currCheck -= 1)].player === gameObject.texture.key
+          //this.gridArray[(currCheck -= 1)].player === gameObject.texture.key
+          this.gridArray[(currCheck -= 1)].player === gameObject.textureKey
         ) {
           verticalCount++;
         }
@@ -410,7 +414,8 @@ export default class ExampleScene extends Phaser.Scene {
       if (i >= 4 && i < 8) {
         if (
           currCheck + 1 <= 288 &&
-          this.gridArray[(currCheck += 1)].player === gameObject.texture.key
+          //this.gridArray[(currCheck += 1)].player === gameObject.texture.key
+          this.gridArray[(currCheck += 1)].player === gameObject.textureKey
         ) {
           verticalCount++;
         }
@@ -419,7 +424,8 @@ export default class ExampleScene extends Phaser.Scene {
       if (i >= 8 && i < 12) {
         if (
           currCheck + 17 <= 288 &&
-          this.gridArray[(currCheck += 17)].player === gameObject.texture.key
+          //this.gridArray[(currCheck += 17)].player === gameObject.texture.key
+          this.gridArray[(currCheck += 17)].player === gameObject.textureKey
         ) {
           horizontalCount++;
         }
@@ -428,7 +434,8 @@ export default class ExampleScene extends Phaser.Scene {
       if (i >= 12 && i < 16) {
         if (
           currCheck - 17 >= 0 &&
-          this.gridArray[(currCheck -= 17)].player === gameObject.texture.key
+          //this.gridArray[(currCheck -= 17)].player === gameObject.texture.key
+          this.gridArray[(currCheck -= 17)].player === gameObject.textureKey
         ) {
           horizontalCount++;
         }
@@ -438,8 +445,9 @@ export default class ExampleScene extends Phaser.Scene {
         if (
           currCheck + 17 - 1 >= 0 &&
           currCheck + 17 - 1 <= 288 &&
-          this.gridArray[(currCheck += 17 - 1)].player ===
-            gameObject.texture.key
+          //this.gridArray[(currCheck += 17 - 1)].player ===
+          //gameObject.texture.key
+          this.gridArray[(currCheck += 17 - 1)].player === gameObject.textureKey
         ) {
           positiveDiagonalCount++;
         }
@@ -449,8 +457,10 @@ export default class ExampleScene extends Phaser.Scene {
         if (
           currCheck - 17 + 1 >= 0 &&
           currCheck - 17 + 1 <= 288 &&
+          //this.gridArray[(currCheck = currCheck - 16)].player ===
+          // gameObject.texture.key
           this.gridArray[(currCheck = currCheck - 16)].player ===
-            gameObject.texture.key
+            gameObject.textureKey
         ) {
           positiveDiagonalCount++;
         }
@@ -460,7 +470,8 @@ export default class ExampleScene extends Phaser.Scene {
         if (
           currCheck - 18 >= 0 &&
           currCheck - 18 <= 288 &&
-          this.gridArray[(currCheck -= 18)].player === gameObject.texture.key
+          //this.gridArray[(currCheck -= 18)].player === gameObject.texture.key
+          this.gridArray[(currCheck -= 18)].player === gameObject.textureKey
         ) {
           negativeDiagonalCount++;
         }
@@ -469,7 +480,8 @@ export default class ExampleScene extends Phaser.Scene {
       if (i >= 28) {
         if (
           currCheck + 18 <= 288 &&
-          this.gridArray[(currCheck += 18)].player === gameObject.texture.key
+          //this.gridArray[(currCheck += 18)].player === gameObject.texture.key
+          this.gridArray[(currCheck += 18)].player === gameObject.textureKey
         ) {
           negativeDiagonalCount++;
         }
@@ -553,31 +565,33 @@ export default class ExampleScene extends Phaser.Scene {
   }
 
   restartTimer = () => {
-    // TODO currently they can not turn timer off
-    this.totalTime = this.timePerTurn;
-    if (this.timerText) {
-      this.timerText.updateText("Timer: " + this.formatTime(this.totalTime));
-    } else {
-      this.timerText = this.add.text(
-        1184 / 4,
-        750,
-        "Timer: " + this.formatTime(this.totalTime),
-        {
-          font: "35px Arial",
-          fill: "#1e1e1e",
-        }
-      );
-      this.timerText.setOrigin(0.5);
+    if (this.timePerTurn > 0 && this.gameIsFinished === false) {
+      this.totalTime = this.timePerTurn;
+      if (this.timerText) {
+        this.timerText.updateText("Timer: " + this.formatTime(this.totalTime));
+      } else {
+        this.timerText = this.add.text(
+          1184 / 4,
+          750,
+          "Timer: " + this.formatTime(this.totalTime),
+          {
+            font: "35px Arial",
+            fill: "#1e1e1e",
+          }
+        );
+        this.timerText.setOrigin(0.5);
+      }
+      if (this.timerEvent) {
+        this.timerEvent.remove();
+      }
+      this.timerEvent = this.time.addEvent({
+        delay: 1000,
+        callback: this.onTimerTick,
+        callbackScope: this,
+        loop: true,
+        paused: false,
+      });
     }
-    if (this.timerEvent) {
-      this.timerEvent.remove();
-    }
-    this.timerEvent = this.time.addEvent({
-      delay: 1000,
-      callback: this.onTimerTick,
-      callbackScope: this,
-      loop: true,
-    });
   };
 
   formatTime = (seconds) => {
@@ -625,12 +639,12 @@ export default class ExampleScene extends Phaser.Scene {
         findSpriteUnmoved.y = whereToPlaceTile.y;
         findGridPosition.player = `player${this.setPlayer}`;
         findGridPosition.played = true;
-        if (this.checkWinner(findGridPosition, findSpriteUnmoved) === true) {
+        /*if (this.checkWinner(findGridPosition, findSpriteUnmoved) === true) {
           this.printWinner();
-        }
+        }*/
         socket.emit("draggedObjectPosition", findSpriteUnmoved);
       }
-    }, 3000);
+    }, 1000);
   }
 
   printWinner() {

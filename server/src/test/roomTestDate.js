@@ -3,7 +3,7 @@ const roomTestDate = {
     players: 2,
     tilesPlayed: [],
     assignedPlayers: { player1: null, player2: null },
-    timer: 30,
+    timer: 0,
     playLocally: true,
   },
   testRoom2: {
