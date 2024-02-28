@@ -19,7 +19,7 @@ const Header = () => {
             window.location.href = "/instructions";
           }}
         >
-          ?
+          Game rules
         </button>
       </div>
     </div>
