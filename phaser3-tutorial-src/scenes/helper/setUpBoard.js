@@ -34,11 +34,6 @@ export function setGameStateToGame(gameState, scene) {
   }
   scene.playersGeneratedNames = gameState.playersGeneratedNames;
 
-  scene.player1Name = gameState.playersNames.player1;
-  scene.player2Name = gameState.playersNames.player2;
-  scene.player3Name = gameState.playersNames.player3;
-  scene.player4Name = gameState.playersNames.player4;
-
   scene.timePerTurn = gameState.timer;
   scene.restartTimer();
   scene.playLocally = gameState.playLocally;

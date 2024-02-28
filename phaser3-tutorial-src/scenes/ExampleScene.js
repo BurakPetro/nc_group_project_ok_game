@@ -40,10 +40,6 @@ export default class ExampleScene extends Phaser.Scene {
     this.socket = socket;
     this.whichPlayerAmI = ""; // store value of which player user is e.g. player1
     this.gameIsFinished = false;
-    this.player1Name;
-    this.player2Name;
-    this.player3Name;
-    this.player4Name;
   }
 
   preload() {
@@ -74,7 +70,7 @@ export default class ExampleScene extends Phaser.Scene {
     this.turnSprite = this.createTurnSprite();
 
     const button = this.add
-      .sprite((3 * 1184) / 4, 750, `reset`)
+      .sprite((2 * 1184) / 3, 750, `reset`)
       .setInteractive();
     button.on("pointerdown", () => {
       socket.emit("resetBoardServer");
@@ -565,36 +561,13 @@ export default class ExampleScene extends Phaser.Scene {
       { x: 32, y: 480, color: "#1e1e1e" },
     ].slice(0, gameState.players);
     playerData.forEach((player, playerIndex) => {
-      if (playerIndex === 0) {
-        this.add
-          .text(player.x, player.y, this.player1Name, {
-            color: player.color,
-          })
-          .setFontSize(15);
-      }
-      if (playerIndex === 1) {
-        this.add
-          .text(player.x, player.y, this.player2Name, {
-            color: player.color,
-          })
-          .setFontSize(15);
-      }
-      if (playerIndex === 2) {
-        this.add
-          .text(player.x, player.y, this.player3Name, {
-            color: player.color,
-          })
-          .setFontSize(15);
-      }
-      if (playerIndex === 3) {
-        this.add
-          .text(player.x, player.y, this.player4Name, {
-            color: player.color,
-          })
-          .setFontSize(15);
-      }
-      //playerText.playerNumber = `player${playerIndex + 1}`;
-      //this.playersNames.push(playerText);
+      const playerText = this.add
+        .text(player.x, player.y, `Player ${playerIndex + 1}`, {
+          color: player.color,
+        })
+        .setFontSize(15);
+      playerText.playerNumber = `player${playerIndex + 1}`;
+      this.playersNames.push(playerText);
       for (let i = 0; i < 16; i++) {
         const x = player.x + Math.floor(i / 8) * 32;
         const y = 50 + player.y + (i % 8) * 32;
@@ -625,14 +598,14 @@ export default class ExampleScene extends Phaser.Scene {
     if (this.timePerTurn > 0 && this.gameIsFinished === false) {
       this.totalTime = this.timePerTurn;
       if (this.timerText) {
-        this.timerText.updateText("Timer: " + this.formatTime(this.totalTime));
+        this.timerText.updateText(this.formatTime(this.totalTime));
       } else {
         this.timerText = this.add.text(
-          1184 / 4,
+          1184 / 3,
           750,
-          "Timer: " + this.formatTime(this.totalTime),
+          this.formatTime(this.totalTime),
           {
-            font: "35px Arial",
+            font: "bold 35px Arial",
             fill: "#1e1e1e",
           }
         );
@@ -662,7 +635,7 @@ export default class ExampleScene extends Phaser.Scene {
 
   onTimerTick = () => {
     this.totalTime--;
-    this.timerText.setText("Timer: " + this.formatTime(this.totalTime));
+    this.timerText.setText(this.formatTime(this.totalTime));
     if (this.totalTime <= 0) {
       this.timerEvent.remove();
       this.botMove();
@@ -704,28 +677,28 @@ export default class ExampleScene extends Phaser.Scene {
   printWinner() {
     if (this.setPlayer === 1) {
       this.winnerText = this.add
-        .text(120, 20, `${this.player1Name} WINS!!!!`, {
+        .text(120, 20, `${this.playersGeneratedNames.player1} WINS!!!!`, {
           color: "#1e1e1e",
         })
         .setFontSize(100);
     }
     if (this.setPlayer === 2) {
       this.winnerText = this.add
-        .text(120, 20, `${this.player2Name} WINS!!!!`, {
+        .text(120, 20, `${this.playersGeneratedNames.player2} WINS!!!!`, {
           color: "#1e1e1e",
         })
         .setFontSize(100);
     }
     if (this.setPlayer === 3) {
       this.winnerText = this.add
-        .text(120, 20, `${this.player3Name} WINS!!!!`, {
+        .text(120, 20, `${this.playersGeneratedNames.player3} WINS!!!!`, {
           color: "#1e1e1e",
         })
         .setFontSize(100);
     }
     if (this.setPlayer === 4) {
       this.winnerText = this.add
-        .text(120, 20, `${this.player4Name} WINS!!!!`, {
+        .text(120, 20, `${this.playersGeneratedNames.player4} WINS!!!!`, {
           color: "#1e1e1e",
         })
         .setFontSize(100);
