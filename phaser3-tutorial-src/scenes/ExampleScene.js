@@ -148,10 +148,6 @@ export default class ExampleScene extends Phaser.Scene {
             gridPosition.player = gameObject.texture.key;
             this.setTilesNotInteractive();
             gridPosition.played = true;
-            /*
-            if (this.checkWinner(gridPosition, gameObject) === true) {
-              this.printWinner();
-            }*/
           }
         });
         socket.emit("draggedObjectPosition", gameObject);
@@ -179,15 +175,6 @@ export default class ExampleScene extends Phaser.Scene {
               this.playerBlocks[this.playerBlocksIndex].texture.key;
             this.setTilesNotInteractive();
             gridPosition.played = true;
-            /*
-            if (
-              this.checkWinner(
-                gridPosition,
-                this.playerBlocks[this.playerBlocksIndex]
-              ) === true
-            ) {
-              this.printWinner();
-            }*/
           }
         });
         socket.emit(
@@ -639,9 +626,6 @@ export default class ExampleScene extends Phaser.Scene {
         findSpriteUnmoved.y = whereToPlaceTile.y;
         findGridPosition.player = `player${this.setPlayer}`;
         findGridPosition.played = true;
-        /*if (this.checkWinner(findGridPosition, findSpriteUnmoved) === true) {
-          this.printWinner();
-        }*/
         socket.emit("draggedObjectPosition", findSpriteUnmoved);
       }
     }, 1000);
