@@ -32,6 +32,7 @@ export function setGameStateToGame(gameState, scene) {
       scene.whichPlayerAmI = player;
     }
   }
+  scene.playersGeneratedNames = gameState.playersGeneratedNames;
 
   scene.timePerTurn = gameState.timer;
   scene.restartTimer();
