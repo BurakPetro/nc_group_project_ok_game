@@ -64,7 +64,7 @@ const LinkToJoinGame = () => {
   function procesLinkToJoinGame() {
     // TO DO create function to take link and connect to game
     if (inputJoinLinkHolder[0] === "h" && inputJoinLinkHolder[1] === "t") {
-      window.location.replace(inputJoinLinkHolder);
+      window.location.assign(inputJoinLinkHolder);
     }
 
     setwaitingForGame(true);
