@@ -74,7 +74,7 @@ const LinkToJoinGame = () => {
     setwaitingForGame(false);
   }
   function startGame() {
-    window.location.replace(joinLink);
+    window.location.assign(joinLink);
   }
   return (
     <>
