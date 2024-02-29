@@ -21,7 +21,7 @@ const WelcomePage = () => {
   if (process.env.NODE_ENV === "development") {
     socket = io.connect("http://localhost:3000");
   } else {
-    socket = io.connect("https://ok-game.onrender.com/game");
+    socket = io.connect("https://ok-game.onrender.com");
   }
 
   useEffect(() => {
