@@ -67,7 +67,7 @@ const ProjectInfo = () => {
         </div>
         <div>
           <span>
-            This progect was done as part of{" "}
+            {" "}
             <a target="_blank" href="https://northcoders.com/">
               <img
                 src={NorthcodersLogo}
@@ -75,7 +75,7 @@ const ProjectInfo = () => {
                 className="northcoders-logo"
               />
             </a>
-            Coding Bootcamp.
+            This progect was done as part of Coding Bootcamp.
           </span>
         </div>
       </div>
