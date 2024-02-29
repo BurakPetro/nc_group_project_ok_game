@@ -44,6 +44,13 @@ one for server
 >> npm run server
 ```
 
+## SETTING UP GAME
+
+
+
+https://github.com/BurakPetro/nc_group_project_ok_game/assets/28204292/2fa54a54-4efc-4137-bc41-f5afaea27c7e
+
+
 
 
 ## TODO
