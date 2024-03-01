@@ -58,5 +58,13 @@ https://github.com/BurakPetro/nc_group_project_ok_game/assets/28204292/2fa54a54-
 
 
 ## CONTACT INFORMATION
+https://www.linkedin.com/in/rafaelsilvaramalho
+[Dean Welch - LinkedIn](https://www.linkedin.com/in/dean-welch/) 
 
-[Dean Welch - LinkedIn](https://www.linkedin.com/in/dean-welch/)
+[Petro Burak - LinkedIn](https://www.linkedin.com/in/petro-burak-1749a02a7/)
+
+[Ahmed Mohamed - LinkedIn](https://www.linkedin.com/in/ahmed-mohamed-566115221) 
+
+[Rafael Ramalho - LinkedIn](https://www.linkedin.com/in/rafaelsilvaramalho) 
+
+
