@@ -80,5 +80,7 @@ Login feature
 
 [Rafael Ramalho git hub](https://github.com/rsr83)
 
+[Mohsin Ahmed - LinkedIn](https://www.linkedin.com/in/mohsin-ahmed-/)
+
 [Mohsin Ahmed git hub](https://github.com/mohsinahmxd)
 
