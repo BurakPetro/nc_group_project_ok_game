@@ -55,8 +55,11 @@ https://github.com/BurakPetro/nc_group_project_ok_game/assets/28204292/2fa54a54-
 
 ## TODO
 Remake chat history
+
 Add more info to project info page
+
 Test game data   goin from inside react component to soket io
+
 Login feature
 
 ## CONTACT INFORMATION
