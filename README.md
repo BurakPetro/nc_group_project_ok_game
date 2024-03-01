@@ -54,17 +54,21 @@ https://github.com/BurakPetro/nc_group_project_ok_game/assets/28204292/2fa54a54-
 
 
 ## TODO
-
-
+Remake chat history
+Add more info to project info page
+Test game data   goin from inside react component to soket io
+Login feature
 
 ## CONTACT INFORMATION
-
+https://github.com/mohsinahmxd
 [Dean Welch - LinkedIn](https://www.linkedin.com/in/dean-welch/) 
-
+[Dean Welch git hub] (https://github.com/deankiwi)
 [Petro Burak - LinkedIn](https://www.linkedin.com/in/petro-burak-1749a02a7/)
-
+[Petro Burak git hub](https://github.com/BurakPetro)
 [Ahmed Mohamed - LinkedIn](https://www.linkedin.com/in/ahmed-mohamed-566115221) 
-
+[Ahmed Mohamed git hub](https://github.com/ahmedsatti101)
 [Rafael Ramalho - LinkedIn](https://www.linkedin.com/in/rafaelsilvaramalho) 
+[Rafael Ramalho git hub](https://github.com/rsr83)
 
+[Mohsin Ahmed git hub](https://github.com/mohsinahmxd)
 
