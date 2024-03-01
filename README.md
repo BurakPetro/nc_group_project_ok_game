@@ -62,6 +62,8 @@ Test game data   goin from inside react component to soket io
 
 Login feature
 
+Clean up reposetory file structure
+
 ## CONTACT INFORMATION
 
 [Dean Welch - LinkedIn](https://www.linkedin.com/in/dean-welch/) 
