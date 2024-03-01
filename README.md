@@ -60,9 +60,9 @@ Test game data   goin from inside react component to soket io
 Login feature
 
 ## CONTACT INFORMATION
-https://github.com/mohsinahmxd
+
 [Dean Welch - LinkedIn](https://www.linkedin.com/in/dean-welch/) 
-[Dean Welch git hub] (https://github.com/deankiwi)
+[Dean Welch git hub](https://github.com/deankiwi)
 [Petro Burak - LinkedIn](https://www.linkedin.com/in/petro-burak-1749a02a7/)
 [Petro Burak git hub](https://github.com/BurakPetro)
 [Ahmed Mohamed - LinkedIn](https://www.linkedin.com/in/ahmed-mohamed-566115221) 
